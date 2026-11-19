@@ -1,0 +1,5 @@
+*.go
+*.log
+*.pdf
+/build/
+.DS_Store
