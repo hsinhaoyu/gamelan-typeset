@@ -11,7 +11,7 @@ scripts/            command-line entry points (gamelan-render, gamelan-analyse)
 examples/           real pieces (.gml), used as test fixtures
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected outputs (JSON, analysis reports)
-prototype/          hand-made mockup (score.typ, piece.json)
+doc/prototypes/     hand-made mockup (score.typ, piece.json)
 doc/design/         these documents
 CLAUDE.md
 Makefile

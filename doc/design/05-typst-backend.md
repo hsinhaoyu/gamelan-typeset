@@ -62,7 +62,7 @@ and output order is deterministic, which golden tests need.
 
 ## Typst template design
 
-Lessons from the prototype (`prototype/score.typ`):
+Lessons from the prototype (`doc/prototypes/score.typ`):
 
 1. **Two layers.** A background grid draws beat shading and beat lines;
    a transparent foreground grid draws labels, header and notes, placed on

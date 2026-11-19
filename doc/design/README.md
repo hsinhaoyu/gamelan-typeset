@@ -60,7 +60,7 @@ piece.gml ──reader──▶ model ──layout──▶ figure.json ──Ty
 
 ## Prototype
 
-`prototype/score.typ` and `prototype/piece.json` are a hand-made mockup of
+`../prototypes/score.typ` and `../prototypes/piece.json` are a hand-made mockup of
 the target output, transcribed from a textbook excerpt (reyong kotekan, ugal,
 calung, kempli, gong, kendang). The Typst backend should produce visually
 equivalent output for the same music.
