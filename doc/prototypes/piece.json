@@ -1,0 +1,78 @@
+{
+  "steps": 12,
+  "steps_per_beat": 4,
+  "groups": [
+    { "label": "Reyong", "sub": "polos + sangsih",
+      "lanes": ["sol", "fa", "mi", "do"],
+      "voices": [
+        { "name": "sangsih", "color": "#e76f51",
+          "events": [
+            {"start": 0, "dur": 1, "lane": "sol", "text": "ne'"},
+            {"start": 1, "dur": 1, "lane": "fa",  "text": "no'"},
+            {"start": 2, "dur": 2, "lane": "sol", "text": "neng"},
+            {"start": 4, "dur": 1, "lane": "fa",  "text": "no'"},
+            {"start": 5, "dur": 2, "lane": "sol", "text": "neng"},
+            {"start": 7, "dur": 2, "lane": "fa",  "text": "nong"},
+            {"start": 9, "dur": 1, "lane": "sol", "text": "ne'"},
+            {"start": 10, "dur": 2, "lane": "fa", "text": "nong"} ] },
+        { "name": "polos", "color": "#2a9d8f",
+          "events": [
+            {"start": 0, "dur": 2, "lane": "do", "text": "nang"},
+            {"start": 2, "dur": 1, "lane": "do", "text": "na'"},
+            {"start": 3, "dur": 2, "lane": "mi", "text": "ning"},
+            {"start": 5, "dur": 1, "lane": "do", "text": "na'"},
+            {"start": 6, "dur": 2, "lane": "mi", "text": "ning"},
+            {"start": 8, "dur": 1, "lane": "mi", "text": "ni'"},
+            {"start": 9, "dur": 2, "lane": "do", "text": "nang"},
+            {"start": 11, "dur": 1, "lane": "mi", "text": "ni'"} ] } ] },
+
+    { "label": "Ugal", "sub": "main melody",
+      "lanes": ["fa", "mi", "do"],
+      "voices": [
+        { "name": "ugal", "color": "#264653",
+          "events": [
+            {"start": 0, "dur": 4, "lane": "do", "text": "nang"},
+            {"start": 4, "dur": 4, "lane": "fa", "text": "nong"},
+            {"start": 8, "dur": 4, "lane": "mi", "text": "ning"} ] } ] },
+
+    { "label": "Calung", "sub": "core melody",
+      "lanes": ["mi", "do"],
+      "voices": [
+        { "name": "calung", "color": "#577590",
+          "events": [
+            {"start": 0, "dur": 8, "lane": "do", "text": "nang"},
+            {"start": 8, "dur": 4, "lane": "mi", "text": "ning"} ] } ] },
+
+    { "label": "Kempli · Gong", "sub": "",
+      "lanes": ["K", "G"],
+      "voices": [
+        { "name": "kempli", "color": "#b08968",
+          "events": [
+            {"start": 0, "dur": 1, "lane": "K", "text": "K"},
+            {"start": 4, "dur": 1, "lane": "K", "text": "K"},
+            {"start": 8, "dur": 1, "lane": "K", "text": "K"} ] },
+        { "name": "gong", "color": "#9d0208",
+          "events": [
+            {"start": 0, "dur": 1, "lane": "G", "text": "G"} ] } ] },
+
+    { "label": "Kendang", "sub": "lanang · wadon",
+      "lanes": ["lanang", "wadon"],
+      "voices": [
+        { "name": "lanang", "color": "#6d597a",
+          "events": [
+            {"start": 1, "dur": 1, "lane": "lanang", "text": "dug"},
+            {"start": 3, "dur": 1, "lane": "lanang", "text": "du'"},
+            {"start": 4, "dur": 1, "lane": "lanang", "text": "dug"},
+            {"start": 6, "dur": 1, "lane": "lanang", "text": "dug"},
+            {"start": 8, "dur": 1, "lane": "lanang", "text": "dug"},
+            {"start": 10, "dur": 1, "lane": "lanang", "text": "dug"} ] },
+        { "name": "wadon", "color": "#b56576",
+          "events": [
+            {"start": 0, "dur": 1, "lane": "wadon", "text": "dag"},
+            {"start": 2, "dur": 1, "lane": "wadon", "text": "dag"},
+            {"start": 5, "dur": 1, "lane": "wadon", "text": "dag"},
+            {"start": 7, "dur": 1, "lane": "wadon", "text": "dag"},
+            {"start": 9, "dur": 1, "lane": "wadon", "text": "dag"},
+            {"start": 11, "dur": 1, "lane": "wadon", "text": "dag"} ] } ] }
+  ]
+}
