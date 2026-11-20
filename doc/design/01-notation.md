@@ -1,6 +1,6 @@
 # 01 — Notation language
 
-Status: draft v1
+Status: planned, not implemented yet (draft v1)
 
 ## Goals
 

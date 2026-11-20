@@ -1,6 +1,6 @@
 # 07 — Testing and workflow
 
-Status: draft v1
+Status: planned, not implemented yet (draft v1)
 
 ## Repository layout
 
@@ -12,7 +12,8 @@ examples/           real pieces (.gml), used as test fixtures
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected outputs (JSON, analysis reports)
 doc/prototypes/     hand-made mockup (score.typ, piece.json)
-doc/design/         these documents
+doc/design/         these documents (current design)
+doc/decisions/      decision log (ADRs)
 CLAUDE.md
 Makefile
 ```
@@ -38,7 +39,9 @@ Makefile
 - Branches: `feat/…`, `fix/…`, `chore/…`, `doc/…`.
 - Every PR: CI green, Claude review comments resolved.
 - A design change goes into `doc/design/` in the same PR as the code
-  change.
+  change. Reversing a documented decision also adds an ADR in
+  `doc/decisions/`.
+- The PR template has a checkbox for this.
 
 ## Milestones
 
@@ -57,5 +60,8 @@ Makefile
 - Use plan mode for each milestone; the relevant design doc is the spec.
 - Hook: after edits to `.scm` files, run `guild compile -L . FILE` to
   catch unbalanced parentheses and unbound variables immediately.
+- `/doc-audit` compares the design documents with the code and lists
+  drift; run it at each milestone.
+- `/cleanup-branches` deletes branches whose PRs have been merged.
 - Ask a subagent to write tests from the design doc before the
   implementation exists, so tests are not shaped by the code.

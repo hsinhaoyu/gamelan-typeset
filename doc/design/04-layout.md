@@ -1,6 +1,6 @@
 # 04 — Layout
 
-Status: draft v1. Module: `(gamelan layout)`
+Status: planned, not implemented yet (draft v1). Module: `(gamelan layout)`
 
 ## Responsibility
 
