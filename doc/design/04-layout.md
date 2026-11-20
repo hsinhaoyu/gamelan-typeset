@@ -219,7 +219,21 @@ in four slices, each its own branch and PR into `dev`, started with
 3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
    groups and lanes, events with their look, sizes.
 4. `feat/layout-golden`: writing the figure as JSON (05's contract),
-   `make golden`, and golden tests for every file in `examples/`.
+   `make golden`, and golden tests for every file in `examples/`:
+   - `write-figure` in `(notasi typst)` (05, "Writing the figure file").
+   - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.gml`
+     has its figure, laid out with the default style, saved in
+     `tests/golden/NAME.json`, exactly as `write-figure` writes it.
+     `make check` runs the file, which compares each example's figure
+     with its saved copy as text and fails on any difference, on an
+     example with no saved copy, and on a saved copy with no example.
+   - `make golden` runs the same file with `--update`: it rewrites
+     every saved copy with `write-figure` and deletes saved copies
+     with no example. Review the diff in the PR.
+   - A second example, `examples/kotekan.gml`: the textbook excerpt
+     from 01-notation.md (reyong polos and sangsih in one group with a
+     subtitle, and gong), with `steps-per-system 8`, so a held sangsih
+     note is cut across two systems.
 
 ## Not layout's job
 

@@ -61,6 +61,22 @@ Rules:
 - Any change to this format increments `version` and updates the
   template and the golden tests in the same PR.
 
+## Writing the figure file
+
+**Planned** (layout slice 4, `feat/layout-golden`), in `(notasi typst)`,
+tests in `tests/typst.scm`:
+
+```
+(write-figure figure path)
+```
+
+writes FIGURE (from `layout-piece`) to the file PATH as pretty JSON
+(`write-json`), in UTF-8, ending with a newline, replacing any file
+already there. The JSON is built before the file is opened, so a figure
+that can't be written raises the writer's `&error` and leaves no file
+behind (an existing file at PATH is left as it was). The rest of
+`(notasi typst)` (the entry file, running Typst) is milestone 4.
+
 ## JSON writing
 
 **Implemented** (layout slice 1, `feat/json`). A small JSON writer in
