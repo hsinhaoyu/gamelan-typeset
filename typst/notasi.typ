@@ -11,9 +11,9 @@
 // A length from the figure, e.g. "10.5em".
 #let _len(s) = float(s.trim("em", at: end)) * 1em
 
-// The content of one note's cell: a square block in the note's colour,
-// with its name when the figure gives one (ADR 0019). A note with no
-// colour is just its name.
+// The content of one note's cell: a block filling the cell in the
+// note's colour, with its name when the figure gives one (ADR 0019,
+// 0020). A note with no colour is just its name.
 #let _note(e) = {
   let name = if e.text != none and not e.continued {
     align(center + horizon,
@@ -22,21 +22,16 @@
   if e.fill == none {
     name
   } else {
-    block(width: 100%, height: 100%, fill: rgb(e.fill), name)
+    // A thin white border keeps neighbouring notes apart, so repeated
+    // strokes don't merge into what looks like one held note.
+    block(width: 100%, height: 100%, fill: rgb(e.fill),
+      stroke: 0.5pt + white, name)
   }
 }
 
-// A note cut across systems has no inset on its left, so it starts
-// flush with the system's edge, carrying on from before.
-#let _inset(e) = if e.continued {
-  (left: 0pt, rest: 1.5pt)
-} else {
-  1.5pt
-}
-
-// One system as a grid: a background layer for pulse shading and pulse
-// lines, and a transparent foreground layer for labels, header and
-// notes, drawn on top. A single grid can't do both: a note spanning
+// One system as a grid: a background layer for the pulse lines, and a
+// transparent foreground layer for labels, header and notes, drawn on
+// top. A single grid can't do both: a note spanning
 // several columns would cover the lines under it.
 #let _system(data, sys) = {
   let spp = data.steps_per_pulse
@@ -66,7 +61,7 @@
       for v in g.voices {
         for e in v.events {
           cells.push(grid.cell(x: first + e.start, y: row + e.lane,
-            colspan: e.dur, inset: _inset(e), _note(e)))
+            colspan: e.dur, inset: 0pt, _note(e)))
         }
       }
     }
@@ -79,8 +74,6 @@
   let rows = (_len(sizes.row_height),) * row
 
   let background = grid(columns: cols, rows: rows,
-    fill: (x, y) => if x >= first and y > 0
-      and calc.rem(pulse(x - first), 2) == 0 { luma(243) },
     stroke: (x, y) => if x >= first and pulse-start(x - first) {
       (left: 0.5pt + luma(170))
     },

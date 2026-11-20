@@ -65,6 +65,7 @@ Each decision's context and consequences are in its record in
 10. Notes are coloured by pitch: [0017](../decisions/0017-notes-are-coloured-by-pitch.md)
 11. One `notasi` command with subcommands: [0018](../decisions/0018-one-notasi-command.md)
 12. Notes are square blocks; note names are optional: [0019](../decisions/0019-square-notes-optional-names.md)
+13. A plain white grid; notes fill their cells: [0020](../decisions/0020-plain-grid-notes-fill-cells.md)
 
 Proposed, not yet agreed:
 

@@ -137,10 +137,11 @@ Compact output (`#:pretty? #f`) has no spaces or newlines at all:
 
 Lessons from the prototype (`doc/prototypes/score.typ`):
 
-1. **Two layers.** A background grid draws pulse shading and pulse lines;
-   a transparent foreground grid draws labels, header and notes, placed on
-   top with `place`. A single grid does not work: a note spanning several
-   columns (`colspan`) covers the pulse lines and shading underneath it.
+1. **Two layers.** A background grid draws the pulse lines; a
+   transparent foreground grid draws labels, header and notes, placed on
+   top with `place`. A single grid does not work: a note spanning
+   several columns (`colspan`) would hide the lines it crosses even
+   where it doesn't sound.
 2. **Fixed column widths.** Both layers must align exactly, so the label
    column cannot be `auto`. Its width comes from the JSON `sizes`.
 3. **Positioned cells.** Notes use `grid.cell(x:, y:, colspan:)`; empty
@@ -174,21 +175,23 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
   is a multiple of `steps_per_pulse`, the pulse number
   ((`start` + i) / `steps_per_pulse` + 1) in bold; at other steps a
   grey `·`. A system that doesn't start on a pulse starts with `·`.
-- **Pulse shading and lines** (background layer) follow the same
-  absolute steps: a step is shaded (`luma(243)`) when its pulse number
-  is odd (pulses 1, 3, 5, …); a thin vertical line (`0.5pt`,
-  `luma(170)`) runs down the left of every step that starts a pulse.
+- **Background:** always white, with no shading (ADR 0020). Pulse
+  lines (background layer) follow the same absolute steps: a thin
+  vertical line (`0.5pt`, `luma(170)`) runs down the left of every step
+  that starts a pulse.
 - **Groups:** a horizontal rule (`0.8pt`, `luma(120)`) above each group
   and below the last. The group label in bold, slightly larger
   (`1.1em`), with its subtitle under it in grey italics when not
   `null`, spanning the group's rows. Lane labels right-aligned, small
   (`0.85em`) and grey (`luma(140)`).
-- **Notes** (ADR 0019): a square block filling its cells (inset
-  `1.5pt`), in `fill`, with the `text`, when not `null`, centred in
-  bold in `text_color`. When `continued` is true the block has no inset
-  on its left, so it starts flush with the system's left edge, and no
-  text: it is the same note carrying on. When `fill` is `null`, no
-  block: just the text, centred and bold, in `text_color`.
+- **Notes** (ADRs 0019, 0020): a block filling its cells exactly, with
+  no margin, in `fill`, with a thin white border (`0.5pt`) so that
+  neighbouring notes stay apart (repeated strokes don't merge into what
+  looks like one held note). The `text`, when not `null`, is centred in
+  bold in `text_color`. When `continued` is true the block has no text:
+  it is the same note carrying on from the previous system. When `fill`
+  is `null`, no block: just the text, centred and bold, in
+  `text_color`.
 - Sizes relative to the text (`em`, `luma` greys), never absolute font
   sizes or fonts: the surrounding document or entry file sets those.
 
