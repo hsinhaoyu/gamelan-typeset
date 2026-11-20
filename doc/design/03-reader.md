@@ -1,6 +1,6 @@
 # 03 — Reader and validation
 
-Status: partly implemented: slices 1–2 of 4 (see "Slices"). Module:
+Status: partly implemented: slices 1–3 of 4 (see "Slices"). Module:
 `(notasi reader)`, tests in `tests/reader.scm`.
 
 ## Responsibility
@@ -30,9 +30,8 @@ Finding templates:
 
 ## Steps
 
-Steps 1, 2 and 4, the `piece` form, and the scale and instrument parts
-of steps 5 and 6 are **Implemented**. Step 3, the part and group parts of
-steps 5 and 6, and steps 7 to 9 are **Planned** (slices 3 and 4).
+Every step except 3 is **Implemented**, for definitions in a single
+file. Step 3 (templates) is **Planned** (slice 4).
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
@@ -80,7 +79,7 @@ steps 5 and 6, and steps 7 to 9 are **Planned** (slices 3 and 4).
 
 ## Error reporting
 
-**Implemented** for the error cases of slices 1 and 2.
+**Implemented** for the error cases of slices 1 to 3.
 
 Errors must say where and what, in musician terms:
 
@@ -123,10 +122,11 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   5. A `use` form (until slice 4): `not-implemented`. It comes before
      the definitions, so a file that uses a template isn't reported as
      having undefined scales.
-  6. The shape of each `scale`, `strokes` and `instrument` form, in file
-     order (`bad-form`).
+  6. The shape of each `scale`, `strokes`, `instrument`, `part` and
+     `group` form, in file order (`bad-form`).
   7. Duplicate definitions, in file order: the second definition of a
-     name is the error (`duplicate-definition`).
+     name is the error (`duplicate-definition`). Scales and stroke sets
+     share one set of names; instruments and parts each have their own.
   8. Each scale and stroke set, in file order, and within it each degree
      or stroke in order: its shape and options (`bad-degree`), then a
      name or alias ending in a digit (`degree-ends-in-digit`, scales
@@ -136,9 +136,18 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
      (`undefined-scale`), then each note in order: whether it exists
      (`unknown-note`), then against the notes before it
      (`notes-not-ascending`, `duplicate-note`).
-  10. The other forms (`part`, `group`, `text`), in later steps. Until a
-     slice implements a form, it raises `not-implemented` at that form's
-     line.
+  10. Each part, in file order: its instrument (`undefined-instrument`),
+     then its tokens left to right, each with its own error
+     (`unknown-token`, `hold-without-note`, `note-out-of-range`,
+     `unknown-note`, `bad-chord`).
+  11. Equal length: the first part, in file order, whose step count
+     differs from the first part's (`unequal-length`).
+  12. Each group, in file order: its options (`bad-option`,
+     `unknown-option`, `duplicate-option`), then each part name in order
+     (`undefined-part`, `part-in-two-groups`), then its instruments
+     (`mixed-pitched-group`).
+  13. The other forms (`text`, v2), in later steps. Until a slice
+     implements a form, it raises `not-implemented` at that form's line.
 - Which line an error reports:
   - The line of the list to blame: the form, or for an option error the
     option itself, since an option is a list with its own line.
@@ -153,8 +162,8 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 The number in brackets is the slice (below) that implements the case.
 
-Each case is followed by its `kind` symbol. Kinds for slices 3 and 4 are
-chosen when those slices start.
+Each case is followed by its `kind` symbol. Kinds for slice 4 are
+chosen when that slice starts.
 
 - [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
   `duplicate-piece` (line of the second `piece` form)
@@ -179,12 +188,21 @@ chosen when those slices start.
   instrument with no notes, or an instrument whose scale or notes are
   not names (a string, a number): `bad-form` (the form's line). Later slices
   use the same kind for malformed `part` and `group` forms.
-- [3] Undefined instrument or part name
+- [3] A part naming an instrument that isn't defined:
+  `undefined-instrument` (part's line, part field set). A group naming a
+  part that isn't defined: `undefined-part` (group's line, part field is
+  the undefined name).
+- [3] A `part` form with no name, a name or instrument that is not a
+  symbol, or no tokens; a `group` form whose label is not a string, with
+  no part names, a part name that is not a symbol, or a part name after
+  an option: `bad-form` (the form's line)
 - [2] Duplicate scale, stroke set or instrument definitions within one
   file: `duplicate-definition` (line of the second). Scales and stroke
   sets share one set of names; instruments have their own, so an
   instrument may share a name with a scale or stroke set.
-- [3] Duplicate part definitions within one file
+- [3] Duplicate part definitions within one file: `duplicate-definition`
+  (line of the second). Parts have their own names, so
+  `(part ugal ugal ...)` is fine.
 - [4] The same name from two templates used by one file
 - [4] Template not found; a cycle of `use`s; a `use` argument that is not a
   name or a string
@@ -214,15 +232,40 @@ For a degree error, the line is the degree's own line when it is written
 as a list (even if the option at fault is on a later line), otherwise
 the line of its scale or stroke set.
 
-- [3] Note index out of range; unknown note name
-- [3] `_` at the start of a part or after a rest (`-` or `·`)
-- [3] Unknown token (e.g. a string or `#t` inside a part)
+- [3] Token errors. All are at the part's line, with the part field set
+  to the part's name and the step field to the token's 0-based step (`/`
+  takes no step):
+  - an exact integer outside 1 to the number of notes on the
+    instrument: `note-out-of-range`
+  - a note name that isn't on the instrument (resolved as in step 6):
+    `unknown-note`
+  - `_` at the start of a part or after a rest (`-` or `·`):
+    `hold-without-note`
+  - a chord with fewer than two notes, the same note twice, or a member
+    that is not a number or note name (`_`, `-`, `·`, `/`, a list, a
+    string, `#t`, `1.5`): `bad-chord`. The chord's shape is checked
+    before its members, so `(9)` is `bad-chord`. A member out of range or not on the
+    instrument gives `note-out-of-range` or `unknown-note`, as above.
+  - anything else, e.g. a string, `#t` or `1.5`: `unknown-token`. (A
+    list inside a chord is a bad chord member, above.)
 - [1] A lone `.` in a part (an improper list): `improper-form`; Guile
   read errors such as unbalanced parentheses or `. .`: `read-error`,
   with file and the line where Guile stopped
-- [3] Parts of unequal length
-- [3] A part in more than one group
-- [3] A group with parts on two different pitched instruments
+- [3] Parts of unequal length: `unequal-length`, on the first part
+  whose step count differs from the first part's (its line, part field
+  set, step `#f`)
+- [3] A part in more than one group, or listed twice in one group:
+  `part-in-two-groups` (line of the group that names it again, part
+  field set)
+- [3] A group with parts on two different pitched instruments:
+  `mixed-pitched-group` (group's line, part field set to the first part
+  on a second pitched instrument). A group may mix stroke instruments,
+  and a pitched instrument with stroke instruments (open question in
+  02-piece.md).
+- [3] Group options: only `(subtitle STRING)`, after the part names.
+  The same kinds as piece options: `bad-option` (wrong shape, or a
+  subtitle that is not a string), `unknown-option`, `duplicate-option`,
+  at the option's line.
 
 ## Slices
 
@@ -231,7 +274,7 @@ into `dev`, started with `/start-milestone <branch>`. After each one,
 `make check` passes and the reader handles a larger subset of the
 notation. Each slice covers the steps below and the error cases tagged
 with its number.
-Slices 1 and 2 are implemented; slices 3 and 4 are **Planned**.
+Slices 1 to 3 are implemented; slice 4 is **Planned**.
 
 1. **Implemented.** `feat/reader-forms`: the public interface; the condition type (decide
    its name, fields and accessors and record them under "Error
@@ -248,8 +291,22 @@ Slices 1 and 2 are implemented; slices 3 and 4 are **Planned**.
    whose scales (scales and stroke sets together) and instruments are in
    file order, with length 0 and no parts or groups. `use`, `part`,
    `group` and `text` still raise `not-implemented`.
-3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
-   A piece with everything defined in one file reads correctly.
+3. **Implemented.** `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
+   A piece with everything defined in one file reads correctly. What
+   the piece holds:
+   - `length`: the parts' step count (all equal), or 0 with no parts.
+     A part of only `/` tokens is allowed and has 0 steps.
+   - parts in file order. An event's notes are 0-based indices; a
+     chord's are sorted ascending.
+   - groups in the order of their first part in the file, whether
+     written or default. With parts `ugal`, `polos`, `sangsih`, `gong`
+     and `(group "Reyong" polos sangsih)`, the order is ugal, Reyong,
+     gong. A group's parts are in the order the `group` form lists them.
+   - a default group per part in no `group`: label the part's name as a
+     string, subtitle `#f`, location `#f`.
+   - invariants 1 to 3 hold by construction (events come from the
+     tokens); 4 and 6 are checked as above.
+   Only `text` still raises `not-implemented` (besides `use`, slice 4).
 4. `feat/reader-templates`: step 3 and the template-finding rules under
    "Public interface". `examples/tenzer1.gml` reads end to end.
 

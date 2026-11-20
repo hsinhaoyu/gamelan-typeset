@@ -1,0 +1,1 @@
+note-out-of-range.gml:4: part `melody', step 3: note 6 does not exist on instrument `ugal' (it has 5 notes)

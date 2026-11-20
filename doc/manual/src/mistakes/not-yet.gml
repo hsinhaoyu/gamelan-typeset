@@ -1,2 +1,2 @@
 (piece "Gilak")
-(part ugal ugal 1 2 3 4)
+(text "Play the second half twice.")

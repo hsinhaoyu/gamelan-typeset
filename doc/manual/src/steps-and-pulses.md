@@ -1,8 +1,8 @@
 # Steps and pulses
 
 notasi counts time in **steps**. A step is the shortest moment in the
-piece. Each note or rest will take one step, and a longer note holds
-over several steps.
+piece. Each note or rest takes one step, and a longer note holds over
+several steps (see [Notes, rests and holds](notes-rests-and-holds.md)).
 
 A **pulse** is one stroke of the kempli (or kajar): the steady beat
 that everyone feels. You tell notasi how many steps fit in one pulse,
