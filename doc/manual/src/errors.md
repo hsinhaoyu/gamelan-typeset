@@ -295,6 +295,8 @@ Put the `part` in the piece.
 - **… is listed twice**: a drum or gong lists the same stroke twice.
 - **no instrument called …** / **no part with this name**: check the
   spelling of the instrument in a `part`, or of a part in a `group`.
+- **notasi needs Typst 0.15.1 to draw figures**: install Typst (see
+  [Drawing a score](drawing.md#what-you-need)).
 - **template … uses itself, through a cycle of uses**: two templates
   load each other. Remove one of the `use` lines.
 - **a chord needs two or more notes …** / **a chord has the same note

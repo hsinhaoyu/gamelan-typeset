@@ -4,6 +4,8 @@
 ;;; - Every example is included by at least one page.
 ;;; - Every mistake in doc/manual/src/mistakes/ (NAME.gml) fails to read,
 ;;;   with exactly the message in NAME.txt, and a page includes both.
+;;; - Every figure a page shows (figures/NAME.svg, drawn by `make manual')
+;;;   has an example, examples/NAME.gml, to draw it from.
 ;;; - Files in a templates/ folder under examples/ or mistakes/ are
 ;;;   templates, not pieces: they are read through the pieces that use
 ;;;   them, and each must be included by a page.
@@ -82,7 +84,14 @@ the file reads without a notasi error."
   (filter template-file? (append (files-under examples-dir ".gml")
                                  (files-under mistakes-dir ".gml"))))
 (define pages (files-under src ".md"))
-(define included (append-map includes pages))
+(define (figures page)
+  "The examples/NAME.gml files PAGE's figures/NAME.svg images need."
+  (map (lambda (m)
+         (string-append examples-dir "/" (match:substring m 1) ".gml"))
+       (list-matches "figures/([a-z0-9-]+)\\.svg" (slurp page))))
+
+;; A page uses a file by {{#include}}, or an example as a drawn figure.
+(define included (append (append-map includes pages) (append-map figures pages)))
 
 (test-begin "manual")
 
@@ -118,6 +127,15 @@ the file reads without a notasi error."
    (test-assert (string-append "example is used by a page: " f)
      (member f included)))
  (append examples templates))
+
+(for-each
+ (lambda (page)
+   (for-each
+    (lambda (f)
+      (test-assert (string-append page " shows a figure drawn from " f)
+        (file-exists? f)))
+    (figures page)))
+ pages)
 
 (define runner (test-runner-current))
 (test-end "manual")

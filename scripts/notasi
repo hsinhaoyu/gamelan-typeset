@@ -1,0 +1,14 @@
+#!/usr/bin/env -S guile --no-auto-compile -e main -s
+!#
+;;; notasi -- draw gamelan notation.  See doc/manual and
+;;; doc/design/05-typst-backend.md ("The `notasi' command").
+;;;
+;;; Puts the project (the folder above this script) on Guile's load
+;;; path, by its absolute path so it works from any folder, then runs
+;;; the command.
+
+(define (main args)
+  (let ((root (dirname (dirname (canonicalize-path (car args))))))
+    (set! %load-path (cons root %load-path))
+    (exit ((module-ref (resolve-interface '(notasi command)) 'run-notasi)
+           (cdr args)))))

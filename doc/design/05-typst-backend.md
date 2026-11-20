@@ -1,9 +1,9 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-and `(notasi typst)` (figure files, the entry file, running Typst,
-`render-piece`) are implemented, and the template `typst/notasi.typ`:
-slices 1–2 of 3. The `notasi render` command is planned (see "Slices"). Modules: `(notasi json)`,
+`(notasi typst)` (figure files, the entry file, running Typst,
+`render-piece`), the template `typst/notasi.typ` and the `notasi
+render` command are implemented: all three slices (see "Slices"). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -266,9 +266,61 @@ None of these procedures changes the current directory. A relative
 current directory stays put, so the `notasi` command (slice 3) puts the
 project's absolute path on `%load-path`, never `.`.
 
-The command-line script `scripts/notasi` (ADR 0018), as `notasi
-render`, calls `render-piece` (slice 3). Its other subcommands
-(`typst`, `update`, `watch`) are for documents (06).
+## The `notasi` command
+
+**Implemented** (slice 3, `feat/notasi-command`). One command (ADR 0018);
+this slice adds its `render` subcommand. The others (`typst`, `update`,
+`watch`) are for documents (06).
+
+```
+notasi render PIECE.gml [-o OUT]
+notasi --help
+notasi render --help
+```
+
+- `render` draws PIECE.gml with `render-piece` and the default style.
+  OUT defaults to PIECE.gml's folder and name with `.pdf`
+  (`songs/gilak.gml` → `songs/gilak.pdf`); its extension (`.pdf`,
+  `.png`, `.svg`) chooses the format. `-o OUT` and `--output OUT` are
+  the same, and may come before or after PIECE.gml.
+- On success it prints the path it wrote, on one line, to standard
+  output, and exits with status 0.
+- A notation mistake prints the reader's message exactly as it is
+  (`gilak.gml:3: …`, the text the manual quotes) to standard error;
+  any other problem (Typst missing or failing, a file that can't be
+  read, an unsupported output extension) prints `notasi: ` and the
+  error's message. Both exit with status 1. A file that can't be read
+  is not a notation mistake, even though the reader is the one that
+  finds it: the message is made readable from Guile's error and names
+  the file.
+- Every message notasi prints (paths, errors, usage) ends with exactly
+  one newline.
+- Using the command wrongly (no subcommand, an unknown subcommand or
+  option, no PIECE.gml or more than one, `-o` without a value) prints
+  `notasi: ` and what is wrong (naming the unknown subcommand or
+  option), then the usage line, to standard
+  error, and exits with status 2.
+- `--help` prints the usage and a short description to standard output
+  and exits with status 0.
+
+The logic is in the module `(notasi command)`:
+`(run-notasi args)` takes the arguments after the program name (a list
+of strings), writes to the current output and error ports, and returns
+the exit status; it never calls `exit`, so it can be tested directly
+(`tests/command.scm`). `scripts/notasi` is an executable Guile script
+that puts the project's absolute path on `%load-path` (found from the
+script's own location, never `.`), then exits with
+`(run-notasi (cdr (command-line)))`. It can be run as
+`scripts/notasi …` from anywhere, or as `notasi …` with `scripts/` on
+the PATH; installing it properly is an open question (07).
+
+The user manual shows drawn scores: `make manual` first draws each
+`doc/manual/src/examples/NAME.gml` that a page shows as an image
+(`![…](figures/NAME.svg)`) to `doc/manual/src/figures/NAME.svg` with
+`notasi render`, then builds the book. `figures/` is generated, not
+committed, so pictures never go stale. The manual's CI job installs
+Guile and Typst 0.15.1 for this; `tests/manual.scm` checks that every
+image a page shows has an example to draw it from.
 
 ## Version pinning
 
@@ -290,5 +342,6 @@ slices, each its own branch and PR into `dev`, started with
 2. **Implemented.** `feat/typst-render`: the rest of "Running Typst" on the Guile side:
    writing the entry file, `compile-typst`, and one procedure from a
    `.gml` file to a PDF.
-3. `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
-   and the manual page "Drawing a score".
+3. **Implemented.** `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
+   and the manual page "Drawing a score", as "The `notasi` command"
+   describes.

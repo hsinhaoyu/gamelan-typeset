@@ -10,6 +10,7 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `notasi/json.scm`: writes JSON (the figure files Typst reads)
 - `notasi/style.scm`: how notes look: palettes and colour schemes
 - `notasi/typst.scm`: the Guile side of the Typst backend: writes figure files and draws them with Typst
+- `notasi/command.scm`: the `notasi` command (`scripts/notasi`)
 - `tests/`: SRFI-64 test suites
 - `examples/`: example pieces
 - `templates/`: shared scales, stroke sets and instruments, loaded with `(use NAME)`
@@ -18,11 +19,19 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `doc/design/`: design documents (the current design)
 - `doc/decisions/`: decision log (why the design is the way it is)
 
+## Drawing a score
+
+    scripts/notasi render piece.gml            # writes piece.pdf
+    scripts/notasi render piece.gml -o out.png # or .svg
+
+Needs Guile 3.0 and Typst 0.15.1. See "Drawing a score" in the manual.
+
 ## User manual
 
 The manual for musicians is at <https://hsinhaoyu.github.io/notasi/>. Its
 source is in `doc/manual/`; build it locally with `make manual`, or preview
-it with `make manual-serve`. Both need [mdBook](https://rust-lang.github.io/mdBook/).
+it with `make manual-serve`. Both need [mdBook](https://rust-lang.github.io/mdBook/),
+and Guile and Typst to draw the manual's figures.
 
 ## Running tests
 
