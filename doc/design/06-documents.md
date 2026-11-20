@@ -1,0 +1,206 @@
+# 06 — Scores in Typst documents
+
+Status: planned, not implemented yet (draft v1). Command: `notasi typst`,
+`notasi watch` (`scripts/notasi`); Typst package: `typst/` (published as
+`notasi`). Decision: ADR 0016.
+
+## Responsibility
+
+Let someone writing a document, handout or textbook about gamelan in
+Typst put scores into it, the way lilypond-book puts LilyPond scores
+into LaTeX, while keeping the document a normal Typst file:
+
+- notation is written in the document (a ` ```gml ` block) or kept in a
+  `.gml` file and referred to by path;
+- captions, figure numbers, cross-references, fonts and page layout are
+  Typst's, not notasi's;
+- `typst watch` and editor previews (tinymist) keep working;
+- a notation error shows up in the document where the score would be.
+
+Standalone figures (`notasi render`, 05) are still supported and share
+the same Typst template.
+
+## Why a side file
+
+Typst cannot run other programs while it compiles, and its plugins must
+be pure WebAssembly in a form a Guile program (via Hoot, which needs
+WasmGC) cannot currently take. So Guile has to run next to Typst, not
+inside it.
+
+lilypond-book does this by rewriting the source into a second file that
+is then compiled. notasi does not rewrite anything. It reads the
+document's scores with `typst query`, lays them out, and writes their
+figures to a side file (the **manifest**) that the document loads with
+`json()`. The user's file is the file that gets compiled. ADR 0016
+records this choice.
+
+## What the user writes
+
+**Planned.**
+
+```typst
+#import "@preview/notasi:0.1.0" as notasi
+#show: notasi.setup(
+  json("book.notasi.json"),          // the manifest, written by notasi
+  use: ("gong-kebyar",),             // templates for every snippet
+  steps-per-pulse: 4,
+)
+
+The reyong interlocks like this:
+
+#notasi.figure(caption: [Kotekan: polos and sangsih])[
+  ```gml
+  (part polos   reyong i2 _ i2 o2 / _ i2 o2 _)
+  (part sangsih reyong e2 u2 e2 _ / u2 e2 _ u2)
+  (group "Reyong" polos sangsih)
+  ```
+] <fig:kotekan>
+
+As @fig:kotekan shows, …
+
+#notasi.file("examples/tenzer1.gml")
+```
+
+- `setup` takes the loaded manifest as its first argument. A Typst
+  package can only read files inside the package, so the document has
+  to load the manifest itself and pass it in.
+- Every ` ```gml ` block in the document is drawn as a score: the show
+  rule `setup` installs replaces the code block with the figure.
+- `notasi.file(path)` draws a whole `.gml` file. The path is relative to
+  the folder of the main `.typ` file.
+- `notasi.figure` is `figure` with `kind: image`. A plain `figure` around
+  a code block would be numbered as a listing, because Typst works out a
+  figure's kind from the raw block inside it before the show rule runs.
+  (To be checked against Typst in slice 2.)
+- Labels and `@` references are ordinary Typst.
+
+### Snippets and the `piece` form
+
+A snippet that has no `piece` form is completed by notasi before
+reading. It adds one line in front of it:
+
+```scheme
+(piece "" (steps-per-pulse 4)) (use gong-kebyar)
+```
+
+built from the `setup` options. The title is empty because the caption
+does that job. A snippet that starts with its own `piece` form is read
+as a complete file and `setup` does not apply to it. `.gml` files given
+to `notasi.file` are always complete files.
+
+This needs no change to the reader: an empty string is a valid title,
+and the extra line goes first, where `piece` and `use` must be. Line
+numbers in error messages are shifted back by one.
+
+## The manifest
+
+**Planned.** `NAME.notasi.json` beside `NAME.typ`:
+
+```json
+{
+  "version": 1,
+  "snippets": {
+    "(part polos reyong i2 _ ...)\n...": { "figure": { ...05 contract... } },
+    "(part ugal ugal a1 o2 ...)":         { "error": "book.typ, gml block 2, line 1: wrong note name o9" }
+  },
+  "files": {
+    "examples/tenzer1.gml": { "figure": { ... } }
+  }
+}
+```
+
+- Snippets are keyed by their exact text (what `raw.text` is in Typst),
+  so the template finds a figure with a dictionary lookup and an edited
+  snippet is simply not found until notasi runs again. No hashing is
+  needed on the Typst side.
+- Each value is either a `figure` (the JSON contract of 05, unchanged)
+  or an `error` (the reader's message, with the location rewritten to
+  name the document and the block number).
+- Entries for snippets no longer in the document are dropped.
+- The manifest has its own `version`. A change to the figure contract
+  increments both.
+
+## What the template draws
+
+**Planned.**
+
+| Manifest says | Drawn |
+|---|---|
+| a figure | the score, using the document's font and text size |
+| an error | the snippet's source with the error message in red, in a box |
+| nothing (not run yet, or edited since) | the snippet's source in a grey box marked "not rendered yet" |
+
+The document always compiles, so previews never stop at a score.
+
+## Commands
+
+**Planned.** One command, `scripts/notasi`, with subcommands:
+
+- `notasi render PIECE.gml [-o OUT]`: a standalone figure (05).
+- `notasi typst DOC.typ [typst options]`: update the manifest, then run
+  `typst compile` with the remaining options.
+- `notasi update DOC.typ`: update the manifest only.
+- `notasi watch DOC.typ`: update the manifest whenever the document,
+  a file it includes or a `.gml` file it names changes. Meant to run
+  beside `typst watch` or an editor preview.
+
+Updating the manifest:
+
+1. If the manifest doesn't exist, write an empty one, so that the
+   document compiles.
+2. `typst query DOC.typ 'raw.where(lang: "gml")' --field text` lists
+   every snippet, in document order, including from `#include`d files.
+   `typst query DOC.typ '<notasi-file>'` and `'<notasi-setup>'` list
+   the `notasi.file` paths and the `setup` options, which the package
+   records as labelled `metadata`. notasi never parses Typst itself.
+3. Read and lay out each snippet and file; collect errors instead of
+   stopping at the first.
+4. Write the manifest only if it changed, so a watching Typst doesn't
+   recompile for nothing.
+
+Snippet text does not depend on the manifest, so one query is enough;
+there is no second pass.
+
+Without Guile (e.g. on typst.app), a user can run `notasi update`
+locally and upload the manifest with the document.
+
+## Changes elsewhere
+
+- **05:** the template returns content (no `figure`, no `page` or `text`
+  settings). Only the entry file written by `notasi render` sets the
+  page and wraps the score in a figure.
+- **Build order:** this is milestone 5, after the Typst backend.
+
+## Slices
+
+**Planned.** Each its own branch and PR, started with `/start-milestone`.
+
+1. `feat/documents-update`: `notasi update` and `notasi typst`: the
+   query, completing snippets from `setup`, collecting errors with
+   rewritten locations, writing the manifest only when it changes.
+   Tested with `typst query` output saved as fixtures, so `make check`
+   doesn't need Typst.
+2. `feat/documents-package`: the Typst side: `setup`, the show rule,
+   `notasi.figure`, `notasi.file`, the three cases in "What the
+   template draws", `typst.toml` for the package. Developed against
+   hand-written manifests, as the template was against hand-written
+   JSON (ADR 0006).
+3. `feat/documents-watch`: `notasi watch`.
+
+## Open questions
+
+1. **System width.** Layout decides system breaks (ADR 0005), but only
+   Typst knows how wide the text is. v1: `steps-per-system` in `setup`
+   or the snippet's own `piece` form. Later, the package could record
+   the available width with `layout()` and `metadata`, and notasi could
+   choose the breaks from it.
+2. **Paths for `notasi.file`.** Relative to the main file is simple but
+   surprising inside an `#include`d chapter in another folder. Typst's
+   query output doesn't say which file a `metadata` came from.
+3. **`(text STRING)`** (01, v2): in a document, prose belongs to Typst.
+   Should `text` be dropped, or kept only for standalone figures?
+4. **Package name and publishing.** `@preview/notasi` on Typst Universe,
+   or `@local/notasi` until the template is stable?
+5. **Hoot.** If Typst's plugin runtime ever supports WasmGC, notasi
+   could run inside Typst and the side file would go away. Worth a spike
+   then, not now.

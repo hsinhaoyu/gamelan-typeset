@@ -11,6 +11,15 @@ coloured, piano-roll-style grid via Typst. It does not analyse pieces
 piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
 ```
 
+Scores can also live inside a Typst document (06). `notasi` finds them
+with `typst query`, runs the same pipeline on each, and writes the
+figures to a side file that the document loads:
+
+```
+book.typ ──typst query──▶ snippets ──reader, layout──▶ book.notasi.json
+book.typ + book.notasi.json ──typst compile──▶ PDF
+```
+
 | Stage | Module | Document |
 |---|---|---|
 | Notation language | — | [01-notation.md](01-notation.md) |
@@ -18,6 +27,7 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 | Reader + validation | `(notasi reader)` | [03-reader.md](03-reader.md) |
 | Layout | `(notasi layout)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
+| Scores in Typst documents | `scripts/notasi`, `typst/` package | [06-documents.md](06-documents.md) |
 
 ## Build order
 
@@ -31,7 +41,9 @@ workflow).
    [03-reader.md](03-reader.md#slices)
 3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests
 4. `feat/typst-backend`: template matching the prototype
-5. v2 features: repeats, looping parts, sections, syllables
+5. `feat/documents`: scores in Typst documents; built in three slices,
+   see [06-documents.md](06-documents.md#slices)
+6. v2 features: repeats, looping parts, sections, syllables
 
 ## Core decisions
 
@@ -47,6 +59,7 @@ Each decision's context and consequences are in its record in
 7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
 8. One pitched instrument per group: [0011](../decisions/0011-one-pitched-instrument-per-group.md)
 9. No analysis: [0015](../decisions/0015-no-analysis.md)
+10. Typst documents load scores from a side file: [0016](../decisions/0016-documents-load-scores-from-a-side-file.md) (proposed)
 
 ## Maintaining these documents
 

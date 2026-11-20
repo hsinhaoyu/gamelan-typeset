@@ -9,6 +9,10 @@ Status: planned, not implemented yet (draft v1). Modules: `(notasi typst)` (Guil
   entry file, and optionally run `typst compile`.
 - Typst side: draw exactly what the JSON says. No musical logic.
 
+The same template draws scores inside Typst documents, where the figure
+JSON arrives inside a side file instead (06, ADR 0016). So the template
+must work in both places; see "Typst template design", points 6 and 7.
+
 ## JSON contract (version 1)
 
 ```json
@@ -76,22 +80,31 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    colour.
 5. **Header row** with bold pulse numbers and `·` for other steps, numbered
    from `system.start`.
-6. **One `figure` per piece** with the caption; systems stacked inside it
-   (or one figure per system — template option).
+6. **`score` returns plain content**, systems stacked. It does not make
+   a `figure`: in a document, the caption, numbering and label are the
+   author's (06). For a standalone figure, the entry file wraps the
+   score in a `figure` with the JSON `caption`; a document ignores
+   `title` and `caption`.
+7. **No page or font settings in the template.** In a document the
+   score uses the document's font and text size. Only the standalone
+   entry file sets the page (`width: auto, height: auto`) and font.
 
-Entry point produced by Guile:
+Entry point produced by Guile for a standalone figure:
 
 ```typst
 #import "notasi.typ": score
-#score(json("piece.json"))
+#set page(width: auto, height: auto, margin: 14pt)
+#let data = json("piece.json")
+#figure(score(data), caption: data.caption)
 ```
 
 ## Running Typst
 
 - `(compile-typst typ-path #:format 'pdf)` calls `typst compile` with
   `system*` and raises a clear error if `typst` is not installed or fails.
-- The command-line script `scripts/notasi-render` does:
-  read → layout → write JSON + .typ → compile.
+- The command-line script `scripts/notasi`, as `notasi render`, does:
+  read → layout → write JSON + .typ → compile. Its other subcommands
+  (`typst`, `update`, `watch`) are for documents (06).
 
 ## Version pinning
 
