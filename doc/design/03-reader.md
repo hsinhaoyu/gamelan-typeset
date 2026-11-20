@@ -95,29 +95,54 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 ## Error cases to cover (each needs a test)
 
-- Missing or duplicate `piece` form
-- Undefined scale / instrument / part name
-- Duplicate definitions within one file, or the same name from two
-  templates used by one file
-- Template not found; a cycle of `use`s; a `use` argument that is not a
+The number in brackets is the slice (below) that implements the case.
+
+- [1] Missing or duplicate `piece` form
+- [2] Undefined scale name
+- [3] Undefined instrument or part name
+- [2] Duplicate scale, stroke set or instrument definitions within one file
+- [3] Duplicate part definitions within one file
+- [4] The same name from two templates used by one file
+- [4] Template not found; a cycle of `use`s; a `use` argument that is not a
   name or a string
-- A template containing a form other than `scale`, `strokes`,
+- [4] A template containing a form other than `scale`, `strokes`,
   `instrument` or `use`
-- `use` after a definition, part or group
-- Instrument note not in its scale or stroke set, or pitched notes not
+- [4] `use` after a definition, part or group
+- [2] Instrument note not in its scale or stroke set, or pitched notes not
   ascending
-- Duplicate degree or stroke name or alias within a scale or stroke set
-- A scale and a stroke set with the same name
-- Degree name or alias ending in a digit (scales only)
-- Unknown degree option, or `display` that is not a string
-- Note index out of range; unknown note name
-- `_` at the start of a part or after a rest (`-` or `·`)
-- Unknown token (e.g. a string or `#t` inside a part)
-- A lone `.` in a part (an improper list); Guile read errors such as
+- [2] Duplicate degree or stroke name or alias within a scale or stroke set
+- [2] A scale and a stroke set with the same name
+- [2] Degree name or alias ending in a digit (scales only)
+- [2] Unknown degree option, or `display` that is not a string
+- [3] Note index out of range; unknown note name
+- [3] `_` at the start of a part or after a rest (`-` or `·`)
+- [3] Unknown token (e.g. a string or `#t` inside a part)
+- [1] A lone `.` in a part (an improper list); Guile read errors such as
   unbalanced parentheses, reported with file and line
-- Parts of unequal length
-- A part in more than one group
-- A group with parts on two different pitched instruments
+- [3] Parts of unequal length
+- [3] A part in more than one group
+- [3] A group with parts on two different pitched instruments
+
+## Slices
+
+Planned. The reader is built in four slices, each its own branch and PR
+into `dev`, started with `/start-milestone <branch>`. After each one,
+`make check` passes and the reader handles a larger subset of the
+notation. Each slice covers the steps below and the error cases tagged
+with its number.
+
+1. `feat/reader-forms`: the public interface; the condition type (decide
+   its name, fields and accessors and record them under "Error
+   reporting" before writing tests); step 1 (read forms, Guile read
+   errors); step 2 (dispatch, improper lists); the `piece` form and its
+   options. A file with only a `piece` form reads into a piece with no
+   parts.
+2. `feat/reader-scales`: step 4 and the scale and instrument parts of
+   steps 5 and 6, for definitions in a single file.
+3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
+   A piece with everything defined in one file reads correctly.
+4. `feat/reader-templates`: step 3 and the template-finding rules under
+   "Public interface". `examples/tenzer1.gml` reads end to end.
 
 ## Not the reader's job
 
