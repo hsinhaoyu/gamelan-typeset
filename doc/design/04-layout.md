@@ -1,6 +1,6 @@
 # 04 — Layout
 
-Status: planned, not implemented yet (draft v1). Module: `(notasi layout)`
+Status: planned, not implemented yet (draft v1); of its milestone, slice 1 (the JSON writer, in 05) is implemented (see "Slices"). Module: `(notasi layout)`
 
 ## Responsibility
 
@@ -117,7 +117,7 @@ Milestone 3 (`feat/json` + `feat/layout` in the build order) is built
 in four slices, each its own branch and PR into `dev`, started with
 `/start-milestone <branch>`:
 
-1. `feat/json`: the JSON writer `(notasi json)`, as specified under
+1. **Implemented.** `feat/json`: the JSON writer `(notasi json)`, as specified under
    "JSON writing" in 05.
 2. `feat/layout-style`: "Note style": the ColorBrewer palettes,
    `make-style` and `default-style`, the `by-degree` scheme and the

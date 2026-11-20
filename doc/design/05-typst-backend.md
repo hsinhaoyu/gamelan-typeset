@@ -1,7 +1,8 @@
 # 05 — Typst backend and JSON contract
 
-Status: planned, not implemented yet (draft v1). Modules: `(notasi typst)` (Guile), `typst/notasi.typ`
-(Typst template)
+Status: partly implemented (draft v1): the JSON writer `(notasi json)`
+is implemented; the rest is planned. Modules: `(notasi json)`,
+`(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
 
@@ -62,7 +63,7 @@ Rules:
 
 ## JSON writing
 
-**Planned** (layout slice 1, `feat/json`). A small JSON writer in
+**Implemented** (layout slice 1, `feat/json`). A small JSON writer in
 `(notasi json)` instead of depending on guile-json. It keeps CI to a
 plain `apt install guile-3.0`, and its output order is deterministic,
 which golden tests need. Its tests are in `tests/json.scm`.
