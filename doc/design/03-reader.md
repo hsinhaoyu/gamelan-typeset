@@ -1,6 +1,7 @@
 # 03 — Reader and validation
 
-Status: planned, not implemented yet (draft v1). Module: `(notasi reader)`
+Status: partly implemented: slice 1 of 4 (see "Slices"). Module:
+`(notasi reader)`, tests in `tests/reader.scm`.
 
 ## Responsibility
 
@@ -8,6 +9,9 @@ Turn a `.gml` file into a valid `piece` record, or fail with clear error
 messages. Nothing else in the system validates input.
 
 ## Public interface
+
+**Implemented**, except finding templates (**Planned**, slice 4). The
+`directory` keyword is accepted but not used yet.
 
 ```
 (read-piece-file path)   → piece       ; raises on error
@@ -25,6 +29,9 @@ Finding templates:
   repo's `templates/` folder; an installed package finds its own.
 
 ## Steps
+
+Steps 1 and 2 and the `piece` form are **Implemented**; steps 3 to 9
+are **Planned** (slices 2 to 4).
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
@@ -72,6 +79,8 @@ Finding templates:
 
 ## Error reporting
 
+**Implemented** for slice 1's error cases.
+
 Errors must say where and what, in musician terms:
 
 ```
@@ -87,9 +96,38 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   part don't carry positions, so token errors are reported as part name
   plus step number (and pulse number), which is more meaningful to a
   musician anyway.
-- Use a dedicated condition type, e.g. `&notasi-syntax-error`, with
-  fields for file, line, part and step, so tests can check the error kind
-  rather than string-matching messages.
+- Every reader error is a `&notasi-syntax-error`, a subtype of `&error`,
+  exported from `(notasi reader)`:
+
+  | Field | Accessor | Value |
+  |---|---|---|
+  | kind | `notasi-syntax-error-kind` | a symbol naming the error case (below) |
+  | file | `notasi-syntax-error-file` | string, or `#f` when read from a string or port |
+  | line | `notasi-syntax-error-line` | 1-based, or `#f` when no form is to blame (e.g. `missing-piece`) |
+  | part | `notasi-syntax-error-part` | part name (symbol), or `#f` |
+  | step | `notasi-syntax-error-step` | 0-based step, or `#f` |
+
+  The predicate is `notasi-syntax-error?`. The condition also carries a
+  `&message` with the readable text (`song.gml:3: duplicate piece
+  form`). Tests check `kind` and the location fields, never the message.
+- Checks run in this order, so a file with several problems always
+  reports the same one:
+  1. Read all forms (`read-error`).
+  2. Each form, in file order, must be a proper list with a known head
+     symbol (`improper-form`, `unknown-form`).
+  3. The `piece` form: present, first and only once (`missing-piece`,
+     `piece-not-first`, `duplicate-piece`).
+  4. The `piece` form's title and options (`bad-title`, `bad-option`,
+     `unknown-option`, `duplicate-option`).
+  5. The other forms, in later steps. Until a slice implements a form,
+     it raises `not-implemented` at that form's line.
+- Which line an error reports:
+  - The line of the list to blame: the form, or for an option error the
+    option itself, since an option is a list with its own line.
+  - `piece-not-first`: the first form in the file.
+  - An atom on its own at the top level (e.g. `foo`), which has no
+    position: the line where reading it stopped, i.e. where it ends.
+  - `read-error`: the line where Guile stopped reading.
 - Report the first error and stop (v1). Collecting several errors is a
   possible later improvement.
 
@@ -97,7 +135,25 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 The number in brackets is the slice (below) that implements the case.
 
-- [1] Missing or duplicate `piece` form
+Each case is followed by its `kind` symbol. Kinds for slices 2 to 4 are
+chosen when those slices start.
+
+- [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
+  `duplicate-piece` (line of the second `piece` form)
+- [1] `piece` not the first form: `piece-not-first` (line of the first
+  form in the file)
+- [1] `piece` title not a string: `bad-title`
+- [1] An option that is not a proper `(SYMBOL VALUE)` list (e.g.
+  `(steps-per-pulse . 4)`, `("steps-per-pulse" 4)`, `(tempo)`), or a
+  `steps-per-pulse` or `steps-per-system` value that is not an exact
+  positive integer (so `4.0` is rejected): `bad-option`. The shape is
+  checked before the name.
+- [1] A well-formed option with an unknown name, or an option given
+  twice: `unknown-option`, `duplicate-option`
+- [1] A form that is not a list, or whose head is not a known symbol:
+  `unknown-form`
+- [1] A known form that the reader does not handle yet (e.g. `text`,
+  which is v2): `not-implemented`
 - [2] Undefined scale name
 - [3] Undefined instrument or part name
 - [2] Duplicate scale, stroke set or instrument definitions within one file
@@ -117,26 +173,31 @@ The number in brackets is the slice (below) that implements the case.
 - [3] Note index out of range; unknown note name
 - [3] `_` at the start of a part or after a rest (`-` or `·`)
 - [3] Unknown token (e.g. a string or `#t` inside a part)
-- [1] A lone `.` in a part (an improper list); Guile read errors such as
-  unbalanced parentheses, reported with file and line
+- [1] A lone `.` in a part (an improper list): `improper-form`; Guile
+  read errors such as unbalanced parentheses or `. .`: `read-error`,
+  with file and the line where Guile stopped
 - [3] Parts of unequal length
 - [3] A part in more than one group
 - [3] A group with parts on two different pitched instruments
 
 ## Slices
 
-Planned. The reader is built in four slices, each its own branch and PR
+The reader is built in four slices, each its own branch and PR
 into `dev`, started with `/start-milestone <branch>`. After each one,
 `make check` passes and the reader handles a larger subset of the
 notation. Each slice covers the steps below and the error cases tagged
 with its number.
+Slice 1 is implemented; slices 2 to 4 are **Planned**.
 
-1. `feat/reader-forms`: the public interface; the condition type (decide
+1. **Implemented.** `feat/reader-forms`: the public interface; the condition type (decide
    its name, fields and accessors and record them under "Error
    reporting" before writing tests); step 1 (read forms, Guile read
    errors); step 2 (dispatch, improper lists); the `piece` form and its
    options. A file with only a `piece` form reads into a piece with no
-   parts.
+   parts: length 0, empty scales, instruments, parts and groups, and the
+   default options (`steps-per-pulse` 4, `steps-per-system` `#f`). Every
+   other known form raises `not-implemented`. The `directory` keyword is
+   accepted but unused until slice 4.
 2. `feat/reader-scales`: step 4 and the scale and instrument parts of
    steps 5 and 6, for definitions in a single file.
 3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
