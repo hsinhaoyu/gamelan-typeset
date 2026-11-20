@@ -59,7 +59,7 @@ doc/decisions/      decision log (ADRs)
 
 ## Working on a milestone
 
-The build order is in `doc/design/README.md` under "Build order". Start each one with `/start-milestone`, which creates the branch, has a subagent write tests from the design doc before any code exists (so tests aren't shaped by the implementation), and plans the implementation for approval. Run `/doc-audit` at the end of each milestone to find drift between the docs and the code.
+The build order is in `doc/design/README.md` under "Build order". A large milestone is split into slices, listed under "Slices" in its design doc; each slice is its own branch and PR. Start each milestone or slice with `/start-milestone <branch>`, which creates the branch, has a subagent write tests from the design doc before any code exists (so tests aren't shaped by the implementation), pauses for the user to review the tests, and plans the implementation for approval. It never builds beyond the slice's scope. The user runs `/doc-audit` at the end of each milestone to find drift between the docs and the code; it has `disable-model-invocation`, so Claude can't call it and should remind the user instead.
 
 A PostToolUse hook (`.claude/hooks/guild-compile.sh`) compiles every edited `.scm` file with `guild`, catching unbalanced parentheses and unbound variables immediately.
 

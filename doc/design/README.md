@@ -24,11 +24,14 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 
 ## Build order
 
-Each milestone is one feature branch with tests (see CLAUDE.md for the
+Each milestone is one feature branch with tests, or, when its design
+doc has a "Slices" section, one branch per slice (see CLAUDE.md for the
 workflow).
 
 1. `feat/piece`: records and derived functions
-2. `feat/reader`: notation → piece, all error cases
+2. `feat/reader`: notation → piece, all error cases; built in four
+   slices (`feat/reader-forms` … `feat/reader-templates`), see
+   [03-reader.md](03-reader.md#slices)
 3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests
 4. `feat/typst-backend`: template matching the prototype
 5. `feat/analysis`: v1 analyses
