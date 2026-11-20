@@ -4,6 +4,7 @@
 
 (use-modules (srfi srfi-1)
              (srfi srfi-64)
+             (ice-9 exceptions)
              (ice-9 match)
              (notasi piece))
 
@@ -243,10 +244,16 @@
   (test-equal "scale size comes from the instrument's scale" 3
     ;; plain scale has 2 degrees: dung1 = 1*2 + 1
     (note-pitch-index plain-instrument (inst-note plain-instrument 1)))
-  (test-error "raises an error for a stroke" #t
-    (note-pitch-index gong (inst-note gong 0)))
-  (test-error "raises an error for a kendang stroke" #t
-    (note-pitch-index kendang (inst-note kendang 0))))
+  ;; Check the irritants, not just that some error happened: an unbound
+  ;; variable is an error too, and would pass a bare test-error.
+  (test-equal "raises an error for a stroke, naming note and instrument"
+    '(G gong)
+    (guard (e ((error? e) (exception-irritants e)))
+      (note-pitch-index gong (inst-note gong 0))))
+  (test-equal "raises an error for a kendang stroke"
+    '(dag kendang)
+    (guard (e ((error? e) (exception-irritants e)))
+      (note-pitch-index kendang (inst-note kendang 0)))))
 
 ;;; note-display
 

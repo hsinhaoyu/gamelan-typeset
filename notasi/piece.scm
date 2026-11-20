@@ -5,8 +5,14 @@
 ;;; checks the invariants, and everything downstream assumes them.
 
 (define-module (notasi piece)
+  #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9)
-  #:export (make-source-location source-location?
+  #:use-module (ice-9 exceptions)
+  #:use-module (ice-9 match)
+  #:export (note-pitch-index note-display note-label
+            group-lanes part-steps events-at
+
+make-source-location source-location?
             source-location-file source-location-line
 
             make-piece piece?
@@ -122,3 +128,81 @@
   (subtitle group-subtitle)
   (parts    group-parts)
   (location group-location))
+
+;;; ------------------------------------------------------------------
+;;; Derived values
+
+(define (note-degree-record instrument note)
+  "Return the degree (or stroke) record of NOTE on INSTRUMENT."
+  (list-ref (scale-degrees (instrument-scale instrument))
+            (note-degree note)))
+
+(define (note-pitch-index instrument note)
+  "Return NOTE's pitch on INSTRUMENT as octave × scale size + degree: a
+total order across pitched instruments sharing a scale.  Raise an error
+for a stroke, which has no pitch."
+  (let ((scale (instrument-scale instrument)))
+    (unless (scale-pitched? scale)
+      (raise-exception
+       (make-exception
+        (make-error)
+        (make-exception-with-origin 'note-pitch-index)
+        (make-exception-with-message "a stroke has no pitch")
+        (make-exception-with-irritants
+         (list (note-name note) (instrument-name instrument))))))
+    (+ (* (note-octave note) (length (scale-degrees scale)))
+       (note-degree note))))
+
+(define (note-display instrument note)
+  "Return the short form of NOTE drawn in grid cells, e.g. \"i\" for ding2."
+  (degree-display (note-degree-record instrument note)))
+
+(define (note-label instrument note)
+  "Return NOTE's lane label: the display form plus the octave (\"i2\"),
+or just the display form for a stroke."
+  (let ((shown (note-display instrument note)))
+    (match (note-octave note)
+      (#f shown)
+      (octave (string-append shown (number->string octave))))))
+
+(define (group-lanes group)
+  "Return the notes the parts of GROUP play, each once, as note records:
+one lane per note.  Pitched notes come highest first; strokes in their
+instrument's order.  With several instruments, each instrument's lanes
+follow in the order its first part appears in GROUP."
+  (define (instrument-lanes instrument)
+    (let* ((used (append-map
+                  (lambda (part)
+                    (if (eq? (part-instrument part) instrument)
+                        (append-map event-notes (part-events part))
+                        '()))
+                  (group-parts group)))
+           (notes (map (lambda (i) (vector-ref (instrument-notes instrument) i))
+                       (sort (delete-duplicates used) <))))
+      ;; Notes of a pitched instrument are in ascending pitch order
+      ;; (invariant 5), so reversing puts the highest first.
+      (if (scale-pitched? (instrument-scale instrument))
+          (reverse notes)
+          notes)))
+  (append-map instrument-lanes
+              (delete-duplicates (map part-instrument (group-parts group))
+                                 eq?)))
+
+(define (part-steps part)
+  "Return the step after PART's last event ends, or 0 if it has none."
+  (match (part-events part)
+    (() 0)
+    (events (let ((e (last events)))
+              (+ (event-start e) (event-duration e))))))
+
+(define (events-at piece step)
+  "Return everything sounding at STEP in PIECE, as (part . event) pairs in
+the piece's part order.  An event sounds from its start through its holds."
+  (append-map
+   (lambda (part)
+     (filter-map (lambda (e)
+                   (and (<= (event-start e) step)
+                        (< step (+ (event-start e) (event-duration e)))
+                        (cons part e)))
+                 (part-events part)))
+   (piece-parts piece)))
