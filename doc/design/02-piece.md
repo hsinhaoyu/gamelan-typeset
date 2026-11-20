@@ -67,6 +67,7 @@ instrument
   scale    : scale                     a scale or a stroke set
   notes    : vector of note            pitched: ascending pitch order;
                                        strokes: the order the instrument lists
+  show-names? : boolean                whether notes show their name (ADR 0019)
   location : source location
 
 note

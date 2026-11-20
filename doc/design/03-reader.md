@@ -167,9 +167,10 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
      name or alias ending in a digit (`degree-ends-in-digit`, scales
      only), then a name or alias already used in this set
      (`duplicate-degree`).
-  9. Each instrument, in file order: its scale or stroke set
-     (`undefined-scale`), then each note in order: whether it exists
-     (`unknown-note`), then against the notes before it
+  9. Each instrument, in merged order: its options (`bad-option`,
+     `unknown-option`, `duplicate-option`), then its scale or stroke
+     set (`undefined-scale`), then each note in order: whether it
+     exists (`unknown-note`), then against the notes before it
      (`notes-not-ascending`, `duplicate-note`).
   10. Each part, in file order: its instrument (`undefined-instrument`),
      then its tokens left to right, each with its own error
@@ -220,7 +221,8 @@ Each case is followed by its `kind` symbol.
 - [2] A `scale`, `strokes` or `instrument` form of the wrong shape: no
   name, a name that is not a symbol, no degrees or strokes, or an
   instrument with no notes, or an instrument whose scale or notes are
-  not names (a string, a number): `bad-form` (the form's line). Later slices
+  not names (a string, a number), or a note after an instrument option:
+  `bad-form` (the form's line). Later slices
   use the same kind for malformed `part` and `group` forms.
 - [3] A part naming an instrument that isn't defined:
   `undefined-instrument` (part's line, part field set). A group naming a
@@ -307,6 +309,12 @@ the line of its scale or stroke set.
   on a second pitched instrument). A group may mix stroke instruments,
   and a pitched instrument with stroke instruments (open question in
   02-piece.md).
+- Instrument options (ADR 0019): only `(show-names yes)` or
+  `(show-names no)`, after the notes. The same kinds as piece options:
+  `bad-option` (wrong shape, or a value other than `yes` or `no`),
+  `unknown-option`, `duplicate-option`, at the option's line. A note
+  after an option, or an instrument with options but no notes, is
+  `bad-form`. Without the option, `show-names?` is `#f`.
 - [3] Group options: only `(subtitle STRING)`, after the part names.
   The same kinds as piece options: `bad-option` (wrong shape, or a
   subtitle that is not a string), `unknown-option`, `duplicate-option`,

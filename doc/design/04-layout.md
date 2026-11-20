@@ -41,7 +41,9 @@ symbol `null` for null. Writing it out is then just `write-json`
   caption until `text` (v2) or a document (06) supplies one.
 - A group's `subtitle` is `null` when it has none; a voice's `name` is
   its part's name as a string.
-- An event's `fill` is `null` when the look's fill is `#f` (strokes).
+- An event's `fill` is `null` when the look's fill is `#f` (only a
+  custom scheme does that), and its `text` is `null` when the
+  instrument doesn't show names.
 
 `style` says how notes look (see "Note style" below). It is optional;
 `(default-style)` is used when it is left out. In v1 it is set from
@@ -73,7 +75,9 @@ is an open question.
 - A chord gives one event per note, with the same start and duration.
   A voice's events are sorted by start, then by lane.
 - Each event's `text`, `fill` and `text_color` come from
-  `(note-look style instrument note)` (see "Note style").
+  `(note-look style instrument note)` (see "Note style"), except that
+  `text` is `null` when the part's instrument doesn't show names
+  (`instrument-show-names?`, ADR 0019).
 - Lanes are the notes the group actually uses, highest pitch at the top
   (`group-lanes` from `(notasi piece)`). Unused instrument notes are not drawn,
   which keeps figures compact.
@@ -130,9 +134,11 @@ picks colours (ADR 0005).
   ((c + 0.055)/1.055)^2.4; L = 0.2126 R + 0.7152 G + 0.0722 B; and the
   ratio of two luminances is (L1 + 0.05)/(L2 + 0.05), lighter over
   darker. So strong colours get white text and light ones dark text.
-- **Strokes are shown as a character only**: no box (`fill` is `#f`),
-  the stroke's display form (or its name) in near-black (`#222222`). `(dag (display
-  "D"))` in the stroke set sets the character.
+- **Strokes are grey boxes** (`fill` `#999999`, ADR 0019), with the
+  stroke's display form (or its name) as text, in the colour
+  `text-color-for` gives (near-black on this grey). `(dag (display
+  "D"))` in the stroke set sets the text, which is shown when the
+  instrument shows names (see "Groups and lanes").
 - Parts are not told apart: polos and sangsih in one group are drawn in
   the same pitch colours, so the group shows the composite melody.
   The group's label and subtitle say which parts it holds.
@@ -159,13 +165,13 @@ entry, the irritants include the entry or its bad part. A degree name
 that no scale has is allowed; it is just never used. Keys are degree
 names, not aliases: `(i . "#000000")` overrides nothing, even where
 `i` is an alias of `ding`. Overrides apply to pitched notes only;
-strokes are always drawn as a character. The accessors return resolved values: `style-scheme`
+strokes are always grey. The accessors return resolved values: `style-scheme`
 a procedure (`by-degree` for the name), `style-palette` the list of
 colours, all colours in lowercase. `by-degree` is exported, so a
 custom scheme can fall back on it.
 
 The colours notasi makes (palettes, overrides, text colours) are
-lowercase `#rrggbb` strings, and a stroke's `fill` is `#f`. A custom
+lowercase `#rrggbb` strings; strokes are `#999999`. A custom
 scheme's look is used as it is.
 
 **Palettes.** The eight qualitative palettes of ColorBrewer (Cynthia

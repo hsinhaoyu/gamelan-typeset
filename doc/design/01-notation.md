@@ -173,6 +173,16 @@ Rules:
   in any order. The order sets the note indices and the lane order.
 - Note indices are 1-based in list order.
 
+Optional settings, after the notes:
+
+| Option | Default | Meaning |
+|---|---|---|
+| `(show-names yes)` or `(show-names no)` | `no` | Whether this instrument's notes show their name in the score. Without it, notes are plain coloured blocks (ADR 0019). |
+
+```scheme
+(instrument gong gong-strokes G P (show-names yes))
+```
+
 ### `(part NAME INSTRUMENT TOKEN ...)`
 
 A line of music. Tokens:

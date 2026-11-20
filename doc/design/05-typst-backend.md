@@ -60,8 +60,9 @@ Rules:
 - `lane` is a 0-based index into `lanes` (top row = 0).
 - A chord produces one event per note, same start and duration.
 - `fill`, `text` and `text_color` come from layout's colour scheme
-  (04, "Note style"). `fill` is `null` for a note drawn as text only,
-  such as a stroke.
+  (04, "Note style"). `text` is `null` when the note's instrument
+  doesn't show names (ADR 0019); `fill` is `null` only from a custom
+  scheme, for a note drawn as text alone.
 - All lengths are Typst length strings.
 - Any change to this format increments `version` and updates the
   template and the golden tests in the same PR.
@@ -144,9 +145,10 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    column cannot be `auto`. Its width comes from the JSON `sizes`.
 3. **Positioned cells.** Notes use `grid.cell(x:, y:, colspan:)`; empty
    cells are filled automatically, so rests need no handling.
-4. **Notes as rounded blocks** filled with the event's `fill`, with
-   bold text in its `text_color`; an event whose `fill` is `null` is
-   just its text, centred in the cell.
+4. **Notes as square blocks** filled with the event's `fill`, with
+   bold text in its `text_color` when `text` isn't `null` (ADR 0019);
+   an event whose `fill` is `null` is just its text, centred in the
+   cell.
 5. **Header row** with bold pulse numbers and `·` for other steps, numbered
    from `system.start`.
 6. **`score` returns plain content**, systems stacked. It does not make
@@ -181,11 +183,12 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
   (`1.1em`), with its subtitle under it in grey italics when not
   `null`, spanning the group's rows. Lane labels right-aligned, small
   (`0.85em`) and grey (`luma(140)`).
-- **Notes:** a block filling its cells (inset `1.5pt`), radius `3pt`,
-  in `fill`, with the `text` centred in bold in `text_color`. When
-  `continued` is true the block's left corners are square and it has no
+- **Notes** (ADR 0019): a square block filling its cells (inset
+  `1.5pt`), in `fill`, with the `text`, when not `null`, centred in
+  bold in `text_color`. When `continued` is true the block has no inset
+  on its left, so it starts flush with the system's left edge, and no
   text: it is the same note carrying on. When `fill` is `null`, no
-  block: just the text, centred and bold, in `text_color` (strokes).
+  block: just the text, centred and bold, in `text_color`.
 - Sizes relative to the text (`em`, `luma` greys), never absolute font
   sizes or fonts: the surrounding document or entry file sets those.
 
