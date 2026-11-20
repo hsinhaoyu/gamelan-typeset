@@ -124,8 +124,9 @@ layout and analysis simple: they only ever iterate over sounding events.
 
 ## Invariants (checked by the reader, assumed by everyone else)
 
-The reader checks these; the records do not. **Implemented:** 5 (reader
-slice 2). **Planned:** the others, in reader slice 3.
+**Implemented** in the reader (slices 2 and 3); the records do not check
+them. 1 to 3 hold by construction, since events are built from the
+tokens; 4 to 6 are checked.
 
 1. Every event lies within `[0, piece-length)`.
 2. Events in one part do not overlap.

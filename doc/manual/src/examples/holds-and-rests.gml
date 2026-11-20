@@ -1,0 +1,12 @@
+(piece "Holds and rests" (steps-per-pulse 4))
+
+(scale selisir
+  (ding (alias i))
+  (dong (alias o))
+  (deng (alias e))
+  (dung (alias u))
+  (dang (alias a)))
+(instrument ugal  selisir  o1 e1 u1 a1 i2 o2 e2 u2 a2 i3)
+
+;; step:          1  2  3  4    5  6  7  8
+(part melody ugal  a1 _  _  -  / i2 _  o2 ·)

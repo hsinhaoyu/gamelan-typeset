@@ -88,9 +88,8 @@ missing bracket is somewhere before that.
 {{#include mistakes/not-yet.txt}}
 ```
 
-notasi is still learning to read music. For now a file holds its
-`piece` line, scales, stroke sets and instruments, but not yet the
-parts they play. This manual will show parts as soon as they work.
+A few forms in the notation reference, such as `text` for captions,
+aren't ready yet. Everything in this manual works.
 
 ## Mistakes in scales and instruments
 
@@ -145,6 +144,73 @@ Notes on a pitched instrument need an octave: write `dong1`, not `dong`.
 List an instrument's notes from lowest to highest, in the order of the
 scale: `ding1 dong1 deng1`.
 
+## Mistakes in parts
+
+### Hold after a rest
+
+```scheme
+{{#include mistakes/hold-after-rest.gml}}
+```
+
+```text
+{{#include mistakes/hold-after-rest.txt}}
+```
+
+`_` holds the note before it, so it can't come after a rest or at the
+start of a part. The step number counts from the start of the part,
+skipping `/`.
+
+### Note number too high
+
+```scheme
+{{#include mistakes/note-out-of-range.gml}}
+```
+
+```text
+{{#include mistakes/note-out-of-range.txt}}
+```
+
+Numbers count the instrument's notes from its lowest, starting at 1.
+This ugal has five keys, so 6 is too high.
+
+### Note not on the instrument
+
+```scheme
+{{#include mistakes/note-not-on-instrument.gml}}
+```
+
+```text
+{{#include mistakes/note-not-on-instrument.txt}}
+```
+
+`dong2` is a note of the scale, but this ugal stops at ding2. Check the
+instrument's range, or the octave.
+
+### Parts of different lengths
+
+```scheme
+{{#include mistakes/unequal-length.gml}}
+```
+
+```text
+{{#include mistakes/unequal-length.txt}}
+```
+
+Every part needs the same number of steps. Count the notes, `_`, `-`
+and `·` in each (not `/`), and add rests to the shorter part.
+
+### A part in two groups
+
+```scheme
+{{#include mistakes/part-in-two-groups.gml}}
+```
+
+```text
+{{#include mistakes/part-in-two-groups.txt}}
+```
+
+Each part can be in only one group. Remove it from one of them.
+
 ## Other messages
 
 - **no (piece TITLE ...) form**: the file has no `piece` line. Add one
@@ -161,3 +227,9 @@ scale: `ding1 dong1 deng1`.
 - **… is used twice in …**: a scale or stroke set uses the same name or
   alias twice.
 - **… is listed twice**: a drum or gong lists the same stroke twice.
+- **no instrument called …** / **no part with this name**: check the
+  spelling of the instrument in a `part`, or of a part in a `group`.
+- **a chord needs two or more notes …** / **a chord has the same note
+  twice**: see [Chords](chords.md).
+- **a group can hold one pitched instrument …**: see
+  [Groups](groups.md).

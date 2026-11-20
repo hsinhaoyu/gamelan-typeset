@@ -51,9 +51,9 @@ when it is written.
 
 1. Introduction
 2. Getting started: installing, your first piece
-3. Writing music: steps and pulses, notes and octaves, rests and holds,
+3. Scales, strokes and instruments
+4. Writing music: steps and pulses, notes and octaves, rests and holds,
    chords, groups
-4. Scales, strokes and instruments
 5. Templates: using `(use gong-kebyar)`, writing your own
 6. Drawing a score (once rendering exists)
 7. Analysis (once it exists)

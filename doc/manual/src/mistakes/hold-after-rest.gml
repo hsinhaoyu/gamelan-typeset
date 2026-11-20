@@ -1,0 +1,4 @@
+(piece "Gilak")
+(scale selisir ding dong deng dung dang)
+(instrument ugal selisir dong1 deng1 dung1 dang1 ding2)
+(part melody ugal dang1 - _ ding2)

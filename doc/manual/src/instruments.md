@@ -37,8 +37,9 @@ Scales, stroke sets and instruments can come in any order after the
 ## What you get
 
 notasi reads this file as a piece with a scale, a stroke set and two
-instruments, ready for parts. Writing the parts the instruments play is
-the next thing notasi will learn.
+instruments, ready for parts. Next, set the
+[steps and pulses](steps-and-pulses.md) and write the
+[notes](notes-rests-and-holds.md) each instrument plays.
 
 If something is wrong, see
 [Error messages](errors.md#mistakes-in-scales-and-instruments).

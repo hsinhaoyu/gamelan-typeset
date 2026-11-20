@@ -1,6 +1,6 @@
 # 03 — Reader and validation
 
-Status: partly implemented: slices 1–2 of 4 (see "Slices"). Module:
+Status: partly implemented: slices 1–3 of 4 (see "Slices"). Module:
 `(notasi reader)`, tests in `tests/reader.scm`.
 
 ## Responsibility
@@ -30,9 +30,8 @@ Finding templates:
 
 ## Steps
 
-Steps 1, 2 and 4, the `piece` form, and the scale and instrument parts
-of steps 5 and 6 are **Implemented**. Step 3, the part and group parts of
-steps 5 and 6, and steps 7 to 9 are **Planned** (slices 3 and 4).
+Every step except 3 is **Implemented**, for definitions in a single
+file. Step 3 (templates) is **Planned** (slice 4).
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
@@ -80,7 +79,7 @@ steps 5 and 6, and steps 7 to 9 are **Planned** (slices 3 and 4).
 
 ## Error reporting
 
-**Implemented** for the error cases of slices 1 and 2.
+**Implemented** for the error cases of slices 1 to 3.
 
 Errors must say where and what, in musician terms:
 
@@ -275,7 +274,7 @@ into `dev`, started with `/start-milestone <branch>`. After each one,
 `make check` passes and the reader handles a larger subset of the
 notation. Each slice covers the steps below and the error cases tagged
 with its number.
-Slices 1 and 2 are implemented; slices 3 and 4 are **Planned**.
+Slices 1 to 3 are implemented; slice 4 is **Planned**.
 
 1. **Implemented.** `feat/reader-forms`: the public interface; the condition type (decide
    its name, fields and accessors and record them under "Error
@@ -292,7 +291,7 @@ Slices 1 and 2 are implemented; slices 3 and 4 are **Planned**.
    whose scales (scales and stroke sets together) and instruments are in
    file order, with length 0 and no parts or groups. `use`, `part`,
    `group` and `text` still raise `not-implemented`.
-3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
+3. **Implemented.** `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
    A piece with everything defined in one file reads correctly. What
    the piece holds:
    - `length`: the parts' step count (all equal), or 0 with no parts.
