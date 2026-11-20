@@ -13,8 +13,15 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `examples/`: example pieces
 - `templates/`: shared scales, stroke sets and instruments, loaded with `(use NAME)`
 - `doc/design/01-notation.md`: the notation language
+- `doc/manual/`: the user manual (mdBook)
 - `doc/design/`: design documents (the current design)
 - `doc/decisions/`: decision log (why the design is the way it is)
+
+## User manual
+
+The manual for musicians is at <https://hsinhaoyu.github.io/notasi/>. Its
+source is in `doc/manual/`; build it locally with `make manual`, or preview
+it with `make manual-serve`. Both need [mdBook](https://rust-lang.github.io/mdBook/).
 
 ## Running tests
 

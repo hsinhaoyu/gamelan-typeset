@@ -3,7 +3,7 @@ GUILE_FLAGS = --fresh-auto-compile -L .
 
 TESTS = $(wildcard tests/*.scm)
 
-.PHONY: check clean
+.PHONY: check clean manual manual-serve
 
 check:
 	@status=0; \
@@ -15,3 +15,11 @@ check:
 
 clean:
 	rm -f *.log tests/*.log
+	rm -rf doc/manual/book
+
+# The user manual (doc/manual/), built with mdBook into doc/manual/book/.
+manual:
+	mdbook build doc/manual
+
+manual-serve:
+	mdbook serve doc/manual --open

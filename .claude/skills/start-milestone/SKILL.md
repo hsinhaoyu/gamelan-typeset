@@ -76,7 +76,12 @@ and ask.
 7. **Finish.** Update the design doc: move what this slice built from
    Planned to Implemented, mark the slice implemented in "Slices", and
    set the `Status:` line (e.g. "partly implemented: slices 1-2 of 4";
-   "implemented" after the last slice). Then tell the user the slice is
+   "implemented" after the last slice). If the work changes anything a
+   user can see, update the user manual as "User manual" in CLAUDE.md
+   says: read `doc/manual/STYLE.md`, add or change pages and example
+   files, and run `make check` (and `make manual` if `mdbook` is
+   installed). If nothing user-visible changed, say so. Then tell the
+   user the slice is
    ready for `/ship`. Don't push or open a PR until they ask. After the
    last slice of a milestone (or a milestone without slices), also
    remind the user to run `/doc-audit`.
