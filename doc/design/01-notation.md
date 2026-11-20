@@ -35,8 +35,10 @@ would need. In particular:
 
 ## File structure
 
-A file (extension `.gml`) is a sequence of top-level forms. Order matters
-only in that a name must be defined before it is used. Comments use `;`.
+A file (extension `.gml`) is a sequence of top-level forms. `piece` comes
+first and `use` forms come before everything else; otherwise order does
+not matter, because names are resolved after all templates are loaded.
+Comments use `;`.
 
 Scales, stroke sets and instruments rarely change from one piece to the
 next, so they usually come from a template (see `use` below) and a piece
