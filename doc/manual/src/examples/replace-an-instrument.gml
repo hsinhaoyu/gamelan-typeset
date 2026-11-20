@@ -1,0 +1,9 @@
+(piece "Small ugal")
+
+(use gong-kebyar)
+
+;; Our ugal has only five keys. This replaces the template's ugal;
+;; everything else still comes from gong-kebyar.
+(instrument ugal selisir  o1 e1 u1 a1 i2)
+
+(part ugal ugal  o1 e1 u1 a1 i2 a1 u1 e1)

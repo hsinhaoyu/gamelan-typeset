@@ -4,6 +4,9 @@
 ;;; - Every example is included by at least one page.
 ;;; - Every mistake in doc/manual/src/mistakes/ (NAME.gml) fails to read,
 ;;;   with exactly the message in NAME.txt, and a page includes both.
+;;; - Files in a templates/ folder under examples/ or mistakes/ are
+;;;   templates, not pieces: they are read through the pieces that use
+;;;   them, and each must be included by a page.
 
 (use-modules (srfi srfi-1)
              (srfi srfi-64)
@@ -15,6 +18,10 @@
              (notasi reader))
 
 (define src "doc/manual/src")
+
+;;; Mistakes are read from inside their folder, so find the repo's
+;;; templates/ by an absolute path rather than through ".".
+(add-to-load-path (getcwd))
 (define examples-dir (string-append src "/examples"))
 (define mistakes-dir (string-append src "/mistakes"))
 
@@ -66,8 +73,14 @@ the file reads without a notasi error."
 (define (expected-message gml)
   (string-trim-right (slurp (string-append (string-drop-right gml 4) ".txt"))))
 
-(define examples (files-under examples-dir ".gml"))
-(define mistakes (files-under mistakes-dir ".gml"))
+(define (template-file? f)
+  (string-contains f "/templates/"))
+
+(define examples (remove template-file? (files-under examples-dir ".gml")))
+(define mistakes (remove template-file? (files-under mistakes-dir ".gml")))
+(define templates
+  (filter template-file? (append (files-under examples-dir ".gml")
+                                 (files-under mistakes-dir ".gml"))))
 (define pages (files-under src ".md"))
 (define included (append-map includes pages))
 
@@ -104,7 +117,7 @@ the file reads without a notasi error."
  (lambda (f)
    (test-assert (string-append "example is used by a page: " f)
      (member f included)))
- examples)
+ (append examples templates))
 
 (define runner (test-runner-current))
 (test-end "manual")

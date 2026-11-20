@@ -41,5 +41,9 @@ instruments, ready for parts. Next, set the
 [steps and pulses](steps-and-pulses.md) and write the
 [notes](notes-rests-and-holds.md) each instrument plays.
 
+Most pieces for one gamelan share the same scale and instruments. Put
+them in a [template](templates.md) once instead of at the top of every
+piece.
+
 If something is wrong, see
 [Error messages](errors.md#mistakes-in-scales-and-instruments).

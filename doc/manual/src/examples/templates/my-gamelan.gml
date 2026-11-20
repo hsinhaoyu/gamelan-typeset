@@ -1,0 +1,11 @@
+;; The gamelan at our studio: a gender wayang tuned in slendro.
+
+(scale slendro
+  (ding (alias i))
+  (dong (alias o))
+  (deng (alias e))
+  (dung (alias u))
+  (dang (alias a)))
+
+;; Ten keys, dong1 up to ding3.
+(instrument gender  slendro  o1 e1 u1 a1 i2 o2 e2 u2 a2 i3)

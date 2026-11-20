@@ -211,6 +211,72 @@ and `·` in each (not `/`), and add rests to the shorter part.
 
 Each part can be in only one group. Remove it from one of them.
 
+## Mistakes with templates
+
+### No template with that name
+
+```scheme
+{{#include mistakes/template-not-found.gml}}
+```
+
+```text
+{{#include mistakes/template-not-found.txt}}
+```
+
+Check the spelling: here it should be `gong-kebyar`. A name in double
+quotes is a file, looked up from the folder of the piece.
+
+### `use` too late
+
+```scheme
+{{#include mistakes/use-not-first.gml}}
+```
+
+```text
+{{#include mistakes/use-not-first.txt}}
+```
+
+Move the `use` line up, right after the `piece` line.
+
+### Two templates define the same name
+
+```scheme
+{{#include mistakes/template-conflict.gml}}
+```
+
+```scheme
+{{#include mistakes/templates/my-reyong.gml}}
+```
+
+```scheme
+{{#include mistakes/templates/my-ugal.gml}}
+```
+
+```text
+{{#include mistakes/template-conflict.txt}}
+```
+
+Both templates have a `ugal`, and notasi can't tell which one you
+mean. Remove it from one of them, or define `ugal` in the piece itself:
+the piece's own definition replaces both.
+
+### Music in a template
+
+```scheme
+{{#include mistakes/part-in-template.gml}}
+```
+
+```scheme
+{{#include mistakes/templates/with-a-part.gml}}
+```
+
+```text
+{{#include mistakes/part-in-template.txt}}
+```
+
+A template holds only `scale`, `strokes`, `instrument` and `use` lines.
+Put the `part` in the piece.
+
 ## Other messages
 
 - **no (piece TITLE ...) form**: the file has no `piece` line. Add one
@@ -229,6 +295,8 @@ Each part can be in only one group. Remove it from one of them.
 - **… is listed twice**: a drum or gong lists the same stroke twice.
 - **no instrument called …** / **no part with this name**: check the
   spelling of the instrument in a `part`, or of a part in a `group`.
+- **template … uses itself, through a cycle of uses**: two templates
+  load each other. Remove one of the `use` lines.
 - **a chord needs two or more notes …** / **a chord has the same note
   twice**: see [Chords](chords.md).
 - **a group can hold one pitched instrument …**: see

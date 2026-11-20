@@ -1,0 +1,1 @@
+templates/my-ugal.gml:3: `ugal' is also defined in templates/my-reyong.gml; two templates used by one file can't define the same name

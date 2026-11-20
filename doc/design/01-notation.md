@@ -1,6 +1,6 @@
 # 01 — Notation language
 
-Status: partly implemented (draft v1): every form except `use` and `text` is read (reader slices 1–3); `use` is planned (slice 4) and `text` is v2.
+Status: implemented (draft v1): every form except `text` (v2) is read.
 
 ## Goals
 
