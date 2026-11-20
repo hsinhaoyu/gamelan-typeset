@@ -119,8 +119,25 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
      `piece-not-first`, `duplicate-piece`).
   4. The `piece` form's title and options (`bad-title`, `bad-option`,
      `unknown-option`, `duplicate-option`).
-  5. The other forms, in later steps. Until a slice implements a form,
-     it raises `not-implemented` at that form's line.
+  5. A `use` form (until slice 4): `not-implemented`. It comes before
+     the definitions, so a file that uses a template isn't reported as
+     having undefined scales.
+  6. The shape of each `scale`, `strokes` and `instrument` form, in file
+     order (`bad-form`).
+  7. Duplicate definitions, in file order: the second definition of a
+     name is the error (`duplicate-definition`).
+  8. Each scale and stroke set, in file order, and within it each degree
+     or stroke in order: its shape and options (`bad-degree`), then a
+     name or alias ending in a digit (`degree-ends-in-digit`, scales
+     only), then a name or alias already used in this set
+     (`duplicate-degree`).
+  9. Each instrument, in file order: its scale or stroke set
+     (`undefined-scale`), then each note in order: whether it exists
+     (`unknown-note`), then against the notes before it
+     (`notes-not-ascending`, `duplicate-note`).
+  10. The other forms (`part`, `group`, `text`), in later steps. Until a
+     slice implements a form, it raises `not-implemented` at that form's
+     line.
 - Which line an error reports:
   - The line of the list to blame: the form, or for an option error the
     option itself, since an option is a list with its own line.
@@ -135,7 +152,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 The number in brackets is the slice (below) that implements the case.
 
-Each case is followed by its `kind` symbol. Kinds for slices 2 to 4 are
+Each case is followed by its `kind` symbol. Kinds for slices 3 and 4 are
 chosen when those slices start.
 
 - [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
@@ -154,9 +171,17 @@ chosen when those slices start.
   `unknown-form`
 - [1] A known form that the reader does not handle yet (e.g. `text`,
   which is v2): `not-implemented`
-- [2] Undefined scale name
+- [2] An instrument naming a scale or stroke set that isn't defined:
+  `undefined-scale` (instrument's line)
+- [2] A `scale`, `strokes` or `instrument` form of the wrong shape: no
+  name, a name that is not a symbol, no degrees or strokes, or an
+  instrument with no notes: `bad-form` (the form's line). Later slices
+  use the same kind for malformed `part` and `group` forms.
 - [3] Undefined instrument or part name
-- [2] Duplicate scale, stroke set or instrument definitions within one file
+- [2] Duplicate scale, stroke set or instrument definitions within one
+  file: `duplicate-definition` (line of the second). Scales and stroke
+  sets share one set of names; instruments have their own, so an
+  instrument may share a name with a scale or stroke set.
 - [3] Duplicate part definitions within one file
 - [4] The same name from two templates used by one file
 - [4] Template not found; a cycle of `use`s; a `use` argument that is not a
@@ -164,12 +189,25 @@ chosen when those slices start.
 - [4] A template containing a form other than `scale`, `strokes`,
   `instrument` or `use`
 - [4] `use` after a definition, part or group
-- [2] Instrument note not in its scale or stroke set, or pitched notes not
-  ascending
-- [2] Duplicate degree or stroke name or alias within a scale or stroke set
-- [2] A scale and a stroke set with the same name
-- [2] Degree name or alias ending in a digit (scales only)
-- [2] Unknown degree option, or `display` that is not a string
+- [2] Instrument note not in its scale or stroke set, or a pitched note
+  without an octave number (`ding`): `unknown-note`; pitched notes not
+  in strictly ascending order (so a repeated note too):
+  `notes-not-ascending`; a stroke listed twice: `duplicate-note`. All at
+  the instrument's line. Octave numbers are whole numbers of 0 or more,
+  so `ding0` is a note below `ding1`.
+- [2] Duplicate degree or stroke name or alias within a scale or stroke
+  set, including an alias equal to its own degree's name:
+  `duplicate-degree`
+- [2] A scale and a stroke set with the same name: `duplicate-definition`
+  (see above)
+- [2] Degree name or alias ending in a digit (scales only):
+  `degree-ends-in-digit`
+- [2] A degree or stroke that is not `NAME` or `(NAME OPTION ...)`, an
+  unknown degree option, `display` that is not a string, `(alias)` with
+  no names, or an option given twice: `bad-degree`
+
+For a degree error, the line is the degree's own line when it is written
+as a list, otherwise the line of its scale or stroke set.
 - [3] Note index out of range; unknown note name
 - [3] `_` at the start of a part or after a rest (`-` or `·`)
 - [3] Unknown token (e.g. a string or `#t` inside a part)
@@ -199,7 +237,11 @@ Slice 1 is implemented; slices 2 to 4 are **Planned**.
    other known form raises `not-implemented`. The `directory` keyword is
    accepted but unused until slice 4.
 2. `feat/reader-scales`: step 4 and the scale and instrument parts of
-   steps 5 and 6, for definitions in a single file.
+   steps 5 and 6, for definitions in a single file. A file with only
+   `piece`, `scale`, `strokes` and `instrument` forms reads into a piece
+   whose scales (scales and stroke sets together) and instruments are in
+   file order, with length 0 and no parts or groups. `use`, `part`,
+   `group` and `text` still raise `not-implemented`.
 3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
    A piece with everything defined in one file reads correctly.
 4. `feat/reader-templates`: step 3 and the template-finding rules under
