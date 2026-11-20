@@ -12,8 +12,36 @@
 ;;;   UTF-8 whatever the locale's default port encoding is.
 ;;; - Each write-figure call happens inside a test, so a failing or
 ;;;   missing write-figure fails tests rather than stopping the file.
+;;;
+;;; Slice 2 (feat/typst-render): the entry file and running Typst,
+;;; written from "The entry file and running Typst" in the same doc.
+;;; Choices where the spec leaves room (also noted at the tests):
+;;; - The entry file is the spec's block exactly, ending with a newline
+;;;   after `#score(data)`, like every other text file written here.
+;;; - compile-typst is tested on a hand-made folder (template copy,
+;;;   figure JSON, entry text written here from the spec), so it doesn't
+;;;   depend on write-entry-file.
+;;; - "Typst fails": the message (exception-message) must contain
+;;;   Typst's own output, not just the irritants.
+;;; - "typst not on the PATH": PATH is set, for the call, to the current
+;;;   PATH minus every folder holding a `typst`, so `sh` and the rest
+;;;   are still found.
+;;; - render-piece's temporary folder: the spec doesn't say where it
+;;;   goes.  TMPDIR is set to a fresh empty folder during each call and
+;;;   checked to be empty afterwards; this catches a folder left behind
+;;;   only if the implementation makes it under $TMPDIR.
+;;; - #:keep-in DIR: DIR exists beforehand, and holds exactly piece.json,
+;;;   piece.typ and notasi.typ afterwards.
+;;; - Relative OUT-PATH: `guile -L .` puts a relative "." on
+;;;   %load-path, which stops finding templates once the test changes
+;;;   folder, so that test puts the repo's absolute path on %load-path.
+;;; - Calls to the procedures under test happen inside a test or inside
+;;;   a guard (exception-from), so while they are unbound the tests fail
+;;;   rather than the file stopping; an unbound variable never counts as
+;;;   the expected &error.
 
-(use-modules (srfi srfi-64)
+(use-modules (srfi srfi-1)
+             (srfi srfi-64)
              (ice-9 binary-ports)
              (ice-9 exceptions)
              (ice-9 ftw)
@@ -23,6 +51,7 @@
              (notasi json)
              (notasi layout)
              (notasi reader)
+             (notasi style)
              (notasi typst))
 
 ;;; ------------------------------------------------------------------
@@ -61,11 +90,18 @@ these tests from passing by accident."
     (thunk)
     #f))
 
+(define (remove-tree path)
+  "Delete PATH: a file, or a folder and everything in it."
+  (if (eq? 'directory (stat:type (lstat path)))
+      (begin
+        (for-each (lambda (name) (remove-tree (string-append path "/" name)))
+                  (scandir path (lambda (f) (not (member f '("." ".."))))))
+        (rmdir path))
+      (delete-file path)))
+
 (define (cleanup)
-  "Delete tmp-dir and every file in it."
-  (for-each (lambda (name) (delete-file (tmp-path name)))
-            (scandir tmp-dir (lambda (f) (not (member f '("." ".."))))))
-  (rmdir tmp-dir))
+  "Delete tmp-dir and everything in it."
+  (remove-tree tmp-dir))
 
 ;;; A small figure with nested values and non-ASCII text.
 (define small-figure
@@ -134,6 +170,357 @@ these tests from passing by accident."
     (string->utf8 (expected-text figure))
     (begin (write-figure figure path)
            (read-bytes path))))
+
+;;; ==================================================================
+;;; Slice 2: the entry file and running Typst
+
+;;; ------------------------------------------------------------------
+;;; Helpers
+
+(define repo-dir (getcwd))
+(define template-path (string-append repo-dir "/typst/notasi.typ"))
+(define example-path (string-append repo-dir "/examples/tenzer1.gml"))
+(define releases-url "https://github.com/typst/typst/releases")
+
+(define (spec-entry-text json-name)
+  "The entry file from the spec's code block, reading JSON-NAME."
+  (string-append
+   "#import \"notasi.typ\": score\n"
+   "#set page(width: auto, height: auto, margin: 14pt, fill: white)\n"
+   "#set text(font: \"Libertinus Serif\", size: 8pt)\n"
+   "#let data = json(\"" json-name "\")\n"
+   "#if data.title != \"\" {\n"
+   "  block(below: 1em, text(weight: \"bold\", size: 1.2em, data.title))\n"
+   "}\n"
+   "#score(data)\n"))
+
+(define (make-subdir name)
+  "Make the folder NAME in tmp-dir and return its path."
+  (let ((dir (tmp-path name)))
+    (mkdir dir)
+    dir))
+
+(define (folder-entries dir)
+  "The names in DIR, sorted, without . and .."
+  (scandir dir (lambda (f) (not (member f '("." ".."))))))
+
+(define (file-starts-with? path prefix)
+  "#t if PATH is a file whose bytes start with the string PREFIX (ASCII)."
+  (and (file-exists? path)
+       (let ((bytes (read-bytes path))
+             (want (string->utf8 prefix)))
+         (and (bytevector? bytes)
+              (>= (bytevector-length bytes) (bytevector-length want))
+              (let ((head (make-bytevector (bytevector-length want))))
+                (bytevector-copy! bytes 0 head 0 (bytevector-length want))
+                (equal? head want))))))
+
+(define (png-file? path)
+  "#t if PATH starts with the PNG signature \\x89PNG\\r\\n\\x1a\\n."
+  (and (file-exists? path)
+       (let ((bytes (read-bytes path))
+             (want #vu8(#x89 #x50 #x4e #x47 #x0d #x0a #x1a #x0a)))
+         (and (bytevector? bytes)
+              (>= (bytevector-length bytes) 8)
+              (let ((head (make-bytevector 8)))
+                (bytevector-copy! bytes 0 head 0 8)
+                (equal? head want))))))
+
+(define (png-size path)
+  "The width and height in pixels of the PNG file PATH, from its IHDR."
+  (let ((bytes (read-bytes path)))
+    (list (bytevector-u32-ref bytes 16 (endianness big))
+          (bytevector-u32-ref bytes 20 (endianness big)))))
+
+(define (non-empty-file? path)
+  (and (file-exists? path)
+       (> (stat:size (stat path)) 0)))
+
+(define (pdf-file? path)
+  (and (non-empty-file? path) (file-starts-with? path "%PDF")))
+
+(define (svg-file? path)
+  (and (non-empty-file? path)
+       (or (file-starts-with? path "<svg")
+           (file-starts-with? path "<?xml"))))
+
+(define (exception-from thunk)
+  "The exception THUNK raises, or #f if it returns."
+  (guard (e (#t e))
+    (thunk)
+    #f))
+
+(define (raises? pred thunk)
+  "#t if THUNK raises an exception satisfying PRED.  An unbound variable
+(the procedure under test not existing yet) never counts."
+  (let ((e (exception-from thunk)))
+    (and e
+         (not (undefined-variable-error? e))
+         (pred e)
+         #t)))
+
+(define (the-error? e)
+  "#t if E is an &error that isn't an unbound variable."
+  (and e (error? e) (not (undefined-variable-error? e))))
+
+(define (message-contains? e text)
+  (and (the-error? e)
+       (exception-with-message? e)
+       (string? (exception-message e))
+       (string-contains-ci (exception-message e) text)
+       #t))
+
+(define (call-with-env name value thunk)
+  "Call THUNK with the environment variable NAME set to VALUE, then
+restore it, even if THUNK raises."
+  (let ((old (getenv name)))
+    (dynamic-wind
+      (lambda () (setenv name value))
+      thunk
+      (lambda () (if old (setenv name old) (unsetenv name))))))
+
+(define (call-in-dir dir thunk)
+  "Call THUNK with DIR as the current folder and the repo's absolute
+path at the front of %load-path, then restore both."
+  (let ((old-dir (getcwd))
+        (old-path %load-path))
+    (dynamic-wind
+      (lambda ()
+        (set! %load-path (cons repo-dir old-path))
+        (chdir dir))
+      thunk
+      (lambda ()
+        (chdir old-dir)
+        (set! %load-path old-path)))))
+
+(define (path-without-typst)
+  "The current PATH without the folders that hold a `typst'."
+  (string-join
+   (filter (lambda (dir)
+             (not (file-exists? (string-append
+                                 (if (string-null? dir) "." dir)
+                                 "/typst"))))
+           (string-split (or (getenv "PATH") "") #\:))
+   ":"))
+
+(define (typst-on-path? path)
+  "#t if a `typst' is found on the search path PATH."
+  (any (lambda (dir)
+         (let ((file (string-append (if (string-null? dir) "." dir) "/typst")))
+           (and (file-exists? file) (access? file X_OK))))
+       (string-split path #\:)))
+
+(define (expected-figure-text gml-path style)
+  "What write-figure writes for GML-PATH laid out with STYLE."
+  (expected-text (layout-piece (read-piece-file gml-path) #:style style)))
+
+;;; ------------------------------------------------------------------
+;;; write-entry-file
+
+(test-group "write-entry-file"
+  (let ((path (tmp-path "entry.typ")))
+    (test-equal "writes the spec's entry file for figure.json"
+      (spec-entry-text "figure.json")
+      (begin (write-entry-file path "figure.json")
+             (read-text path))))
+  (let ((path (tmp-path "entry-other.typ")))
+    (test-equal "uses the given json-name (piece.json)"
+      (spec-entry-text "piece.json")
+      (begin (write-entry-file path "piece.json")
+             (read-text path)))))
+
+;;; ------------------------------------------------------------------
+;;; compile-typst
+
+;;; A folder made by hand: the template, a real figure, the spec's entry
+;;; file, an entry file with a Typst error, and a one-inch page.
+(define compile-dir (make-subdir "compile"))
+(define (compile-path name) (string-append compile-dir "/" name))
+(copy-file template-path (compile-path "notasi.typ"))
+(write-text (compile-path "figure.json")
+            (expected-figure-text "examples/tenzer1.gml" (default-style)))
+(write-text (compile-path "entry.typ") (spec-entry-text "figure.json"))
+(write-text (compile-path "broken.typ") "#nonexistent()\n")
+(write-text (compile-path "inch.typ")
+            "#set page(width: 1in, height: 1in, margin: 0pt)\nx\n")
+
+(test-group "compile-typst"
+  (for-each
+   (match-lambda
+     ((ext ok?)
+      (let ((out (compile-path (string-append "out." ext))))
+        (test-equal (string-append "." ext ": returns OUT-PATH")
+          out
+          (compile-typst (compile-path "entry.typ") out))
+        (test-assert (string-append "." ext ": writes a non-empty " ext " file")
+          (and (non-empty-file? out) (ok? out))))))
+   `(("pdf" ,pdf-file?)
+     ("png" ,png-file?)
+     ("svg" ,svg-file?)))
+
+  ;; 144 ppi: a one-inch square page is 144 pixels on each side.
+  (let ((out (compile-path "inch.png")))
+    (test-equal ".png is at 144 ppi"
+      '(144 144)
+      (begin (compile-typst (compile-path "inch.typ") out)
+             (png-size out))))
+
+  (for-each
+   (lambda (name)
+     (let ((out (compile-path name)))
+       (test-assert (string-append "unsupported extension (" name "): raises an &error")
+         (raises? error?
+                  (lambda () (compile-typst (compile-path "entry.typ") out))))
+       (test-assert (string-append "unsupported extension (" name "): writes no file")
+         (not (file-exists? out)))))
+   '("out.jpg" "out-no-extension"))
+
+  (let* ((typ (compile-path "broken.typ"))
+         (e (exception-from
+             (lambda () (compile-typst typ (compile-path "broken.pdf"))))))
+    (test-assert "Typst fails: raises an &error"
+      (the-error? e))
+    (test-assert "Typst fails: the message includes Typst's output"
+      (and (message-contains? e "error")
+           (message-contains? e "nonexistent")))
+    (test-assert "Typst fails: the irritants include TYP-PATH"
+      (and (the-error? e)
+           (exception-with-irritants? e)
+           (member typ (exception-irritants e))
+           #t)))
+
+  (let* ((path (path-without-typst))
+         (out (compile-path "no-typst.pdf"))
+         (e (call-with-env "PATH" path
+              (lambda ()
+                (exception-from
+                 (lambda () (compile-typst (compile-path "entry.typ") out)))))))
+    (test-assert "typst not on the PATH: (the test's PATH really has no typst)"
+      (not (typst-on-path? path)))
+    (test-assert "typst not on the PATH: raises an &error"
+      (the-error? e))
+    (test-assert "typst not on the PATH: the message names Typst 0.15.1"
+      (and (message-contains? e "typst")
+           (message-contains? e "0.15.1")))
+    (test-assert "typst not on the PATH: the message says where to get it"
+      (message-contains? e releases-url))
+    (test-assert "typst not on the PATH: writes no file"
+      (not (file-exists? out)))))
+
+;;; ------------------------------------------------------------------
+;;; render-piece
+
+(define render-dir (make-subdir "render"))
+(define (render-path name) (string-append render-dir "/" name))
+
+;;; TMPDIR during render-piece calls; must be empty after each one.
+(define render-tmp (make-subdir "render-tmp"))
+(define (with-render-tmp thunk)
+  (call-with-env "TMPDIR" render-tmp thunk))
+(define (render-tmp-empty?)
+  (null? (folder-entries render-tmp)))
+
+(test-group "render-piece"
+  (let ((out (render-path "tenzer1.pdf")))
+    (test-equal "tenzer1 to .pdf: returns OUT-PATH"
+      out
+      (with-render-tmp (lambda () (render-piece example-path out))))
+    (test-assert "tenzer1 to .pdf: writes a non-empty PDF"
+      (pdf-file? out))
+    (test-assert "tenzer1 to .pdf: leaves nothing in TMPDIR"
+      (render-tmp-empty?)))
+
+  (let ((out (render-path "tenzer1.png")))
+    (test-equal "tenzer1 to .png: returns OUT-PATH"
+      out
+      (with-render-tmp (lambda () (render-piece example-path out))))
+    (test-assert "tenzer1 to .png: writes a non-empty PNG"
+      (and (non-empty-file? out) (png-file? out))))
+
+  ;; #:keep-in: the three files are kept, and are what the pieces
+  ;; write on their own.
+  (let ((keep (make-subdir "keep"))
+        (out (render-path "kept.pdf")))
+    (define (kept name) (string-append keep "/" name))
+    (test-equal "keep-in: returns OUT-PATH"
+      out
+      (with-render-tmp
+       (lambda () (render-piece example-path out #:keep-in keep))))
+    (test-assert "keep-in: writes the PDF"
+      (pdf-file? out))
+    (test-equal "keep-in: DIR holds piece.json, piece.typ and notasi.typ"
+      '("notasi.typ" "piece.json" "piece.typ")
+      (folder-entries keep))
+    (test-equal "keep-in: piece.json is the figure, as write-figure writes it"
+      (expected-figure-text example-path (default-style))
+      (and (file-exists? (kept "piece.json")) (read-text (kept "piece.json"))))
+    (test-equal "keep-in: piece.typ is the entry file for piece.json"
+      (spec-entry-text "piece.json")
+      (and (file-exists? (kept "piece.typ")) (read-text (kept "piece.typ"))))
+    (test-equal "keep-in: notasi.typ is a copy of the template"
+      (read-text template-path)
+      (and (file-exists? (kept "notasi.typ")) (read-text (kept "notasi.typ"))))
+    (test-assert "keep-in: leaves nothing in TMPDIR"
+      (render-tmp-empty?)))
+
+  ;; #:style: the figure is laid out with the given style.
+  (let ((keep (make-subdir "keep-style"))
+        (out (render-path "styled.pdf"))
+        (style (make-style #:palette 'set3)))
+    (test-assert "style: (the test's style changes the figure)"
+      (not (equal? (expected-figure-text example-path style)
+                   (expected-figure-text example-path (default-style)))))
+    (test-equal "style: piece.json is laid out with #:style"
+      (expected-figure-text example-path style)
+      (begin
+        (with-render-tmp
+         (lambda ()
+           (render-piece example-path out #:style style #:keep-in keep)))
+        (let ((json (string-append keep "/piece.json")))
+          (and (file-exists? json) (read-text json))))))
+
+  ;; A reader error passes through unchanged.
+  (let ((gml (tmp-path "bad.gml"))
+        (out (render-path "bad.pdf")))
+    (write-text gml "(piece \"Bad\")\n(bogus 1)\n")
+    (let ((direct (exception-from (lambda () (read-piece-file gml))))
+          (e (with-render-tmp
+              (lambda ()
+                (exception-from (lambda () (render-piece gml out)))))))
+      (test-assert "syntax error: raises &notasi-syntax-error"
+        (and e (notasi-syntax-error? e)))
+      (test-equal "syntax error: same kind, file and line as the reader's"
+        (list 'unknown-form
+              (notasi-syntax-error-file direct)
+              (notasi-syntax-error-line direct))
+        (and e (notasi-syntax-error? e)
+             (list (notasi-syntax-error-kind e)
+                   (notasi-syntax-error-file e)
+                   (notasi-syntax-error-line e))))
+      (test-assert "syntax error: writes no output file"
+        (not (file-exists? out)))
+      (test-assert "syntax error: leaves nothing in TMPDIR"
+        (render-tmp-empty?))))
+
+  ;; OUT-PATH relative to the current folder.
+  (let ((dir (make-subdir "relative")))
+    (test-equal "relative OUT-PATH: returns OUT-PATH as given"
+      "rel.pdf"
+      (call-in-dir dir
+        (lambda ()
+          (with-render-tmp (lambda () (render-piece example-path "rel.pdf"))))))
+    (test-assert "relative OUT-PATH: writes the PDF in the current folder"
+      (pdf-file? (string-append dir "/rel.pdf"))))
+
+  (let ((out (render-path "tenzer1.jpg")))
+    (test-assert "unsupported extension: raises an &error"
+      (raises? error?
+               (lambda ()
+                 (with-render-tmp (lambda () (render-piece example-path out))))))
+    (test-assert "unsupported extension: writes no file"
+      (not (file-exists? out)))
+    (test-assert "unsupported extension: leaves nothing in TMPDIR"
+      (render-tmp-empty?))))
 
 (cleanup)
 

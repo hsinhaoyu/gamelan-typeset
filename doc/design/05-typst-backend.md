@@ -241,20 +241,27 @@ plain `&error`s with a readable message:
 
 - `typst` not on the PATH: the message says Typst 0.15.1 is needed and
   where to get it (https://github.com/typst/typst/releases).
-- Typst fails: the message includes Typst's own output; the irritants
-  include TYP-PATH.
+- Typst fails: the message itself includes Typst's own output (so a
+  musician sees what went wrong, not only a program reading the
+  irritants); the irritants include TYP-PATH.
 
 `(render-piece gml-path out-path #:key (style (default-style)) keep-in)`
 goes from a `.gml` file to a picture in one step: read the piece
 (reader errors pass through unchanged), lay it out with STYLE, write
 `piece.json` (`write-figure`), copy the template, write `piece.typ`,
 and compile to OUT-PATH. The three files go in a fresh temporary
-folder that is deleted afterwards, even on failure; with
+folder under `$TMPDIR` (or `/tmp` when it isn't set) that is deleted
+afterwards, even on failure; with
 `#:keep-in DIR` they are written to DIR instead and kept, for
 debugging. OUT-PATH is relative to the current directory. Returns
 OUT-PATH. The template is found as `typst/notasi.typ` along Guile's
 `%load-path`, like the `.gml` templates (03), so running with `-L .`
 finds the repo's; if it can't be found, that is an `&error`.
+
+None of these procedures changes the current directory. A relative
+`%load-path` entry such as the `.` from `-L .` only works while the
+current directory stays put, so the `notasi` command (slice 3) puts the
+project's absolute path on `%load-path`, never `.`.
 
 The command-line script `scripts/notasi` (ADR 0018), as `notasi
 render`, calls `render-piece` (slice 3). Its other subcommands
