@@ -20,7 +20,7 @@ at the right versions:
 | Tool | Needed by | Why |
 |---|---|---|
 | Guile 3.0 | everyone | runs notasi and its tests |
-| Typst | everyone, once the backend exists | draws the figures (05, 06) |
+| Typst | everyone who draws, and contributors | draws the figures (05, 06); pinned to 0.15.1 |
 | mdBook | contributors | builds the user manual (ADR 0014) |
 
 Typst is pre-1.0 and has breaking changes in most releases, usually
@@ -37,12 +37,18 @@ its version.
   `dev` and `main`, on a fresh `ubuntu-latest` machine, with Guile from
   apt. The Guile version is whatever Ubuntu ships, and it changes when
   `ubuntu-latest` moves to a newer Ubuntu.
+- CI also installs Typst at the pinned version (`TYPST_VERSION`,
+  0.15.1, from Typst's GitHub releases), so the template and the
+  `notasi` command are tested on every PR.
 - The manual workflow (`.github/workflows/manual.yml`) pins mdBook
-  (`MDBOOK_VERSION`), builds the manual on every PR, and publishes it
-  to GitHub Pages when `main` changes (ADR 0014). Nothing else
-  publishes to Pages.
+  (`MDBOOK_VERSION`), installs Guile and Typst 0.15.1 to draw the
+  manual's figures, builds the manual (`make manual`) on every PR, and
+  publishes it to GitHub Pages when `main` changes (ADR 0014). Nothing
+  else publishes to Pages.
 - The developer's machine runs macOS; CI runs only Linux.
-- Nothing installs notasi for users yet.
+- Nothing installs notasi for users yet: they run `scripts/notasi`
+  from a copy of the repository, with Guile and Typst installed by
+  hand.
 
 ## Open questions
 

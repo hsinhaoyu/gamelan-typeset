@@ -1,10 +1,10 @@
 # 05 — Typst backend and JSON contract
 
-Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-`(notasi typst)` (figure files, the entry file, running Typst,
-`render-piece`), the template `typst/notasi.typ` and the `notasi
-render` command are implemented: all three slices (see "Slices"). Modules: `(notasi json)`,
-`(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
+Status: implemented (draft v1): all three slices (see "Slices"): the
+JSON writer, figure files, the entry file, running Typst,
+`render-piece`, the template and the `notasi render` command. Modules:
+`(notasi json)`, `(notasi typst)`, `(notasi command)` (Guile),
+`typst/notasi.typ` (Typst template), `scripts/notasi` (the command).
 
 ## Responsibility
 
@@ -199,9 +199,10 @@ Tests (slice 1): `tests/template.scm` compiles every
 `tests/golden/*.json` with `score` (from an entry file made in a
 temporary folder) and fails if `typst compile` fails or prints a
 warning. If `typst` isn't installed it says so and fails, since CI
-always installs it. `make preview` renders each golden figure to
-`build/preview/NAME.png` (not committed) for a person to compare with
-the prototype; every PR touching the template is checked that way.
+always installs it. `make preview` draws each example to
+`build/preview/NAME.png` (not committed) with `render-piece`, for a
+person to check by eye; every PR that changes how figures look is
+checked that way.
 
 ## The entry file and running Typst
 
