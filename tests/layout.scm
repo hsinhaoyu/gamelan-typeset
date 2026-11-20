@@ -137,13 +137,13 @@ and every array a vector?"
 
 (define white "#ffffff")
 (define dark "#222222")
-(define grey "#999999")              ; strokes (ADR 0019)
-;; dark2, degree k → colour k
-(define ding-fill "#1b9e77")
-(define dong-fill "#d95f02")
-(define deng-fill "#7570b3")
-(define dung-fill "#e7298a")
-(define dang-fill "#66a61e")
+(define grey "#cccccc")              ; strokes (ADRs 0019, 0021)
+;; pastel1 (the default, ADR 0021), degree k → colour k; all take dark text
+(define ding-fill "#fbb4ae")
+(define dong-fill "#b3cde3")
+(define deng-fill "#ccebc5")
+(define dung-fill "#decbe4")
+(define dang-fill "#fed9a6")
 
 (define selisir-lines
   '("(scale selisir"
@@ -197,20 +197,20 @@ and every array a vector?"
          (sys 0 3
               (grp "Ugal" "polos + sangsih" #("i2" "e1" "o1" "i1")
                    (voice "polos"
-                          (ev 0 2 3 'null ding-fill white #f)
-                          (ev 2 1 2 'null dong-fill white #f))
+                          (ev 0 2 3 'null ding-fill dark #f)
+                          (ev 2 1 2 'null dong-fill dark #f))
                    (voice "sangsih"
-                          (ev 1 2 0 'null ding-fill white #f)))
+                          (ev 1 2 0 'null ding-fill dark #f)))
               (grp "gong" 'null #("G" "P")
                    (voice "gong"
                           (ev 0 1 1 "P" grey dark #f))))
          (sys 3 2
               (grp "Ugal" "polos + sangsih" #("i2" "e1" "o1" "i1")
                    (voice "polos"
-                          (ev 0 2 2 'null dong-fill white #t))
+                          (ev 0 2 2 'null dong-fill dark #t))
                    (voice "sangsih"
-                          (ev 0 1 1 'null deng-fill white #f)
-                          (ev 0 1 3 'null ding-fill white #f)))
+                          (ev 0 1 1 'null deng-fill dark #f)
+                          (ev 0 1 3 'null ding-fill dark #f)))
               (grp "gong" 'null #("G" "P")
                    (voice "gong"
                           (ev 0 1 0 "G" grey dark #f))))))
@@ -540,13 +540,13 @@ and every array a vector?"
     (map (lambda (s) (timing (events-of (layout-piece cuts) s 4 0)))
          '(0 1 2 3)))
   (test-equal "every piece of a cut note keeps its text and look"
-    (list (list "i" ding-fill white) (list "i" ding-fill white)
-          (list "i" ding-fill white))
+    (list (list "i" ding-fill dark) (list "i" ding-fill dark)
+          (list "i" ding-fill dark))
     (map (lambda (s) (event-look (car (events-of (layout-piece cuts) s 1 0))))
          '(0 1 2)))
   (test-equal "the full event objects of a cut note"
-    (list (ev 2 2 0 "i" ding-fill white #f)
-          (ev 0 2 0 "i" ding-fill white #t))
+    (list (ev 2 2 0 "i" ding-fill dark #f)
+          (ev 0 2 0 "i" ding-fill dark #t))
     (append (events-of (layout-piece cuts) 0 0 0)
             (events-of (layout-piece cuts) 1 0 0)))
   (test-equal "without systems breaks nothing is cut"
@@ -691,7 +691,7 @@ and every array a vector?"
                        0 0 0)))
 
   (test-equal "names are hidden by default: text null, colours kept"
-    (list (ev 0 1 0 'null dung-fill white #f)
+    (list (ev 0 1 0 'null dung-fill dark #f)
           (ev 1 1 1 'null dang-fill dark #f))
     (events-of (layout-piece
                 (apply piece-of
@@ -707,11 +707,11 @@ and every array a vector?"
                           "(instrument kendang k dag (show-names no))"
                           "(part p kendang dag)"))
                0 0 0))
-  (test-equal "default style, hard-coded: selisir degrees in dark2"
-    (list (ev 0 1 0 "u" dung-fill white #f)
-          (ev 1 1 1 "e" deng-fill white #f)
-          (ev 2 1 2 "o" dong-fill white #f)
-          (ev 3 1 3 "i" ding-fill white #f)
+  (test-equal "default style, hard-coded: selisir degrees in pastel1"
+    (list (ev 0 1 0 "u" dung-fill dark #f)
+          (ev 1 1 1 "e" deng-fill dark #f)
+          (ev 2 1 2 "o" dong-fill dark #f)
+          (ev 3 1 3 "i" ding-fill dark #f)
           (ev 4 1 4 "a" dang-fill dark #f))
     (events-of (layout-piece
                 (apply piece-of
@@ -720,7 +720,7 @@ and every array a vector?"
                                  "(part p u u2 e2 o2 i2 a1)"))))
                0 0 0))
   (test-equal "degree without display: text is the degree name"
-    (list (ev 0 1 0 "dong" dong-fill white #f))
+    (list (ev 0 1 0 "dong" dong-fill dark #f))
     (events-of (layout-piece (piece-of "(piece \"P\")"
                                        "(scale s ding dong)"
                                        "(instrument u s ding1 dong1 (show-names yes))"
@@ -756,7 +756,7 @@ and every array a vector?"
                      #:style (make-style #:palette 'set1))
                     0 0 0)))
   (test-equal "custom degree-colors via #:style"
-    (list (list "i" ding-fill white) (list "o" "#000000" white))
+    (list (list "i" ding-fill dark) (list "o" "#000000" white))
     (map event-look
          (events-of (layout-piece
                      (apply piece-of
@@ -801,13 +801,13 @@ and every array a vector?"
          '(0 1 2)))
   (test-equal "tenzer1: the ugal's events: colours, no names"
     (list (ev 0 1 3 'null dang-fill dark #f)
-          (ev 1 1 1 'null dong-fill white #f)
-          (ev 2 1 2 'null ding-fill white #f)
-          (ev 3 1 0 'null deng-fill white #f)
-          (ev 4 1 1 'null dong-fill white #f)
+          (ev 1 1 1 'null dong-fill dark #f)
+          (ev 2 1 2 'null ding-fill dark #f)
+          (ev 3 1 0 'null deng-fill dark #f)
+          (ev 4 1 1 'null dong-fill dark #f)
           (ev 5 1 3 'null dang-fill dark #f)
-          (ev 6 1 1 'null dong-fill white #f)
-          (ev 7 1 2 'null ding-fill white #f)
+          (ev 6 1 1 'null dong-fill dark #f)
+          (ev 7 1 2 'null ding-fill dark #f)
           (ev 8 1 3 'null dang-fill dark #f))
     (events-of (layout-piece tenzer) 0 0 0))
   (test-equal "tenzer1: kempli on every step"

@@ -114,13 +114,18 @@
   '("#1b9e77" "#d95f02" "#7570b3" "#e7298a"
     "#66a61e" "#e6ab02" "#a6761d" "#666666"))
 
-;; Default-style look of each selisir degree: colour k of dark2 for
-;; degree k, text = display form or degree name, text colour by contrast.
-(define ding-look (list "#1b9e77" "i"    white))
-(define dong-look (list "#d95f02" "dong" white))
-(define deng-look (list "#7570b3" "e"    white))
-(define dung-look (list "#e7298a" "dung" white))
-(define dang-look (list "#66a61e" "a"    dark))
+(define pastel1
+  '("#fbb4ae" "#b3cde3" "#ccebc5" "#decbe4" "#fed9a6" "#ffffcc"
+    "#e5d8bd" "#fddaec" "#f2f2f2"))
+
+;; Default-style look of each selisir degree: colour k of pastel1 (the
+;; default palette, ADR 0021) for degree k, text = display form or
+;; degree name, text colour by contrast (dark on every pastel).
+(define ding-look (list "#fbb4ae" "i"    dark))
+(define dong-look (list "#b3cde3" "dong" dark))
+(define deng-look (list "#ccebc5" "e"    dark))
+(define dung-look (list "#decbe4" "dung" dark))
+(define dang-look (list "#fed9a6" "a"    dark))
 
 (test-begin "style")
 
@@ -226,7 +231,7 @@
       (test-assert (string-append label ": style?") (style? style))
       (test-assert (string-append label ": scheme is by-degree")
         (eq? by-degree (style-scheme style)))
-      (test-equal (string-append label ": palette is dark2") dark2
+      (test-equal (string-append label ": palette is pastel1") pastel1
         (style-palette style))
       (test-equal (string-append label ": no degree-colors") '()
         (style-degree-colors style))))
@@ -372,7 +377,11 @@
                  dark2 '("p" "q" "r" "s" "t" "u" "v" "w"))
             (list (list "#1b9e77" "x" white)
                   (list "#1b9e77" "p" white)))
-    (looks (default-style) nines))
+    (looks (make-style #:palette 'dark2) nines))
+  (test-equal "pastel1 has nine colours: nine degrees, no wrap"
+    (map (lambda (colour name) (list colour name dark))
+         pastel1 '("p" "q" "r" "s" "t" "u" "v" "w" "x"))
+    (take (looks (default-style) nines) 9))
 
   (test-equal "one-colour palette colours every degree"
     (map (lambda (text) (list "#000000" text white))
@@ -419,14 +428,14 @@
   (test-assert "degree-colors that is not a list"
     (style-error? 'x #:degree-colors 'x)))
 
-;;; Strokes are grey boxes (ADR 0019, replacing 0017's "character only").
+;;; Strokes are light grey boxes (ADRs 0019 and 0021).
 (test-group "by-degree: strokes"
-  (let ((stroke-looks (list (list "#999999" "D" dark)
-                            (list "#999999" "dug" dark)
-                            (list "#999999" "du" dark))))
+  (let ((stroke-looks (list (list "#cccccc" "D" dark)
+                            (list "#cccccc" "dug" dark)
+                            (list "#cccccc" "du" dark))))
     (test-equal "kendang: grey box, display form or name, near-black"
       stroke-looks (looks (default-style) kendang))
-    (test-equal "gong" (list (list "#999999" "G" dark)) (looks (default-style) gong))
+    (test-equal "gong" (list (list "#cccccc" "G" dark)) (looks (default-style) gong))
     (test-equal "palette does not affect strokes"
       stroke-looks (looks (make-style #:palette 'set1) kendang))
     (test-equal "degree-colors naming a stroke leave it grey"
