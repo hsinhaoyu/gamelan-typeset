@@ -28,8 +28,8 @@ Repository layout (entries marked *planned* don't exist yet):
 
 ```
 notasi/             Guile modules: piece, reader, layout, json (planned), typst
-typst/notasi.typ    Typst template (planned)
-scripts/            command-line entry point: notasi-render (planned)
+typst/              Typst template and package: notasi.typ, typst.toml (planned)
+scripts/            command-line entry point: notasi render | typst | update | watch (planned)
 examples/           real pieces (.gml), used as test fixtures
 templates/          shared definitions (.gml) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
