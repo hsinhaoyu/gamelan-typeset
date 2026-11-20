@@ -1,7 +1,7 @@
 ;;; Smoke test: all modules load, and the test harness works.
 
 (use-modules (srfi srfi-64)
-             (gamelan model)
+             (gamelan piece)
              (gamelan reader)
              (gamelan layout)
              (gamelan typst)

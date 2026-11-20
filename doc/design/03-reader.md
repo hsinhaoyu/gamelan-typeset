@@ -31,7 +31,7 @@ messages. Nothing else in the system validates input.
    - `-` → close the current event, advance the step
    - `/` → skip, no step
 5. **Create default groups** for parts not named in any `group`.
-6. **Check the model invariants** (02-model.md) and equal part lengths.
+6. **Check the piece invariants** (02-piece.md) and equal part lengths.
 
 ## Error reporting
 

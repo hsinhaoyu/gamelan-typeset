@@ -4,7 +4,7 @@ Status: planned, not implemented yet (draft v1). Module: `(gamelan analysis)`
 
 ## Responsibility
 
-Compute facts about a piece from the model: intervals, distributions and
+Compute facts about a piece: intervals, distributions and
 interlocking behaviour. Output is plain data, so it can be printed as a
 text report, written as CSV/JSON, or later fed into Typst tables.
 

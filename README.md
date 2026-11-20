@@ -4,8 +4,8 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 
 ## Layout
 
-- `gamelan/model.scm`: core data model
-- `gamelan/reader.scm`: parses textual notation into the model
+- `gamelan/piece.scm`: records for a piece (instruments, notes, parts)
+- `gamelan/reader.scm`: parses textual notation into a piece
 - `gamelan/layout.scm`: lays out scores
 - `gamelan/typst.scm`: renders to Typst
 - `gamelan/analysis.scm`: analysis tools

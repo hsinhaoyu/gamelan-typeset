@@ -23,7 +23,7 @@ anything until the user says so.
    - Behaviour: notation tokens and rules, reader error cases, layout
      decisions, the JSON contract and its `version`, analyses.
    - Structure: the repository layout and module dependencies (ADR 0004:
-     reader, layout and analysis depend only on the model).
+     reader, layout and analysis depend only on `(gamelan piece)`; see ADR 0008).
    - Status labels: the `Status:` line and any Implemented / Planned /
      Open questions sections. Something marked planned that now exists,
      or marked implemented that doesn't, is drift.

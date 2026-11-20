@@ -1,14 +1,14 @@
 # Design overview
 
 This project notates Balinese (and other) gamelan music in a small text
-language, reads it into an internal model with Guile, renders it as a
+language, reads it into a `piece` record with Guile, renders it as a
 coloured, piano-roll-style grid via Typst, and analyses intervals and
 interlocking patterns.
 
 ## Pipeline
 
 ```
-piece.gml ──reader──▶ model ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
+piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
                         │
                         └──analysis──▶ report (text / CSV / JSON)
 ```
@@ -16,7 +16,7 @@ piece.gml ──reader──▶ model ──layout──▶ figure.json ──Ty
 | Stage | Module | Document |
 |---|---|---|
 | Notation language | — | [01-notation.md](01-notation.md) |
-| Internal model | `(gamelan model)` | [02-model.md](02-model.md) |
+| Piece (internal data) | `(gamelan piece)` | [02-piece.md](02-piece.md) |
 | Reader + validation | `(gamelan reader)` | [03-reader.md](03-reader.md) |
 | Layout | `(gamelan layout)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(gamelan typst)`, `typst/gamelan.typ` | [05-typst-backend.md](05-typst-backend.md) |
@@ -31,7 +31,7 @@ Each decision's context and consequences are in its record in
 1. The notation is s-expressions: [0001](../decisions/0001-notation-is-s-expressions.md)
 2. Time is a grid of equal steps: [0002](../decisions/0002-time-is-a-grid-of-equal-steps.md)
 3. Notes are symbolic: [0003](../decisions/0003-notes-are-symbolic.md)
-4. The model is the centre: [0004](../decisions/0004-the-model-is-the-centre.md)
+4. The piece is the centre: [0008](../decisions/0008-the-piece-is-the-centre.md)
 5. Guile decides, Typst draws: [0005](../decisions/0005-guile-decides-typst-draws.md)
 6. The JSON file is the contract with Typst: [0006](../decisions/0006-json-is-the-contract-with-typst.md)
 7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
@@ -44,7 +44,7 @@ Each decision's context and consequences are in its record in
   labelled **Implemented** (what the code does now), **Planned** (agreed,
   not built) or **Open questions** (undecided). Move items between these
   as they happen.
-- Any change to behaviour, notation, the model or the JSON contract
+- Any change to behaviour, notation, the piece records or the JSON contract
   updates these documents in the same PR.
 - Reversing or narrowing a core decision, or anything else documented
   here, needs a new record in `../decisions/` (see its README).
