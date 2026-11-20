@@ -60,8 +60,13 @@ Each decision's context and consequences are in its record in
 7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
 8. One pitched instrument per group: [0011](../decisions/0011-one-pitched-instrument-per-group.md)
 9. No analysis: [0015](../decisions/0015-no-analysis.md)
-10. Typst documents load scores from a side file: [0016](../decisions/0016-documents-load-scores-from-a-side-file.md) (proposed)
-11. Notes are coloured by pitch: [0017](../decisions/0017-notes-are-coloured-by-pitch.md)
+10. Notes are coloured by pitch: [0017](../decisions/0017-notes-are-coloured-by-pitch.md)
+11. One `notasi` command with subcommands: [0018](../decisions/0018-one-notasi-command.md)
+
+Proposed, not yet agreed:
+
+- Typst documents load scores from a side file: [0016](../decisions/0016-documents-load-scores-from-a-side-file.md)
+  (06 and the "Scores in Typst documents" milestone depend on it)
 
 ## Maintaining these documents
 

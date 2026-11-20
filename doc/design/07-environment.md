@@ -37,7 +37,10 @@ its version.
   `dev` and `main`, on a fresh `ubuntu-latest` machine, with Guile from
   apt. The Guile version is whatever Ubuntu ships, and it changes when
   `ubuntu-latest` moves to a newer Ubuntu.
-- The manual workflow pins mdBook (`MDBOOK_VERSION`).
+- The manual workflow (`.github/workflows/manual.yml`) pins mdBook
+  (`MDBOOK_VERSION`), builds the manual on every PR, and publishes it
+  to GitHub Pages when `main` changes (ADR 0014). Nothing else
+  publishes to Pages.
 - The developer's machine runs macOS; CI runs only Linux.
 - Nothing installs notasi for users yet.
 

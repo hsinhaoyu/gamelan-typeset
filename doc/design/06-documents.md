@@ -2,7 +2,7 @@
 
 Status: planned, not implemented yet (draft v1). Command: `notasi typst`,
 `notasi watch` (`scripts/notasi`); Typst package: `typst/` (published as
-`notasi`). Decision: ADR 0016.
+`notasi`). Decision: ADR 0016 (proposed).
 
 ## Responsibility
 
@@ -146,7 +146,8 @@ preview with neither running.
 
 ## Commands
 
-**Planned.** One command, `scripts/notasi`, with subcommands:
+**Planned.** One command, `scripts/notasi`, with subcommands (ADR
+0018):
 
 - `notasi render PIECE.gml [-o OUT]`: a standalone figure (05).
 - `notasi typst DOC.typ [typst options]`: update the manifest, then run

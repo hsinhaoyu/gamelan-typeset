@@ -34,7 +34,9 @@ each field (e.g. `make-event`, `event?`, `event-start`).
 
 ```
 source-location
-  file     : string | #f               #f when read from a string or port
+  file     : string | #f               the file the form came from; #f for
+                                       a piece read from a string or port
+                                       (its templates still have files)
   line     : integer                   1-based
 
 piece
