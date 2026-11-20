@@ -3,8 +3,8 @@
 Status: v1 implemented (records and derived values). Module: `(notasi piece)`,
 tests in `tests/piece.scm`.
 
-A `piece` record is the single source of truth after reading. Layout and
-analysis consume it; nothing downstream looks at the source text.
+A `piece` record is the single source of truth after reading. Layout
+consumes it; nothing downstream looks at the source text.
 
 ## Principles
 
@@ -91,15 +91,15 @@ group
 ```
 
 Rests are not stored. They are the gaps between events. This keeps
-layout and analysis simple: they only ever iterate over sounding events.
+layout simple: it only ever iterates over sounding events.
 
 ## Derived values (functions, not stored)
 
 **Implemented.**
 
 - `(note-pitch-index instrument note)`: `octave × scale-size + degree`,
-  a total order across all pitched instruments sharing a scale. Basis for
-  intervals. It takes the instrument because a note does not know its
+  a total order across all pitched instruments sharing a scale. Used to
+  sort lanes. It takes the instrument because a note does not know its
   scale. For a stroke, which has no pitch, raises an `&error` whose
   irritants are the note name and instrument name.
 - `(note-display instrument note)`: the degree's display form, e.g. `"i"`
@@ -117,7 +117,7 @@ layout and analysis simple: they only ever iterate over sounding events.
   (`part-steps` ≤ `piece-length`). It is not a part's written length:
   trailing rests are not events, so the reader checks that parts have
   equal length from their token counts instead (ADR 0012).
-- `(events-at piece step)`: everything sounding at a step, for analysis:
+- `(events-at piece step)`: everything sounding at a step:
   a list of `(part . event)` pairs, one for each event with
   `start ≤ step < start + duration`, in the piece's part order. An event
   sounds for its whole duration, including the `_` holds after its start.
@@ -149,8 +149,7 @@ tokens; 4 to 6 are checked.
   get one each? The prototype's kendang group draws one lane per drum,
   and the code currently gives each instrument its own lanes.
 - Is a chord one event with several notes (current choice) or several
-  simultaneous events? One event is simpler for layout; analysis may want
-  to split it.
+  simultaneous events? One event is simpler for layout.
 - How a note ends: rests are not stored, so the piece cannot tell a note
   damped at a rest from one left to ring. That is fine while `-` and `·`
   mean the same thing, but if they get different meanings (open question

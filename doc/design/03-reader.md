@@ -313,4 +313,3 @@ Slices 1 to 3 are implemented; slice 4 is **Planned**.
 ## Not the reader's job
 
 - Deciding lanes, colours or systems (layout)
-- Any interval computation (analysis)

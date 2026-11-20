@@ -4,8 +4,7 @@
              (notasi piece)
              (notasi reader)
              (notasi layout)
-             (notasi typst)
-             (notasi analysis))
+             (notasi typst))
 
 (test-begin "smoke")
 (test-assert "modules load" #t)
