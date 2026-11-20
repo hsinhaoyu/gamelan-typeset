@@ -26,7 +26,6 @@ Every piece starts with a title. Here is a whole file:
 ## What you get
 
 notasi reads this file as a piece called *Gilak for practice*, with no
-music in it yet. Writing the parts each instrument plays is the next
-thing notasi will learn. Until then, a file with anything other than
-the `piece` line gets the message
-[*not supported yet*](errors.md#not-supported-yet).
+music in it yet. Next, tell notasi about your
+[scales and stroke sets](scales-and-strokes.md) and
+[instruments](instruments.md).

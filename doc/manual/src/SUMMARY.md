@@ -10,6 +10,11 @@
 
 - [Steps and pulses](steps-and-pulses.md)
 
+# Scales, strokes and instruments
+
+- [Scales and stroke sets](scales-and-strokes.md)
+- [Instruments](instruments.md)
+
 # When something goes wrong
 
 - [Error messages](errors.md)
