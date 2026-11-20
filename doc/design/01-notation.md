@@ -38,6 +38,21 @@ would need. In particular:
 A file (extension `.gml`) is a sequence of top-level forms. Order matters
 only in that a name must be defined before it is used. Comments use `;`.
 
+Scales, stroke sets and instruments rarely change from one piece to the
+next, so they usually come from a template (see `use` below) and a piece
+contains only its parts and groups:
+
+```scheme
+(piece "Eight-pulse gong cycle" (steps-per-pulse 1))
+(use gong-kebyar)
+
+(part ugal   ugal   a1 o2 i2 e2 o2 a1 o2 i2)
+(part kempli kempli K  K  K  K  K  K  K  K)
+(part gong   gong   G  -  -  -  G  P  -  P)
+```
+
+The full example below defines everything itself, to show every form.
+
 ```scheme
 (piece "Example kotekan"
   (steps-per-pulse 4)
@@ -79,6 +94,31 @@ Exactly one per file, first. Options:
 |---|---|---|
 | `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and shading |
 | `(steps-per-system N)` | whole piece | Where the figure breaks into systems |
+
+### `(use TEMPLATE)`
+
+Loads the definitions in a template. A template is a `.gml` file that
+contains only `scale`, `strokes`, `instrument` and `use` forms.
+
+| TEMPLATE | Loads |
+|---|---|
+| a name: `(use gong-kebyar)` | `templates/gong-kebyar.gml`, shipped with this package |
+| a string: `(use "my-gamelan.gml")` | that file, relative to the file containing the `use` |
+
+Rules:
+- `use` forms come before any definition, part or group (in a piece,
+  right after `piece`). A file may have several.
+- A template may `use` other templates, e.g. a `gong-kebyar` template
+  could `use` a `selisir` template for its scale. Each template is loaded
+  once; a cycle is an error.
+- A file's own definitions replace definitions of the same name from the
+  templates it uses. For example, a piece can redefine `ugal` with a
+  different range and keep everything else from the template.
+- Two templates used by the same file must not define the same name
+  (unless it is the same definition, reached through both), and one
+  file must not define a name twice. Both are errors.
+- Names are resolved after all templates are loaded, so if a piece
+  replaces a scale, the template's instruments use the replacement.
 
 ### `(scale NAME DEGREE ...)`
 
