@@ -1,0 +1,428 @@
+;;; Unit tests for (notasi piece): records and derived functions.
+;;;
+;;; Written from doc/design/02-piece.md, not from the implementation.
+
+(use-modules (srfi srfi-1)
+             (srfi srfi-64)
+             (ice-9 match)
+             (notasi piece))
+
+;;; ------------------------------------------------------------------
+;;; Fixtures
+
+(define loc (make-source-location "test.gml" 1))
+
+(define (deg name alias display)
+  "A degree with at most one alias."
+  (make-degree name (if alias (list alias) '()) display loc))
+
+;; selisir: ding dong deng dung dang, aliases i o e u a.
+(define selisir
+  (make-scale 'selisir
+              (list (deg 'ding 'i "i")
+                    (deg 'dong 'o "o")
+                    (deg 'deng 'e "e")
+                    (deg 'dung 'u "u")
+                    (deg 'dang 'a "a"))
+              #t
+              loc))
+
+;; A scale whose degree had no (display ...) option: the reader fills in
+;; the degree name, so display is always a string.
+(define plain-scale
+  (make-scale 'plain
+              (list (deg 'ding #f "ding")
+                    (deg 'dung #f "dung"))
+              #t
+              loc))
+
+(define gong-strokes
+  (make-scale 'gong-strokes
+              (list (deg 'G #f "G") (deg 'P #f "P"))
+              #f
+              loc))
+
+(define kempli-strokes
+  (make-scale 'kempli-strokes (list (deg 'K #f "K")) #f loc))
+
+;; kendang strokes: dag (display "D"), dug, du.
+(define kendang-strokes
+  (make-scale 'kendang-strokes
+              (list (deg 'dag #f "D") (deg 'dug #f "dug") (deg 'du #f "du"))
+              #f
+              loc))
+
+(define (degree-index scale name)
+  (list-index (lambda (d) (eq? (degree-name d) name)) (scale-degrees scale)))
+
+(define (pitched-note scale name octave)
+  "Note NAME+OCTAVE of SCALE, e.g. (pitched-note selisir 'ding 2) is ding2."
+  (make-note (symbol-append name (string->symbol (number->string octave)))
+             (degree-index scale name)
+             octave))
+
+(define (stroke-note strokes name)
+  (make-note name (degree-index strokes name) #f))
+
+;; reyong: deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2 (ascending).
+;; Indices:  0     1     2     3     4     5     6     7
+(define reyong
+  (make-instrument
+   'reyong selisir
+   (list->vector
+    (map (match-lambda ((name octave) (pitched-note selisir name octave)))
+         '((deng 1) (dung 1) (dang 1)
+           (ding 2) (dong 2) (deng 2) (dung 2) (dang 2))))
+   loc))
+
+(define plain-instrument
+  (make-instrument 'plain plain-scale
+                   (vector (pitched-note plain-scale 'ding 1)
+                           (pitched-note plain-scale 'dung 1))
+                   loc))
+
+(define gong
+  (make-instrument 'gong gong-strokes
+                   (vector (stroke-note gong-strokes 'G)
+                           (stroke-note gong-strokes 'P))
+                   loc))
+
+(define kempli
+  (make-instrument 'kempli kempli-strokes
+                   (vector (stroke-note kempli-strokes 'K))
+                   loc))
+
+;; kendang lists dag dug du.
+(define kendang
+  (make-instrument 'kendang kendang-strokes
+                   (vector (stroke-note kendang-strokes 'dag)
+                           (stroke-note kendang-strokes 'dug)
+                           (stroke-note kendang-strokes 'du))
+                   loc))
+
+(define (inst-note instrument index)
+  (vector-ref (instrument-notes instrument) index))
+
+(define (ev start duration . notes)
+  (make-event start duration notes))
+
+(define (mk-part name instrument . events)
+  (make-part name instrument events loc))
+
+(define (mk-group label . parts)
+  (make-group label #f parts #f))
+
+(define (lane-names group)
+  (map note-name (group-lanes group)))
+
+;;; ------------------------------------------------------------------
+
+(test-begin "piece")
+
+;;; Records
+
+(test-group "source-location record"
+  (let ((l (make-source-location "song.gml" 12)))
+    (test-assert "predicate" (source-location? l))
+    (test-equal "file" "song.gml" (source-location-file l))
+    (test-equal "line" 12 (source-location-line l)))
+  (let ((l (make-source-location #f 3)))
+    (test-assert "file #f: predicate" (source-location? l))
+    (test-eq "file #f: file" #f (source-location-file l))
+    (test-equal "file #f: line" 3 (source-location-line l))))
+
+(test-group "degree record"
+  (let ((d (make-degree 'ding '(i) "i" loc)))
+    (test-assert "predicate" (degree? d))
+    (test-eq "name" 'ding (degree-name d))
+    (test-equal "aliases" '(i) (degree-aliases d))
+    (test-equal "display" "i" (degree-display d))
+    (test-eq "location" loc (degree-location d)))
+  (test-equal "aliases may be empty" '()
+    (degree-aliases (make-degree 'du '() "du" loc))))
+
+(test-group "scale record"
+  (test-assert "predicate" (scale? selisir))
+  (test-eq "name" 'selisir (scale-name selisir))
+  (test-equal "degrees" '(ding dong deng dung dang)
+    (map degree-name (scale-degrees selisir)))
+  (test-eq "pitched? #t" #t (scale-pitched? selisir))
+  (test-eq "pitched? #f for a stroke set" #f (scale-pitched? gong-strokes))
+  (test-eq "location" loc (scale-location selisir)))
+
+(test-group "note record"
+  (let ((n (make-note 'ding2 0 2))
+        (s (make-note 'dag 0 #f)))
+    (test-assert "predicate" (note? n))
+    (test-eq "name" 'ding2 (note-name n))
+    (test-equal "degree" 0 (note-degree n))
+    (test-equal "octave" 2 (note-octave n))
+    (test-eq "stroke octave is #f" #f (note-octave s))))
+
+(test-group "instrument record"
+  (test-assert "predicate" (instrument? reyong))
+  (test-eq "name" 'reyong (instrument-name reyong))
+  (test-eq "scale" selisir (instrument-scale reyong))
+  (test-assert "notes is a vector" (vector? (instrument-notes reyong)))
+  (test-equal "notes" 8 (vector-length (instrument-notes reyong)))
+  (test-eq "notes in order" 'ding2 (note-name (inst-note reyong 3)))
+  (test-eq "location" loc (instrument-location reyong)))
+
+(test-group "event record"
+  (let ((e (make-event 4 2 '(0 3))))
+    (test-assert "predicate" (event? e))
+    (test-equal "start" 4 (event-start e))
+    (test-equal "duration" 2 (event-duration e))
+    (test-equal "notes" '(0 3) (event-notes e))))
+
+(test-group "part record"
+  (let* ((events (list (ev 0 1 0) (ev 1 1 1)))
+         (p (make-part 'polos reyong events loc)))
+    (test-assert "predicate" (part? p))
+    (test-eq "name" 'polos (part-name p))
+    (test-eq "instrument" reyong (part-instrument p))
+    (test-equal "events" events (part-events p))
+    (test-eq "location" loc (part-location p))))
+
+(test-group "group record"
+  (let* ((p (mk-part 'polos reyong))
+         (g (make-group "Reyong" "polos + sangsih" (list p) loc))
+         (d (make-group "polos" #f (list p) #f)))
+    (test-assert "predicate" (group? g))
+    (test-equal "label" "Reyong" (group-label g))
+    (test-equal "subtitle" "polos + sangsih" (group-subtitle g))
+    (test-equal "parts" (list p) (group-parts g))
+    (test-eq "location" loc (group-location g))
+    (test-eq "default group: subtitle #f" #f (group-subtitle d))
+    (test-eq "default group: location #f" #f (group-location d))))
+
+(test-group "piece record"
+  (let* ((p (mk-part 'polos reyong (ev 0 1 0)))
+         (g (mk-group "Reyong" p))
+         (pc (make-piece "Test" 4 16 32
+                         (list selisir gong-strokes)
+                         (list reyong gong)
+                         (list p)
+                         (list g))))
+    (test-assert "predicate" (piece? pc))
+    (test-equal "title" "Test" (piece-title pc))
+    (test-equal "steps-per-pulse" 4 (piece-steps-per-pulse pc))
+    (test-equal "steps-per-system" 16 (piece-steps-per-system pc))
+    (test-equal "length" 32 (piece-length pc))
+    (test-equal "scales" (list selisir gong-strokes) (piece-scales pc))
+    (test-equal "instruments" (list reyong gong) (piece-instruments pc))
+    (test-equal "parts" (list p) (piece-parts pc))
+    (test-equal "groups" (list g) (piece-groups pc)))
+  (test-eq "steps-per-system may be #f" #f
+    (piece-steps-per-system (make-piece "T" 4 #f 8 '() '() '() '()))))
+
+(test-assert "records are distinct types"
+  (not (or (note? (ev 0 1 0))
+           (event? (make-note 'dag 0 #f))
+           (scale? reyong)
+           (part? (mk-group "g")))))
+
+;;; note-pitch-index
+
+(test-group "note-pitch-index"
+  (test-equal "ding2 = 2*5 + 0" 10
+    (note-pitch-index reyong (pitched-note selisir 'ding 2)))
+  (test-equal "dang1 = 1*5 + 4" 9
+    (note-pitch-index reyong (pitched-note selisir 'dang 1)))
+  (test-equal "deng1 = 1*5 + 2" 7
+    (note-pitch-index reyong (inst-note reyong 0)))
+  (test-equal "dang2 = 2*5 + 4" 14
+    (note-pitch-index reyong (inst-note reyong 7)))
+  (test-assert "dang1 is below ding2 (across octaves)"
+    (< (note-pitch-index reyong (pitched-note selisir 'dang 1))
+       (note-pitch-index reyong (pitched-note selisir 'ding 2))))
+  (test-assert "instrument notes are strictly ascending"
+    (let ((idx (map (lambda (n) (note-pitch-index reyong n))
+                    (vector->list (instrument-notes reyong)))))
+      (every < idx (cdr idx))))
+  (test-equal "scale size comes from the instrument's scale" 3
+    ;; plain scale has 2 degrees: dung1 = 1*2 + 1
+    (note-pitch-index plain-instrument (inst-note plain-instrument 1)))
+  (test-error "raises an error for a stroke" #t
+    (note-pitch-index gong (inst-note gong 0)))
+  (test-error "raises an error for a kendang stroke" #t
+    (note-pitch-index kendang (inst-note kendang 0))))
+
+;;; note-display
+
+(test-group "note-display"
+  (test-equal "ding2 -> \"i\"" "i" (note-display reyong (inst-note reyong 3)))
+  (test-equal "dung1 -> \"u\"" "u" (note-display reyong (inst-note reyong 1)))
+  (test-equal "octave does not change display" "u"
+    (note-display reyong (inst-note reyong 6)))
+  (test-equal "display defaulted to the degree name" "dung"
+    (note-display plain-instrument (inst-note plain-instrument 1)))
+  (test-equal "stroke with display option" "D"
+    (note-display kendang (inst-note kendang 0)))
+  (test-equal "stroke without display option" "du"
+    (note-display kendang (inst-note kendang 2)))
+  (test-equal "gong G" "G" (note-display gong (inst-note gong 0))))
+
+;;; note-label
+
+(test-group "note-label"
+  (test-equal "ding2 -> \"i2\"" "i2" (note-label reyong (inst-note reyong 3)))
+  (test-equal "dang1 -> \"a1\"" "a1" (note-label reyong (inst-note reyong 2)))
+  (test-equal "display defaulted to name, plus octave" "dung1"
+    (note-label plain-instrument (inst-note plain-instrument 1)))
+  (test-equal "stroke dag -> \"D\"" "D" (note-label kendang (inst-note kendang 0)))
+  (test-equal "stroke du -> \"du\"" "du" (note-label kendang (inst-note kendang 2)))
+  (test-equal "stroke G -> \"G\"" "G" (note-label gong (inst-note gong 0))))
+
+;;; group-lanes
+
+(test-group "group-lanes"
+  (let* ((p (mk-part 'polos reyong
+                     (ev 0 1 3) (ev 1 1 1) (ev 2 1 3) (ev 3 1 5)))
+         (lanes (group-lanes (mk-group "R" p))))
+    (test-assert "returns note records" (every note? lanes))
+    (test-assert "the instrument's own note records"
+      (every (lambda (n) (any (lambda (m) (eq? n m))
+                              (vector->list (instrument-notes reyong))))
+             lanes))
+    (test-equal "pitched: only used notes, each once, highest first"
+      '(deng2 ding2 dung1)
+      (map note-name lanes)))
+
+  (test-equal "notes from chords are included and sorted"
+    '(dang2 dong2 ding2 deng1)
+    (lane-names (mk-group "R" (mk-part 'polos reyong
+                                       (ev 0 1 3)
+                                       (ev 1 2 0 7)
+                                       (ev 3 1 4 3)))))
+
+  (test-equal "polos + sangsih on one instrument are merged"
+    '(dung2 deng2 dong2 ding2 dang1)
+    (lane-names
+     (mk-group "Reyong"
+               (mk-part 'polos reyong (ev 0 1 3) (ev 1 1 4) (ev 3 1 3))
+               (mk-part 'sangsih reyong (ev 0 1 6) (ev 2 1 5) (ev 3 1 2 4)))))
+
+  (test-equal "a note used by both parts appears once"
+    '(ding2)
+    (lane-names
+     (mk-group "Reyong"
+               (mk-part 'polos reyong (ev 0 1 3))
+               (mk-part 'sangsih reyong (ev 1 1 3)))))
+
+  (test-equal "no events: no lanes" '()
+    (lane-names (mk-group "R" (mk-part 'polos reyong))))
+
+  (test-equal "strokes follow the instrument's order, not play order"
+    '(dag du)
+    (lane-names (mk-group "Kendang"
+                          (mk-part 'kendang kendang
+                                   (ev 0 1 2) (ev 1 1 2) (ev 2 1 0)))))
+
+  (test-equal "strokes: every listed stroke used"
+    '(dag dug du)
+    (lane-names (mk-group "Kendang"
+                          (mk-part 'kendang kendang
+                                   (ev 0 1 1) (ev 1 1 2) (ev 2 1 0)))))
+
+  (test-equal "two stroke instruments: kempli then gong"
+    '(K G P)
+    (lane-names (mk-group "Pulse"
+                          (mk-part 'kempli kempli (ev 0 1 0) (ev 4 1 0))
+                          (mk-part 'gong gong (ev 0 1 1) (ev 7 1 0)))))
+
+  (test-equal "two stroke instruments: gong then kempli"
+    '(G P K)
+    (lane-names (mk-group "Pulse"
+                          (mk-part 'gong gong (ev 0 1 1) (ev 7 1 0))
+                          (mk-part 'kempli kempli (ev 0 1 0) (ev 4 1 0)))))
+
+  (test-equal "two stroke instruments: unused strokes left out"
+    '(P K)
+    (lane-names (mk-group "Pulse"
+                          (mk-part 'gong gong (ev 0 1 1))
+                          (mk-part 'kempli kempli (ev 0 1 0))))))
+
+;;; part-steps
+
+(test-group "part-steps"
+  (test-equal "end of last event" 8
+    (part-steps (mk-part 'p reyong (ev 0 1 0) (ev 4 4 1))))
+  (test-equal "single held note" 3
+    (part-steps (mk-part 'p reyong (ev 0 3 0))))
+  (test-equal "no events" 0
+    (part-steps (mk-part 'p reyong)))
+  (test-equal "trailing rests are not counted" 3
+    ;; e.g. "1 - 2 - - -": events at 0 and 2, part ends at 3
+    (part-steps (mk-part 'p reyong (ev 0 1 0) (ev 2 1 1))))
+  (test-equal "leading rests" 6
+    (part-steps (mk-part 'p kempli (ev 5 1 0)))))
+
+;;; events-at
+
+(let* ((e-p0 (ev 0 1 3))
+       (e-p1 (ev 1 3 4))                ; held over steps 1, 2, 3
+       (e-p6 (ev 6 1 3 5))              ; chord
+       (polos (mk-part 'polos reyong e-p0 e-p1 e-p6))
+       (e-s0 (ev 0 2 6))                ; held over steps 0, 1
+       (e-s3 (ev 3 1 5))
+       (e-s6 (ev 6 1 2))
+       (sangsih (mk-part 'sangsih reyong e-s0 e-s3 e-s6))
+       (e-k0 (ev 0 1 0))
+       (e-k6 (ev 6 1 0))
+       (kp (mk-part 'kempli kempli e-k0 e-k6))
+       (pc (make-piece "Test" 4 #f 8
+                       (list selisir kempli-strokes)
+                       (list reyong kempli)
+                       (list polos sangsih kp)
+                       (list (mk-group "Reyong" polos sangsih)
+                             (mk-group "kempli" kp)))))
+
+  (define (names+events pairs)
+    (map (match-lambda ((part . event) (cons (part-name part) event)))
+         pairs))
+
+  (test-group "events-at"
+    (test-assert "returns pairs of part and event"
+      (every (match-lambda ((p . e) (and (part? p) (event? e))))
+             (events-at pc 0)))
+    (test-equal "step 0: all three parts, in piece part order"
+      (list (cons 'polos e-p0) (cons 'sangsih e-s0) (cons 'kempli e-k0))
+      (names+events (events-at pc 0)))
+    (test-assert "the pair holds the part record itself"
+      (eq? polos (car (car (events-at pc 0)))))
+    (test-assert "the pair holds the event record itself"
+      (eq? e-p0 (cdr (car (events-at pc 0)))))
+    (test-equal "step 1: event start and a hold from step 0"
+      (list (cons 'polos e-p1) (cons 'sangsih e-s0))
+      (names+events (events-at pc 1)))
+    (test-equal "step 2: hold covers the step; step = start+duration excluded"
+      (list (cons 'polos e-p1))
+      (names+events (events-at pc 2)))
+    (test-equal "step 3: last held step of polos plus a sangsih start"
+      (list (cons 'polos e-p1) (cons 'sangsih e-s3))
+      (names+events (events-at pc 3)))
+    (test-equal "step 4: polos event ended (start + duration = 4)"
+      '()
+      (events-at pc 4))
+    (test-equal "step 5: everything rests" '() (events-at pc 5))
+    (test-equal "step 6: a chord appears as one event"
+      (list (cons 'polos e-p6) (cons 'sangsih e-s6) (cons 'kempli e-k6))
+      (names+events (events-at pc 6)))
+    (test-equal "step 6: chord keeps all its notes" '(3 5)
+      (event-notes (cdr (car (events-at pc 6)))))
+    (test-equal "step 7: last step, nothing sounding" '() (events-at pc 7))))
+
+(let* ((a (mk-part 'a kempli (ev 0 1 0)))
+       (b (mk-part 'b kempli (ev 0 1 0)))
+       (pc (make-piece "Order" 4 #f 4 '() (list kempli) (list b a)
+                       (list (mk-group "x" b a)))))
+  (test-equal "events-at follows piece-parts order, not part names"
+    '(b a)
+    (map (lambda (pr) (part-name (car pr))) (events-at pc 0))))
+
+(define runner (test-runner-current))
+(test-end "piece")
+
+(exit (zero? (+ (test-runner-fail-count runner)
+                (test-runner-xpass-count runner))))
