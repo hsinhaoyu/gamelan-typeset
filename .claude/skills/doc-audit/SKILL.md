@@ -22,9 +22,9 @@ anything until the user says so.
 3. For each design document, compare it with the code:
    - Interfaces: exported procedures, records and fields, CLI commands.
    - Behaviour: notation tokens and rules, reader error cases, layout
-     decisions, the JSON contract and its `version`, analyses.
+     decisions, the JSON contract and its `version`.
    - Structure: the repository layout and module dependencies (ADR 0004:
-     reader, layout and analysis depend only on `(notasi piece)`; see ADR 0008).
+     reader and layout depend only on `(notasi piece)`; see ADRs 0008, 0015).
    - Status labels: the `Status:` line and any Implemented / Planned /
      Open questions sections. Something marked planned that now exists,
      or marked implemented that doesn't, is drift.

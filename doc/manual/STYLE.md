@@ -56,5 +56,4 @@ when it is written.
    chords, groups
 5. Templates: using `(use gong-kebyar)`, writing your own
 6. Drawing a score (once rendering exists)
-7. Analysis (once it exists)
-8. When something goes wrong: common error messages
+7. When something goes wrong: common error messages

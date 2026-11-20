@@ -20,20 +20,20 @@ Always run from the repo root with `-L .` so `(notasi ...)` modules resolve.
 
 Modules live in `notasi/` under the `(notasi <name>)` namespace. The intended pipeline is:
 
-`reader` (text notation → piece) → `piece` (core records: instruments, notes, parts, gongan) → `layout` (visual structure) → `typst` (Typst source output), with `analysis` working on the piece alongside this pipeline.
+`reader` (text notation → piece) → `piece` (core records: instruments, notes, parts, gongan) → `layout` (visual structure) → `typst` (Typst source output). There is no analysis module (ADR 0015).
 
 The notation that `reader` parses is specified in `doc/design/01-notation.md`.
 
 Repository layout (entries marked *planned* don't exist yet):
 
 ```
-notasi/             Guile modules: piece, reader, layout, json (planned), typst, analysis
+notasi/             Guile modules: piece, reader, layout, json (planned), typst
 typst/notasi.typ    Typst template (planned)
-scripts/            command-line entry points: notasi-render, notasi-analyse (planned)
+scripts/            command-line entry point: notasi-render (planned)
 examples/           real pieces (.gml), used as test fixtures
 templates/          shared definitions (.gml) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
-tests/golden/       expected outputs: JSON, analysis reports (planned)
+tests/golden/       expected JSON outputs (planned)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
 doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
@@ -95,5 +95,5 @@ Tests use SRFI-64. Each `tests/*.scm` file is a standalone script that `make che
 
 What to test:
 - Unit tests, one file per module: reader token handling and every error case listed in `doc/design/03-reader.md`, piece derived functions, layout decisions (lanes, system splitting, colours), JSON serialiser escaping.
-- Golden tests (planned): for each file in `examples/`, the generated JSON and analysis report are compared with `tests/golden/`. When an output change is intended, regenerate them (a `make golden` target, to be added) and review the diff in the PR.
+- Golden tests (planned): for each file in `examples/`, the generated JSON is compared with `tests/golden/`. When an output change is intended, regenerate them (a `make golden` target, to be added) and review the diff in the PR.
 - Typst smoke test (planned, optional in CI): compile one example with Typst and check that it succeeds.

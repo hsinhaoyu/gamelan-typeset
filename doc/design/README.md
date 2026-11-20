@@ -2,15 +2,13 @@
 
 This project notates Balinese (and other) gamelan music in a small text
 language, reads it into a `piece` record with Guile, renders it as a
-coloured, piano-roll-style grid via Typst, and analyses intervals and
-interlocking patterns.
+coloured, piano-roll-style grid via Typst. It does not analyse pieces
+(ADR 0015).
 
 ## Pipeline
 
 ```
 piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
-                        │
-                        └──analysis──▶ report (text / CSV / JSON)
 ```
 
 | Stage | Module | Document |
@@ -20,7 +18,6 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 | Reader + validation | `(notasi reader)` | [03-reader.md](03-reader.md) |
 | Layout | `(notasi layout)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
-| Analysis | `(notasi analysis)` | [06-analysis.md](06-analysis.md) |
 
 ## Build order
 
@@ -34,8 +31,7 @@ workflow).
    [03-reader.md](03-reader.md#slices)
 3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests
 4. `feat/typst-backend`: template matching the prototype
-5. `feat/analysis`: v1 analyses
-6. v2 features: repeats, looping parts, sections, syllables
+5. v2 features: repeats, looping parts, sections, syllables
 
 ## Core decisions
 
@@ -50,6 +46,7 @@ Each decision's context and consequences are in its record in
 6. The JSON file is the contract with Typst: [0006](../decisions/0006-json-is-the-contract-with-typst.md)
 7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
 8. One pitched instrument per group: [0011](../decisions/0011-one-pitched-instrument-per-group.md)
+9. No analysis: [0015](../decisions/0015-no-analysis.md)
 
 ## Maintaining these documents
 
