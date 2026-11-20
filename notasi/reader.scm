@@ -99,6 +99,15 @@ from FMT and ARGS."
           (reverse forms)
           (loop (cons (cons datum (datum-line datum port)) forms))))))
 
+(define (call-with-source-file path proc)
+  "Call PROC with a port open on PATH.  The port is named PATH exactly,
+so Guile's own read errors name the file as the user wrote it, not
+relative to some %load-path entry."
+  (call-with-input-file path
+    (lambda (port)
+      (set-port-filename! port path)
+      (proc port))))
+
 (define (datum-line datum port)
   (match (and (pair? datum) (source-property datum 'line))
     ((? integer? line) (1+ line))
@@ -337,7 +346,9 @@ as templates/NAME.gml along %load-path; a string is relative to DIR."
      (search-path %load-path
                   (string-append "templates/" (symbol->string target) ".gml")))
     ((? string?)
-     (let ((path (if (absolute-file-name? target)
+     ;; Inside the current directory, the path is the string itself, so
+     ;; messages show `my-gamelan.gml', not `./my-gamelan.gml'.
+     (let ((path (if (or (absolute-file-name? target) (string=? dir "."))
                      target
                      (in-vicinity dir target))))
        (and (file-exists? path)
@@ -373,7 +384,7 @@ canonical path of each template already loaded to its definitions."
 (define (load-template path chain table)
   "Read the template at PATH and return the definitions it makes visible."
   (parameterize ((current-source-file path))
-    (let ((forms (call-with-input-file path read-forms)))
+    (let ((forms (call-with-source-file path read-forms)))
       (for-each check-form forms)
       (match (find (lambda (form) (not (memq (form-head form) template-heads)))
                    forms)
@@ -885,6 +896,6 @@ current directory."
 (define (read-piece-file path)
   "Read a piece from the file at PATH.  Errors report PATH as their file."
   (parameterize ((current-source-file path))
-    (call-with-input-file path
+    (call-with-source-file path
       (lambda (port)
         (read-port port (dirname path) (list (canonicalize-path path)))))))
