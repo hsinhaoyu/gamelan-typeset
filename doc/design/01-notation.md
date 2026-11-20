@@ -116,18 +116,22 @@ A line of music. Tokens:
 | `3` | Strike note 3 of the instrument (1-based) |
 | `ding2` | Strike the note named `ding2` (must exist on the instrument) |
 | `_` | Hold: the previous note keeps sounding for this step |
-| `-` | Rest: silence; the previous note is damped |
+| `-` or `·` | Rest: silence; the previous note is damped. The two are interchangeable. |
 | `(2 5)` | Strike notes 2 and 5 together (a chord); members may be numbers or names |
 | `/` | Visual separator; ignored; does not take a step |
 
 Rules:
-- `_` at the start of a part, or after `-`, is an error.
+- `_` at the start of a part, or after a rest (`-` or `·`), is an error.
 - The duration of a note = 1 + the number of `_` tokens after it.
 - Every part must have the same total number of steps in v1 (see open
   questions).
 
 Characters to avoid as tokens: `|` (Guile escaped-symbol syntax), `.`
-(pair syntax), `#` (reader extensions).
+(pair syntax), `#` (reader extensions). A lone `.` cannot be a rest:
+Guile's `read` takes it as pair syntax, so `1 . 2` silently becomes an
+improper list and `. .` is a read error. That is why the dot-like rest is
+`·` (middle dot, U+00B7; Option+Shift+9 on a Mac US keyboard), which
+Guile reads as an ordinary symbol.
 
 ### `(group LABEL PART ...)`
 
@@ -177,7 +181,7 @@ A caption or explanatory paragraph placed after the preceding figure.
 
 1. Looping vs equal length: should parts of different lengths be an error
    (v1 choice) or tile automatically?
-2. Does `-` mean "actively damped" or just "nothing new"? For Balinese
+2. Does a rest (`-` or `·`) mean "actively damped" or just "nothing new"? For Balinese
    playing the difference matters; v1 treats both as silence.
 3. Should octave numbers be per instrument or shared across the piece, so
    that the ugal's `ding2` and the reyong's `ding2` are the same pitch?

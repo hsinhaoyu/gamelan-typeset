@@ -18,7 +18,7 @@ messages. Nothing else in the system validates input.
 ## Steps
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
-   tokenising: numbers, symbols (`_`, `-`, `/`, `ding2`) and lists
+   tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
    (chords, forms).
 2. **Dispatch** on the head symbol: `piece`, `scale`, `strokes`,
    `instrument`, `part`, `group`, `text`. Unknown heads are errors.
@@ -29,7 +29,7 @@ messages. Nothing else in the system validates input.
    keeping a "current event" and a step counter:
    - number / note name / chord → close the current event, open a new one
    - `_` → extend the current event (error if none)
-   - `-` → close the current event, advance the step
+   - `-` or `·` → close the current event, advance the step
    - `/` → skip, no step
 5. **Create default groups** for parts not named in any `group`.
 6. **Check the piece invariants** (02-piece.md) and equal part lengths.
@@ -66,7 +66,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 - Degree name or alias ending in a digit (scales only)
 - Unknown degree option, or `display` that is not a string
 - Note index out of range; unknown note name
-- `_` at the start of a part or after `-`
+- `_` at the start of a part or after a rest (`-` or `·`)
 - Unknown token (e.g. a string or `#t` inside a part)
 - Parts of unequal length
 - A part in more than one group
