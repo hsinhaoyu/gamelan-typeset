@@ -1,6 +1,6 @@
 # 05 — Typst backend and JSON contract
 
-Status: planned, not implemented yet (draft v1). Modules: `(gamelan typst)` (Guile), `typst/gamelan.typ`
+Status: planned, not implemented yet (draft v1). Modules: `(notasi typst)` (Guile), `typst/notasi.typ`
 (Typst template)
 
 ## Responsibility
@@ -55,7 +55,7 @@ Rules:
 
 ## JSON writing
 
-Write a small JSON serialiser in `(gamelan json)` (strings, numbers,
+Write a small JSON serialiser in `(notasi json)` (strings, numbers,
 booleans, lists → arrays, alists → objects) instead of depending on
 guile-json. It is ~40 lines, keeps CI to a plain `apt install guile-3.0`,
 and output order is deterministic, which golden tests need.
@@ -82,7 +82,7 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
 Entry point produced by Guile:
 
 ```typst
-#import "gamelan.typ": score
+#import "notasi.typ": score
 #score(json("piece.json"))
 ```
 
@@ -90,7 +90,7 @@ Entry point produced by Guile:
 
 - `(compile-typst typ-path #:format 'pdf)` calls `typst compile` with
   `system*` and raises a clear error if `typst` is not installed or fails.
-- The command-line script `scripts/gamelan-render` does:
+- The command-line script `scripts/notasi-render` does:
   read → layout → write JSON + .typ → compile.
 
 ## Version pinning

@@ -5,9 +5,9 @@ Status: planned, not implemented yet (draft v1)
 ## Repository layout
 
 ```
-gamelan/            Guile modules: piece, reader, layout, json, typst, analysis
-typst/gamelan.typ   Typst template
-scripts/            command-line entry points (gamelan-render, gamelan-analyse)
+notasi/             Guile modules: piece, reader, layout, json, typst, analysis
+typst/notasi.typ    Typst template
+scripts/            command-line entry points (notasi-render, notasi-analyse)
 examples/           real pieces (.gml), used as test fixtures
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected outputs (JSON, analysis reports)

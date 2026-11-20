@@ -1,6 +1,6 @@
 # 06 — Analysis
 
-Status: planned, not implemented yet (draft v1). Module: `(gamelan analysis)`
+Status: planned, not implemented yet (draft v1). Module: `(notasi analysis)`
 
 ## Responsibility
 
@@ -63,7 +63,7 @@ For a group of two parts (polos + sangsih):
 (report->csv report section) → string
 ```
 
-Command line: `scripts/gamelan-analyse piece.gml`.
+Command line: `scripts/notasi-analyse piece.gml`.
 
 ## Later (v2+)
 

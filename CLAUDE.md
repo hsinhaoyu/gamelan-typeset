@@ -12,13 +12,13 @@ GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. Curre
 - Run one test file: `guile --fresh-auto-compile -L . tests/<name>.scm`
 - Remove SRFI-64 logs: `make clean`
 
-Always run from the repo root with `-L .` so `(gamelan ...)` modules resolve.
+Always run from the repo root with `-L .` so `(notasi ...)` modules resolve.
 
 `--fresh-auto-compile` is deliberate: Guile caches compiled `.go` files in `~/.cache/guile/ccache` and checks freshness only by mtime. If a file is edited within the same second as the last compile, Guile loads the stale copy and tests give wrong results. `--no-auto-compile` does not fix this, because a cached `.go` that looks current is still loaded.
 
 ## Architecture
 
-Modules live in `gamelan/` under the `(gamelan <name>)` namespace. The intended pipeline is:
+Modules live in `notasi/` under the `(notasi <name>)` namespace. The intended pipeline is:
 
 `reader` (text notation → piece) → `piece` (core records: instruments, notes, parts, gongan) → `layout` (visual structure) → `typst` (Typst source output), with `analysis` working on the piece alongside this pipeline.
 
@@ -46,7 +46,7 @@ Write idiomatic Guile 3, not another language translated into Scheme:
 
 ## Keeping README.md current
 
-`tests/readme.scm` runs under `make check` and fails when README.md is out of sync with the code: a module file in `gamelan/` that README doesn't mention, a `gamelan/*.scm` path in README that doesn't exist, or a `make <target>` in README that the Makefile lacks. When you add, rename, or remove a module, Makefile target, or user-facing workflow, update README.md in the same change. If README needs a new kind of fact that could go stale (e.g. a CLI command), extend `tests/readme.scm` to check it.
+`tests/readme.scm` runs under `make check` and fails when README.md is out of sync with the code: a module file in `notasi/` that README doesn't mention, a `notasi/*.scm` path in README that doesn't exist, or a `make <target>` in README that the Makefile lacks. When you add, rename, or remove a module, Makefile target, or user-facing workflow, update README.md in the same change. If README needs a new kind of fact that could go stale (e.g. a CLI command), extend `tests/readme.scm` to check it.
 
 ## Tests
 

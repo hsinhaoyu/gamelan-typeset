@@ -16,11 +16,11 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 | Stage | Module | Document |
 |---|---|---|
 | Notation language | — | [01-notation.md](01-notation.md) |
-| Piece (internal data) | `(gamelan piece)` | [02-piece.md](02-piece.md) |
-| Reader + validation | `(gamelan reader)` | [03-reader.md](03-reader.md) |
-| Layout | `(gamelan layout)` | [04-layout.md](04-layout.md) |
-| Typst backend | `(gamelan typst)`, `typst/gamelan.typ` | [05-typst-backend.md](05-typst-backend.md) |
-| Analysis | `(gamelan analysis)` | [06-analysis.md](06-analysis.md) |
+| Piece (internal data) | `(notasi piece)` | [02-piece.md](02-piece.md) |
+| Reader + validation | `(notasi reader)` | [03-reader.md](03-reader.md) |
+| Layout | `(notasi layout)` | [04-layout.md](04-layout.md) |
+| Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
+| Analysis | `(notasi analysis)` | [06-analysis.md](06-analysis.md) |
 | Testing and workflow | `tests/`, CI | [07-testing-and-workflow.md](07-testing-and-workflow.md) |
 
 ## Core decisions

@@ -1,6 +1,6 @@
 # 02 — Piece
 
-Status: planned, not implemented yet (draft v1). Module: `(gamelan piece)`
+Status: planned, not implemented yet (draft v1). Module: `(notasi piece)`
 
 A `piece` record is the single source of truth after reading. Layout and
 analysis consume it; nothing downstream looks at the source text.
