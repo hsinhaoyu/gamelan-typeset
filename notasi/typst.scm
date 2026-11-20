@@ -81,7 +81,7 @@ the piece's title above it."
                  (filter (lambda (dir) (not (string-null? dir)))
                          (string-split (or (getenv "PATH") "") #\:))))
       (typst-error
-       "notasi needs Typst 0.15.1 to draw figures, but `typst' isn't on the PATH.
+       "Typst 0.15.1 is needed to draw figures, but `typst' isn't on the PATH.
 Install it from https://github.com/typst/typst/releases")))
 
 (define (run-and-capture program . args)

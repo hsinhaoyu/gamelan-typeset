@@ -309,7 +309,7 @@ the line of its scale or stroke set.
   on a second pitched instrument). A group may mix stroke instruments,
   and a pitched instrument with stroke instruments (open question in
   02-piece.md).
-- Instrument options (ADR 0019): only `(show-names yes)` or
+- [ADR 0019] Instrument options: only `(show-names yes)` or
   `(show-names no)`, after the notes. The same kinds as piece options:
   `bad-option` (wrong shape, or a value other than `yes` or `no`),
   `unknown-option`, `duplicate-option`, at the option's line. A note
