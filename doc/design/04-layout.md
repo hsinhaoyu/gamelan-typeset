@@ -1,8 +1,9 @@
 # 04 — Layout
 
-Status: partly implemented (draft v1): slices 1–2 of 4 (the JSON
-writer in 05, and "Note style"); layout itself is planned (see
-"Slices"). Modules: `(notasi style)`, `(notasi layout)`
+Status: partly implemented (draft v1): slices 1–3 of 4 (the JSON
+writer in 05, "Note style", and `layout-piece`); writing figure files
+and golden tests (slice 4) are planned (see "Slices"). Modules:
+`(notasi style)`, `(notasi layout)`
 
 ## Responsibility
 
@@ -13,11 +14,32 @@ Typst; the Typst template knows drawing, not music.
 ## Public interface
 
 ```
-(layout-piece piece #:style style) → figure   ; plain Scheme data (alists/vectors)
+(layout-piece piece #:key (style (default-style))) → figure
 ```
 
-`figure` is converted to JSON by `(notasi typst)`. Keeping it plain
-data makes layout easy to test with `equal?`.
+**Implemented** (slice 3, `feat/layout`), in `(notasi layout)`, tests in
+`tests/layout.scm`. "Systems", "Groups and lanes", "Lane labels" and
+"Sizes" below are implemented too.
+
+The figure is the JSON value of 05's contract itself, as `(notasi json)`
+writes it: alists with symbol keys for objects, vectors for arrays, the
+symbol `null` for null. Writing it out is then just `write-json`
+(slice 4), and layout is tested with `equal?`. Keys come in this order:
+
+| Object | Keys |
+|---|---|
+| figure | `version` (1), `title`, `steps_per_pulse`, `sizes`, `systems`, `caption` |
+| sizes | `label_width`, `lane_width`, `step_width`, `row_height` |
+| system | `start`, `steps`, `groups` |
+| group | `label`, `subtitle`, `lanes`, `voices` |
+| voice | `name`, `events` |
+| event | `start`, `dur`, `lane`, `text`, `fill`, `text_color`, `continued` |
+
+- `title` is the piece's title. `caption` is `null`: a piece has no
+  caption until `text` (v2) or a document (06) supplies one.
+- A group's `subtitle` is `null` when it has none; a voice's `name` is
+  its part's name as a string.
+- An event's `fill` is `null` when the look's fill is `#f` (strokes).
 
 `style` says how notes look (see "Note style" below). It is optional;
 `(default-style)` is used when it is left out. In v1 it is set from
@@ -29,16 +51,27 @@ is an open question.
 ### Systems
 
 - Split the piece into systems of `steps-per-system` steps (default: one
-  system for the whole piece).
-- Events crossing a system boundary are cut into two events. The second
-  half is marked `continued: true` so it can be drawn differently
-  (e.g. no label, open left edge).
+  system for the whole piece). The last system may be shorter. A piece
+  of length 0 has no systems.
+- Events crossing a system boundary are cut at every boundary they
+  cross. The first piece has `continued: false`; every later piece has
+  `continued: true`, so it can be drawn differently (e.g. no label,
+  open left edge).
 - Each system carries its absolute start step, so pulse numbers continue
-  across systems.
+  across systems; an event's `start` is relative to its system.
 
 ### Groups and lanes
 
-- One block of rows per group, in source order.
+- One block of rows per group, in the piece's group order. Every group
+  appears in every system, with one voice per part in the group's part
+  order, even when it has no events in that system.
+- `lanes` is the group's lane labels (see "Lane labels"), top first,
+  from `group-lanes`; they are the same in every system. An event's
+  `lane` is the 0-based index of its note in that list.
+- A chord gives one event per note, with the same start and duration.
+  A voice's events are sorted by start, then by lane.
+- Each event's `text`, `fill` and `text_color` come from
+  `(note-look style instrument note)` (see "Note style").
 - Lanes are the notes the group actually uses, highest pitch at the top
   (`group-lanes` from `(notasi piece)`). Unused instrument notes are not drawn,
   which keeps figures compact.
@@ -156,9 +189,21 @@ colours that mostly take white text (all but its green and yellow).
 ### Sizes
 
 - Step column width, row height and label column width are layout
-  outputs. The label width is estimated from the longest label
-  (characters × an average width), because the background and note layers
-  in Typst must use identical fixed column widths (see 05).
+  outputs, because the background and note layers in Typst must use
+  identical fixed column widths (see 05). Widths are estimated from the
+  number of characters, for the whole figure (all systems):
+  - `label_width` (group labels and subtitles): 0.6em × the longest
+    group label or subtitle + 1.5em.
+  - `lane_width` (lane labels): 0.52em × the longest lane label + 1em.
+  - `step_width` `"2.6em"` and `row_height` `"1.5em"`, fixed.
+  - Lengths are strings in `em` with one decimal, even when whole,
+    rounded to the nearest, ties upward: `"10.5em"`, `"3.6em"`,
+    `"2.0em"`. With no groups the longest label counts as 0.
+  - Sizes come from the piece's groups and their lanes, whether or not
+    there are systems (a piece of length 0 still has its groups).
+  These match the prototype (`polos + sangsih` → 10.5em, `neng1` →
+  3.6em) and will be tuned against real Typst output in the backend
+  milestone.
 
 ## Slices
 
@@ -171,7 +216,7 @@ in four slices, each its own branch and PR into `dev`, started with
 2. **Implemented.** `feat/layout-style`: "Note style": the ColorBrewer palettes,
    `make-style` and `default-style`, the `by-degree` scheme and the
    text-colour contrast rule.
-3. `feat/layout`: `layout-piece` → figure: systems and cut events,
+3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
    groups and lanes, events with their look, sizes.
 4. `feat/layout-golden`: writing the figure as JSON (05's contract),
    `make golden`, and golden tests for every file in `examples/`.
