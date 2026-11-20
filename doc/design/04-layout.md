@@ -1,8 +1,9 @@
 # 04 — Layout
 
-Status: partly implemented (draft v1): slices 1–2 of 4 (the JSON
-writer in 05, and "Note style"); layout itself is planned (see
-"Slices"). Modules: `(notasi style)`, `(notasi layout)`
+Status: partly implemented (draft v1): slices 1–3 of 4 (the JSON
+writer in 05, "Note style", and `layout-piece`); writing figure files
+and golden tests (slice 4) are planned (see "Slices"). Modules:
+`(notasi style)`, `(notasi layout)`
 
 ## Responsibility
 
@@ -16,8 +17,9 @@ Typst; the Typst template knows drawing, not music.
 (layout-piece piece #:key (style (default-style))) → figure
 ```
 
-**Planned** (slice 3, `feat/layout`), in `(notasi layout)`, tests in
-`tests/layout.scm`.
+**Implemented** (slice 3, `feat/layout`), in `(notasi layout)`, tests in
+`tests/layout.scm`. "Systems", "Groups and lanes", "Lane labels" and
+"Sizes" below are implemented too.
 
 The figure is the JSON value of 05's contract itself, as `(notasi json)`
 writes it: alists with symbol keys for objects, vectors for arrays, the
@@ -214,7 +216,7 @@ in four slices, each its own branch and PR into `dev`, started with
 2. **Implemented.** `feat/layout-style`: "Note style": the ColorBrewer palettes,
    `make-style` and `default-style`, the `by-degree` scheme and the
    text-colour contrast rule.
-3. `feat/layout`: `layout-piece` → figure: systems and cut events,
+3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
    groups and lanes, events with their look, sizes.
 4. `feat/layout-golden`: writing the figure as JSON (05's contract),
    `make golden`, and golden tests for every file in `examples/`.
