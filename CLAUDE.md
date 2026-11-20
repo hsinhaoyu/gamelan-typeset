@@ -11,6 +11,9 @@ GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(not
 - Run all tests: `make check` (exits non-zero if any test file fails)
 - Run one test file: `guile --fresh-auto-compile -L . tests/<name>.scm`
 - Remove SRFI-64 logs: `make clean`
+- Draw the golden figures to `build/preview/*.png` for a visual check: `make preview` (needs Typst)
+
+Typst is pinned to **0.15.1** (05, "Version pinning"); CI installs exactly that version. `tests/template.scm` needs `typst` on the PATH.
 
 Always run from the repo root with `-L .` so `(notasi ...)` modules resolve.
 
@@ -28,7 +31,7 @@ Repository layout (entries marked *planned* don't exist yet):
 
 ```
 notasi/             Guile modules: piece, reader, style, layout, json, typst
-typst/              Typst template and package: notasi.typ, typst.toml (planned)
+typst/              Typst template notasi.typ; the package's typst.toml (planned, 06)
 scripts/            command-line entry point: notasi render | typst | update | watch (planned)
 examples/           real pieces (.gml), used as test fixtures
 templates/          shared definitions (.gml) loaded with (use NAME)
@@ -96,4 +99,4 @@ Tests use SRFI-64. Each `tests/*.scm` file is a standalone script that `make che
 What to test:
 - Unit tests, one file per module: reader token handling and every error case listed in `doc/design/03-reader.md`, piece derived functions, layout decisions (lanes, system splitting, colours), JSON serialiser escaping.
 - Golden tests: for each file in `examples/`, the generated JSON is compared with `tests/golden/`. When an output change is intended, regenerate them with `make golden` and review the diff in the PR.
-- Typst smoke test (planned, optional in CI): compile one example with Typst and check that it succeeds.
+- Typst template test: `tests/template.scm` compiles every golden figure with `typst/notasi.typ` and fails on an error or a warning. Changes to the template are also checked by eye with `make preview`.

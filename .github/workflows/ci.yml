@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [dev, main]
 
+env:
+  # The tested Typst version (05, "Version pinning"). Change it on purpose.
+  TYPST_VERSION: v0.15.1
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,6 +18,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y guile-3.0
+
+      - name: Install Typst
+        run: |
+          url="https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz"
+          mkdir -p "$HOME/.local/bin"
+          curl -sSfL "$url" | tar -xJ -C "$RUNNER_TEMP"
+          mv "$RUNNER_TEMP/typst-x86_64-unknown-linux-musl/typst" "$HOME/.local/bin/typst"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/typst" --version
 
       - name: Run tests
         run: make check

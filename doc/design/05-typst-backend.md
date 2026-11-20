@@ -1,8 +1,9 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-and `write-figure` in `(notasi typst)` are implemented; the template,
-the entry file and running Typst are planned (milestone 4). Modules: `(notasi json)`,
+and `write-figure` in `(notasi typst)` are implemented, and the
+template `typst/notasi.typ` (slice 1 of 3); the entry file and running
+Typst are planned (see "Slices"). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -157,7 +158,7 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    score uses the document's font and text size. Only the standalone
    entry file sets the page (`width: auto, height: auto`) and font.
 
-**Planned** (slice 1, `feat/typst-template`): the template
+**Implemented** (slice 1, `feat/typst-template`): the template
 `typst/notasi.typ` exports `score(data)`, where DATA is the figure
 (05's contract, e.g. from `json("piece.json")`). It returns content:
 
@@ -228,7 +229,7 @@ Milestone 4 (`feat/typst-backend` in the build order) is built in three
 slices, each its own branch and PR into `dev`, started with
 `/start-milestone <branch>`:
 
-1. `feat/typst-template`: `typst/notasi.typ` and its `score`, following
+1. **Implemented.** `feat/typst-template`: `typst/notasi.typ` and its `score`, following
    "Typst template design"; CI installs Typst 0.15.1; tests compile the
    golden figures.
 2. `feat/typst-render`: the rest of "Running Typst" on the Guile side:
