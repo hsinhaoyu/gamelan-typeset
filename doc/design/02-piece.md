@@ -1,6 +1,7 @@
 # 02 — Piece
 
-Status: planned, not implemented yet (draft v1). Module: `(notasi piece)`
+Status: v1 implemented (records and derived values). Module: `(notasi piece)`,
+tests in `tests/piece.scm`.
 
 A `piece` record is the single source of truth after reading. Layout and
 analysis consume it; nothing downstream looks at the source text.
@@ -22,7 +23,7 @@ analysis consume it; nothing downstream looks at the source text.
 
 ## Records
 
-Each record has the usual SRFI-9 interface: a constructor
+**Implemented.** Each record has the usual SRFI-9 interface: a constructor
 `make-<record>` that takes the fields positionally in the order listed
 below, a predicate `<record>?`, and an accessor `<record>-<field>` for
 each field (e.g. `make-event`, `event?`, `event-start`).
@@ -90,19 +91,23 @@ layout and analysis simple: they only ever iterate over sounding events.
 
 ## Derived values (functions, not stored)
 
+**Implemented.**
+
 - `(note-pitch-index instrument note)`: `octave × scale-size + degree`,
   a total order across all pitched instruments sharing a scale. Basis for
   intervals. It takes the instrument because a note does not know its
-  scale. Raises an error for a stroke, which has no pitch.
+  scale. For a stroke, which has no pitch, raises an `&error` whose
+  irritants are the note name and instrument name.
 - `(note-display instrument note)`: the degree's display form, e.g. `"i"`
   for `ding2`. Used for the text in note cells.
 - `(note-label instrument note)`: the display form plus the octave, e.g.
   `"i2"`; for a stroke, just its display form. Used for lane labels.
 - `(group-lanes group)`: the notes actually used by the parts in a
-  group, as a list of note records, each once. Determines the rows drawn. Pitched notes all come from one
-  instrument (invariant 6) and are sorted highest first. Strokes follow
-  the instrument's order; strokes from several instruments follow the
-  order of the group's parts.
+  group, as a list of note records, each once. Determines the rows
+  drawn. Pitched notes all come from one instrument (invariant 6) and are
+  sorted highest first. Strokes follow the instrument's order. With
+  several instruments, each instrument's lanes come as a block, in the
+  order its first part appears in the group.
 - `(part-steps part)`: the end of the last event (`start + duration`),
   or 0 for a part with no events. Used for validation. Trailing rests are
   not events, so the reader checks part lengths from the token count.
@@ -112,6 +117,8 @@ layout and analysis simple: they only ever iterate over sounding events.
   sounds for its whole duration, including the `_` holds after its start.
 
 ## Invariants (checked by the reader, assumed by everyone else)
+
+**Planned:** the reader checks these. The records do not.
 
 1. Every event lies within `[0, piece-length)`.
 2. Events in one part do not overlap.
@@ -126,11 +133,13 @@ layout and analysis simple: they only ever iterate over sounding events.
 
 - Can a group mix a pitched instrument with stroke instruments (e.g. ugal
   with kempli)? Invariant 6 does not forbid it, but `group-lanes` does
-  not yet say where stroke lanes go relative to pitched lanes.
+  not yet say where stroke lanes go relative to pitched lanes. The code
+  currently treats it like several stroke instruments: one block per
+  instrument, in part order.
 - Two stroke instruments in one group may have strokes with the same
   name (e.g. two kendang both playing `dag`). Do they share a lane or
-  get one each? The prototype's kendang group draws one lane per drum.
-
+  get one each? The prototype's kendang group draws one lane per drum,
+  and the code currently gives each instrument its own lanes.
 - Is a chord one event with several notes (current choice) or several
   simultaneous events? One event is simpler for layout; analysis may want
   to split it.
