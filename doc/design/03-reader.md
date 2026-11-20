@@ -27,6 +27,10 @@ Finding templates:
 - `(use NAME)` searches Guile's `%load-path` for `templates/NAME.gml`.
   Running from the repo root with `-L .`, as the tests do, finds the
   repo's `templates/` folder; an installed package finds its own.
+- A template's `file` (in errors) is the path it was found at: the
+  `%load-path` entry joined with `templates/NAME.gml`, or the folder
+  joined with the string. Two `use`s reach the same template when the
+  canonical paths are equal.
 
 ## Steps
 
@@ -51,6 +55,21 @@ file. Step 3 (templates) is **Planned** (slice 4).
      unless both are the same definition from the same file, reached
      through two `use` paths.
    - A name defined twice in one file is an error.
+   - These rules apply in every file: a template's own definitions
+     replace those of the templates it uses, too.
+   - "Defined by a template" includes what that template gets from its
+     own templates. If the file itself defines the name, the two
+     templates don't conflict, because the file's definition replaces
+     both.
+   - Using the same template twice in one file is allowed and has no
+     extra effect. A template reached through two paths (A uses B and
+     C, both use D) is loaded once.
+   - Order of the merged definitions (`piece-scales`,
+     `piece-instruments`): depth-first load order. A template's
+     definitions come after those of the templates it uses, in `use`
+     order; the piece's own come last. A replaced definition is removed
+     from its earlier place; the replacement is where its own file puts
+     it. A template reached twice contributes once, at its first place.
 
    Errors in a template report the template's file and line.
 4. **Build scales and stroke sets.** Each degree or stroke is a bare
@@ -119,9 +138,24 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
      `piece-not-first`, `duplicate-piece`).
   4. The `piece` form's title and options (`bad-title`, `bad-option`,
      `unknown-option`, `duplicate-option`).
-  5. A `use` form (until slice 4): `not-implemented`. It comes before
-     the definitions, so a file that uses a template isn't reported as
-     having undefined scales.
+  5. Templates, before the piece's own definitions, since `use` comes
+     first in every file:
+     1. The piece file's `use` forms: a `use` after a definition, part
+        or group (`use-not-first`), then each `use`'s shape
+        (`bad-form`).
+     2. Each template in `use` order, depth-first. At the `use`: a
+        template already being loaded on the current path
+        (`template-cycle`), then a template that can't be found
+        (`template-not-found`). Then, in the template file: items 1
+        and 2 (`read-error`, `improper-form`, `unknown-form`), a form
+        other than `scale`, `strokes`, `instrument` or `use`
+        (`not-in-template`, first in file order), its own `use` forms
+        as in 5.1 and 5.2 (recursively), then items 6 and 7 for its
+        definitions (`bad-form`, `duplicate-definition`).
+     3. After a file's templates are loaded: a name defined by two of
+        them and not by the file itself (`template-conflict`).
+     Items 6 and 7 then check the piece's own forms, and items 8 and 9
+     run over the merged scales and instruments, in merged order.
   6. The shape of each `scale`, `strokes`, `instrument`, `part` and
      `group` form, in file order (`bad-form`).
   7. Duplicate definitions, in file order: the second definition of a
@@ -162,8 +196,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 The number in brackets is the slice (below) that implements the case.
 
-Each case is followed by its `kind` symbol. Kinds for slice 4 are
-chosen when that slice starts.
+Each case is followed by its `kind` symbol.
 
 - [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
   `duplicate-piece` (line of the second `piece` form)
@@ -203,12 +236,23 @@ chosen when that slice starts.
 - [3] Duplicate part definitions within one file: `duplicate-definition`
   (line of the second). Parts have their own names, so
   `(part ugal ugal ...)` is fine.
-- [4] The same name from two templates used by one file
-- [4] Template not found; a cycle of `use`s; a `use` argument that is not a
-  name or a string
+- [4] The same name from two templates used by one file, and not
+  defined by the file itself (same namespaces as `duplicate-definition`):
+  `template-conflict`, at the second definition in load order (its
+  template's file and line). The message names the file of the first.
+  The same definition reached through two paths is not a conflict.
+- [4] Template not found: `template-not-found`; a template that is
+  already being loaded on the current chain of `use`s, including a file
+  using itself: `template-cycle` (the `use` that closes the cycle). Both
+  at the `use` form's file and line.
+- [4] A `use` form that doesn't have exactly one argument, a symbol or
+  a string (`(use)`, `(use 42)`, `(use a b)`): `bad-form` (the form's
+  line)
 - [4] A template containing a form other than `scale`, `strokes`,
-  `instrument` or `use`
-- [4] `use` after a definition, part or group
+  `instrument` or `use` (including `piece`): `not-in-template`, at that
+  form's file and line
+- [4] `use` after a definition, part or group, in a piece or a
+  template: `use-not-first`, at the `use` form's line
 - [2] Instrument note not in its scale or stroke set, or a pitched note
   without an octave number (`ding`): `unknown-note`; pitched notes not
   in strictly ascending order (so a repeated note too):
@@ -308,7 +352,10 @@ Slices 1 to 3 are implemented; slice 4 is **Planned**.
      tokens); 4 and 6 are checked as above.
    Only `text` still raises `not-implemented` (besides `use`, slice 4).
 4. `feat/reader-templates`: step 3 and the template-finding rules under
-   "Public interface". `examples/tenzer1.gml` reads end to end.
+   "Public interface". `examples/tenzer1.gml` reads end to end. Every
+   location (on scales, degrees and instruments, and in errors) names
+   the file the form came from. `use` no longer raises
+   `not-implemented`; only `text` does.
 
 ## Not the reader's job
 
