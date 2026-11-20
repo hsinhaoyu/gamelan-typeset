@@ -58,7 +58,7 @@ Each decision's context and consequences are in its record in
 | Term | Meaning |
 |---|---|
 | step | The smallest time unit; one token in a part |
-| beat | A fixed number of steps (`steps-per-beat`) |
+| pulse | The steady stroke of the kempli/kajar; a fixed number of steps (`steps-per-pulse`) |
 | system | One horizontal block of the figure, e.g. one gong cycle |
 | scale | Ordered set of degree names, e.g. `ding dong deng dung dang` |
 | instrument | Ordered list of the notes (keys/pots) an instrument has |

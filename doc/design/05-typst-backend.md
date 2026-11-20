@@ -15,7 +15,7 @@ Status: planned, not implemented yet (draft v1). Modules: `(gamelan typst)` (Gui
 {
   "version": 1,
   "title": "Reyong kotekan",
-  "steps_per_beat": 4,
+  "steps_per_pulse": 4,
   "sizes": { "label_width": "10.5em", "lane_width": "3.6em",
              "step_width": "2.6em", "row_height": "1.5em" },
   "systems": [
@@ -64,17 +64,17 @@ and output order is deterministic, which golden tests need.
 
 Lessons from the prototype (`doc/prototypes/score.typ`):
 
-1. **Two layers.** A background grid draws beat shading and beat lines;
+1. **Two layers.** A background grid draws pulse shading and pulse lines;
    a transparent foreground grid draws labels, header and notes, placed on
    top with `place`. A single grid does not work: a note spanning several
-   columns (`colspan`) covers the beat lines and shading underneath it.
+   columns (`colspan`) covers the pulse lines and shading underneath it.
 2. **Fixed column widths.** Both layers must align exactly, so the label
    column cannot be `auto`. Its width comes from the JSON `sizes`.
 3. **Positioned cells.** Notes use `grid.cell(x:, y:, colspan:)`; empty
    cells are filled automatically, so rests need no handling.
 4. **Notes as rounded blocks** with white bold text, filled with the voice
    colour.
-5. **Header row** with bold beat numbers and `·` for other steps, numbered
+5. **Header row** with bold pulse numbers and `·` for other steps, numbered
    from `system.start`.
 6. **One `figure` per piece** with the caption; systems stacked inside it
    (or one figure per system — template option).

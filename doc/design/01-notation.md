@@ -16,7 +16,7 @@ only in that a name must be defined before it is used. Comments use `;`.
 
 ```scheme
 (piece "Example kotekan"
-  (steps-per-beat 4)
+  (steps-per-pulse 4)
   (steps-per-system 16))
 
 (scale selisir  ding dong deng dung dang)
@@ -42,7 +42,7 @@ Exactly one per file, first. Options:
 
 | Option | Default | Meaning |
 |---|---|---|
-| `(steps-per-beat N)` | 4 | Steps per beat, for beat numbers and shading |
+| `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and shading |
 | `(steps-per-system N)` | whole piece | Where the figure breaks into systems |
 
 ### `(scale NAME DEGREE ...)`
@@ -102,10 +102,10 @@ Optional settings inside a group, after the part names:
 A caption or explanatory paragraph placed after the preceding figure.
 (v2; see open questions.)
 
-## Example: textbook excerpt (one beat line)
+## Example: textbook excerpt (one line)
 
 ```scheme
-(piece "Reyong kotekan" (steps-per-beat 4))
+(piece "Reyong kotekan" (steps-per-pulse 4))
 (scale reyong-4  nang ning nong neng)          ; do mi fa sol
 (instrument reyong reyong-4  nang1 ning1 nong1 neng1)
 (instrument gong strokes G)

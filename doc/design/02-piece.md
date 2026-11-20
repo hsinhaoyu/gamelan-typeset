@@ -20,7 +20,7 @@ analysis consume it; nothing downstream looks at the source text.
 ```
 piece
   title            : string
-  steps-per-beat   : integer
+  steps-per-pulse  : integer
   steps-per-system : integer | #f      (#f = whole piece in one system)
   length           : integer           total steps
   scales           : list of scale

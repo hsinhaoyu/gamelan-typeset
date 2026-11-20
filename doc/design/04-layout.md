@@ -26,7 +26,7 @@ data makes layout easy to test with `equal?`.
 - Events crossing a system boundary are cut into two events. The second
   half is marked `continued: true` so it can be drawn differently
   (e.g. no label, open left edge).
-- Each system carries its absolute start step, so beat numbers continue
+- Each system carries its absolute start step, so pulse numbers continue
   across systems.
 
 ### Groups and lanes

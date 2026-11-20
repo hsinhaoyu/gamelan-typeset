@@ -3,10 +3,10 @@
 
 #let gamelan-grid(data) = {
   let n = data.steps
-  let spb = data.steps_per_beat
+  let spp = data.steps_per_pulse
   let first = 2            // column 0: group label, column 1: lane name
   let cells = ()
-  let row = 1              // row 0: beat header
+  let row = 1              // row 0: pulse header
 
   for g in data.groups {
     let lanes = g.lanes
@@ -35,15 +35,15 @@
 
   let cols = (10.5em, 3.6em) + (2.6em,) * n
   let rws = (1.6em,) + (1.5em,) * (row - 1)
-  // layer 1: beat shading and beat lines only
+  // layer 1: pulse shading and pulse lines only
   let bg = grid(columns: cols, rows: rws,
-    fill: (x, y) => if x >= first and y > 0 and calc.rem(calc.quo(x - first, spb), 2) == 0 { luma(243) },
-    stroke: (x, y) => if x >= first and calc.rem(x - first, spb) == 0 { (left: 0.5pt + luma(170)) },
+    fill: (x, y) => if x >= first and y > 0 and calc.rem(calc.quo(x - first, spp), 2) == 0 { luma(243) },
+    stroke: (x, y) => if x >= first and calc.rem(x - first, spp) == 0 { (left: 0.5pt + luma(170)) },
     ..range(cols.len() * row).map(_ => []))
   // layer 2: labels, header and notes, transparent
   let fg = grid(columns: cols, rows: rws,
     ..range(n).map(i => grid.cell(x: first + i, y: 0, align: center + horizon,
-      if calc.rem(i, spb) == 0 { text(weight: "bold", size: 9pt, str(calc.quo(i, spb) + 1)) }
+      if calc.rem(i, spp) == 0 { text(weight: "bold", size: 9pt, str(calc.quo(i, spp) + 1)) }
       else { text(fill: luma(150), "·") })),
     ..cells)
   box({ place(top + left, bg); fg })

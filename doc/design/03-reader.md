@@ -45,7 +45,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 - Guile can attach source line/column to list forms read from a port, so
   each top-level form has a line number. Atoms such as numbers inside a
   part don't carry positions, so token errors are reported as part name
-  plus step number (and beat number), which is more meaningful to a
+  plus step number (and pulse number), which is more meaningful to a
   musician anyway.
 - Use a dedicated condition type, e.g. `&gamelan-syntax-error`, with
   fields for file, line, part and step, so tests can check the error kind
