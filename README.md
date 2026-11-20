@@ -12,7 +12,7 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `tests/`: SRFI-64 test suites
 - `examples/`: example pieces
 - `templates/`: shared scales, stroke sets and instruments, loaded with `(use NAME)`
-- `doc/notation.md`: notation reference
+- `doc/design/01-notation.md`: the notation language
 - `doc/design/`: design documents (the current design)
 - `doc/decisions/`: decision log (why the design is the way it is)
 
