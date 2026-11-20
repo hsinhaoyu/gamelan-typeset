@@ -157,6 +157,45 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    score uses the document's font and text size. Only the standalone
    entry file sets the page (`width: auto, height: auto`) and font.
 
+**Planned** (slice 1, `feat/typst-template`): the template
+`typst/notasi.typ` exports `score(data)`, where DATA is the figure
+(05's contract, e.g. from `json("piece.json")`). It returns content:
+
+- **Systems** are drawn in order, each as its own two-layer grid with
+  its own header row and group labels, so each can be read alone,
+  separated by a 1em gap. No systems: empty content.
+- **Columns:** `label_width` (group label and subtitle), `lane_width`
+  (lane labels), then `steps` columns of `step_width`. **Rows:** a
+  header row, then one row per lane of each group, all `row_height`.
+- **Header:** at each step whose absolute number (`system.start` + i)
+  is a multiple of `steps_per_pulse`, the pulse number
+  ((`start` + i) / `steps_per_pulse` + 1) in bold; at other steps a
+  grey `·`. A system that doesn't start on a pulse starts with `·`.
+- **Pulse shading and lines** (background layer) follow the same
+  absolute steps: a step is shaded (`luma(243)`) when its pulse number
+  is odd (pulses 1, 3, 5, …); a thin vertical line (`0.5pt`,
+  `luma(170)`) runs down the left of every step that starts a pulse.
+- **Groups:** a horizontal rule (`0.8pt`, `luma(120)`) above each group
+  and below the last. The group label in bold, slightly larger
+  (`1.1em`), with its subtitle under it in grey italics when not
+  `null`, spanning the group's rows. Lane labels right-aligned, small
+  (`0.85em`) and grey (`luma(140)`).
+- **Notes:** a block filling its cells (inset `1.5pt`), radius `3pt`,
+  in `fill`, with the `text` centred in bold in `text_color`. When
+  `continued` is true the block's left corners are square and it has no
+  text: it is the same note carrying on. When `fill` is `null`, no
+  block: just the text, centred and bold, in `text_color` (strokes).
+- Sizes relative to the text (`em`, `luma` greys), never absolute font
+  sizes or fonts: the surrounding document or entry file sets those.
+
+Tests (slice 1): `tests/template.scm` compiles every
+`tests/golden/*.json` with `score` (from an entry file made in a
+temporary folder) and fails if `typst compile` fails or prints a
+warning. If `typst` isn't installed it says so and fails, since CI
+always installs it. `make preview` renders each golden figure to
+`build/preview/NAME.png` (not committed) for a person to compare with
+the prototype; every PR touching the template is checked that way.
+
 Entry point produced by Guile for a standalone figure:
 
 ```typst
