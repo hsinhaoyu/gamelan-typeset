@@ -17,14 +17,14 @@ check:
 golden:
 	$(GUILE) $(GUILE_FLAGS) tests/golden.scm --update
 
-# Draw each golden figure with typst/notasi.typ, to build/preview/NAME.png,
-# for a person to compare with doc/prototypes/score.typ. Needs typst.
+# Draw each example in examples/ with render-piece, to build/preview/NAME.png,
+# for a person to check how figures look. Needs typst.
 preview:
 	@mkdir -p build/preview
-	@for f in tests/golden/*.json; do \
-	  n=$$(basename $$f .json); \
-	  printf '#import "/typst/notasi.typ": score\n#set page(width: auto, height: auto, margin: 14pt, fill: white)\n#set text(size: 8pt)\n#score(json("/%s"))\n' "$$f" > build/preview/$$n.typ; \
-	  typst compile --root . --ppi 144 build/preview/$$n.typ build/preview/$$n.png && echo "wrote build/preview/$$n.png"; \
+	@for f in examples/*.gml; do \
+	  n=$$(basename $$f .gml); \
+	  $(GUILE) -L . -c "(use-modules (notasi typst)) (render-piece \"$$f\" \"build/preview/$$n.png\")" \
+	    && echo "wrote build/preview/$$n.png"; \
 	done
 
 clean:

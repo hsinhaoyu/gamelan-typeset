@@ -1,9 +1,9 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-and `write-figure` in `(notasi typst)` are implemented, and the
-template `typst/notasi.typ` (slice 1 of 3); the entry file and running
-Typst are planned (see "Slices"). Modules: `(notasi json)`,
+and `(notasi typst)` (figure files, the entry file, running Typst,
+`render-piece`) are implemented, and the template `typst/notasi.typ`:
+slices 1–2 of 3. The `notasi render` command is planned (see "Slices"). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -205,8 +205,11 @@ the prototype; every PR touching the template is checked that way.
 
 ## The entry file and running Typst
 
-**Planned** (slice 2, `feat/typst-render`), in `(notasi typst)`, tests
-added to `tests/typst.scm`.
+**Implemented** (slice 2, `feat/typst-render`), in `(notasi typst)`,
+tests in `tests/typst.scm`. `(notasi typst)` comes after the reader and
+layout in the pipeline and uses both; they never use it, so ADRs 0004
+and 0008 still hold. `make preview` draws each example with
+`render-piece`.
 
 A standalone figure is drawn from three files in one folder: the figure
 JSON, the template `notasi.typ`, and an **entry file** that Typst
@@ -284,7 +287,7 @@ slices, each its own branch and PR into `dev`, started with
 1. **Implemented.** `feat/typst-template`: `typst/notasi.typ` and its `score`, following
    "Typst template design"; CI installs Typst 0.15.1; tests compile the
    golden figures.
-2. `feat/typst-render`: the rest of "Running Typst" on the Guile side:
+2. **Implemented.** `feat/typst-render`: the rest of "Running Typst" on the Guile side:
    writing the entry file, `compile-typst`, and one procedure from a
    `.gml` file to a PDF.
 3. `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
