@@ -27,13 +27,13 @@ show it, then show what comes out.
 - **One idea per page**, and a page should fit on a screen or two.
 - **Start from something to try, end with what it produces.** Every page
   that teaches notation has at least one complete example.
-- **Examples are real files.** Put each example in `src/examples/NAME.gml`
-  and show it with `{{#include examples/NAME.gml}}`; never paste notation
+- **Examples are real files.** Put each example in `src/examples/NAME.nts`
+  and show it with `{{#include examples/NAME.nts}}`; never paste notation
   into a page by hand. `tests/manual.scm` checks that every example reads
   without errors and that every example is used by a page.
 - **Errors in musician terms.** When showing a mistake, show the error
   message notasi gives and how to fix it. A mistake is a real file too:
-  `src/mistakes/NAME.gml`, with the exact message notasi gives for it in
+  `src/mistakes/NAME.nts`, with the exact message notasi gives for it in
   `src/mistakes/NAME.txt`. Show both with `{{#include ...}}`.
   `tests/manual.scm` checks that each mistake fails with that message, so
   when a message changes, update its `.txt` file.

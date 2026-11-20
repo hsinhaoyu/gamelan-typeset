@@ -10,7 +10,7 @@ and how many steps go on each line of the score, inside the `piece`
 line:
 
 ```scheme
-{{#include examples/piece-settings.gml}}
+{{#include examples/piece-settings.nts}}
 ```
 
 ## `steps-per-pulse`
@@ -24,7 +24,7 @@ If you leave it out, notasi uses **4**.
 For a slow melody, such as a pokok with one note to each stroke, use 1:
 
 ```scheme
-{{#include examples/one-step-per-pulse.gml}}
+{{#include examples/one-step-per-pulse.nts}}
 ```
 
 ## `steps-per-system`

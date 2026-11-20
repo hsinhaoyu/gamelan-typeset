@@ -1,1 +1,1 @@
-wrong-note-name.gml:3: instrument `ugal': `dnag1' is not a note of `selisir'
+wrong-note-name.nts:3: instrument `ugal': `dnag1' is not a note of `selisir'

@@ -1,1 +1,1 @@
-misspelt-form.gml:2: unknown form `pice'
+misspelt-form.nts:2: unknown form `pice'

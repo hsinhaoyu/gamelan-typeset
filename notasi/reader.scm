@@ -1,4 +1,4 @@
-;;; (notasi reader) -- Read notation (.gml) into a piece.
+;;; (notasi reader) -- Read notation (.nts) into a piece.
 ;;; See doc/design/03-reader.md.
 ;;;
 ;;; Slice 1: the public interface, &notasi-syntax-error, reading forms,
@@ -322,7 +322,7 @@ not a bad option."
     ((('use (and target (or (? symbol?) (? string?)))) . _) target)
     ((_ . line)
      (syntax-error 'bad-form line
-                   "a use names one template: (use NAME) or (use \"file.gml\")"))))
+                   "a use names one template: (use NAME) or (use \"file.nts\")"))))
 
 (define (check-use-forms forms)
   "Item 5.1: every `use' in FORMS comes before the other forms (after
@@ -343,14 +343,14 @@ not a bad option."
 
 (define (template-path target dir)
   "The file TARGET names, or #f if there is none.  A name is looked up
-as templates/NAME.gml along %load-path; a string is relative to DIR."
+as templates/NAME.nts along %load-path; a string is relative to DIR."
   (match target
     ((? symbol?)
      (search-path %load-path
-                  (string-append "templates/" (symbol->string target) ".gml")))
+                  (string-append "templates/" (symbol->string target) ".nts")))
     ((? string?)
      ;; Inside the current directory, the path is the string itself, so
-     ;; messages show `my-gamelan.gml', not `./my-gamelan.gml'.
+     ;; messages show `my-gamelan.nts', not `./my-gamelan.nts'.
      (let ((path (if (or (absolute-file-name? target) (string=? dir "."))
                      target
                      (in-vicinity dir target))))
@@ -374,7 +374,7 @@ canonical path of each template already loaded to its definitions."
       (match target
         ((? symbol?)
          (syntax-error 'template-not-found line
-                       "no template called `~a' (looked for templates/~a.gml)"
+                       "no template called `~a' (looked for templates/~a.nts)"
                        target target))
         (_ (syntax-error 'template-not-found line
                          "no template file ~s in ~a" target dir))))
@@ -849,7 +849,7 @@ the file."
 
 (define (read-piece forms dir chain)
   "Check FORMS, a list of (DATUM . LINE), and build the piece.  DIR is
-where `(use \"file.gml\")' looks; CHAIN holds the canonical path of the
+where `(use \"file.nts\")' looks; CHAIN holds the canonical path of the
 piece file, if any.  The checks run in the order given in 03-reader.md,
 so a file with several problems always reports the same one."
   (define (named records name-of)
@@ -892,7 +892,7 @@ so a file with several problems always reports the same one."
 
 (define* (read-piece-port port #:key directory)
   "Read a piece from PORT.  Raise a &notasi-syntax-error on any error.
-DIRECTORY is where `(use \"file.gml\")' looks; it defaults to the
+DIRECTORY is where `(use \"file.nts\")' looks; it defaults to the
 current directory."
   (read-port port (or directory (getcwd)) '()))
 

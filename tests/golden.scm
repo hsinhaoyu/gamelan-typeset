@@ -1,6 +1,6 @@
 ;;; Golden tests: each example's figure, as saved in tests/golden/.
 ;;; See doc/design/04-layout.md, "Slices", item 4.
-;;; - Each examples/NAME.gml, laid out with the default style, must
+;;; - Each examples/NAME.nts, laid out with the default style, must
 ;;;   match tests/golden/NAME.json as text, exactly as write-figure
 ;;;   writes it.  An example with no saved copy fails, and so does a
 ;;;   saved copy with no example.
@@ -27,7 +27,7 @@ sorted.  No names if DIR doesn't exist."
   (map (lambda (f) (string-drop-right f (string-length suffix)))
        (or (scandir dir (lambda (f) (string-suffix? suffix f))) '())))
 
-(define (example-path name) (string-append examples-dir "/" name ".gml"))
+(define (example-path name) (string-append examples-dir "/" name ".nts"))
 (define (golden-path name) (string-append golden-dir "/" name ".json"))
 
 (define (read-text path)
@@ -52,7 +52,7 @@ temporary file so that the comparison goes through write-figure."
         (when (file-exists? path) (delete-file path))
         (rmdir dir)))))
 
-(define examples (names-in examples-dir ".gml"))
+(define examples (names-in examples-dir ".nts"))
 (define goldens (names-in golden-dir ".json"))
 (define orphans (lset-difference string=? goldens examples))
 

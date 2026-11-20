@@ -1,1 +1,1 @@
-not-a-number.gml:2: `steps-per-pulse' must be a positive whole number, not four
+not-a-number.nts:2: `steps-per-pulse' must be a positive whole number, not four

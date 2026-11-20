@@ -5,7 +5,7 @@ several parts in one block, sharing the same rows, so you can see how
 they fit:
 
 ```scheme
-{{#include examples/kotekan-group.gml}}
+{{#include examples/kotekan-group.nts}}
 ```
 
 `(group "Reyong" polos sangsih)` puts polos and sangsih together under

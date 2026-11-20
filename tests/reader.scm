@@ -9,7 +9,7 @@
 ;;; single file: events, parts, written and default groups, their
 ;;; error cases and the order in which the checks run.
 ;;; Slice 4 (feat/reader-templates): `use`, finding and merging
-;;; templates, their error cases and check order, and tenzer1.gml.
+;;; templates, their error cases and check order, and tenzer1.nts.
 ;;;
 ;;; Written from doc/design/03-reader.md, 01-notation.md and 02-piece.md,
 ;;; not from the implementation. Tests check the error kind and the
@@ -171,7 +171,7 @@ raises, or the raised object (or no-error) unchanged."
     (test-equal "line" 3 (notasi-syntax-error-line c))))
 
 (test-group "read-piece-file"
-  (let* ((path (write-temp-file "ok.gml"
+  (let* ((path (write-temp-file "ok.nts"
                                 (lines ";; a piece" "(piece \"From a file\" (steps-per-system 12))" "")))
          (pc (read-piece-file path)))
     (test-equal "title" "From a file" (piece-title pc))
@@ -179,7 +179,7 @@ raises, or the raised object (or no-error) unchanged."
     (test-equal "default steps-per-pulse" 4 (piece-steps-per-pulse pc))
     (test-equal "length 0" 0 (piece-length pc)))
 
-  (let* ((path (write-temp-file "dup.gml"
+  (let* ((path (write-temp-file "dup.nts"
                                 (lines "(piece \"A\")" ";; again" "(piece \"B\")")))
          (c (catch-syntax-error (lambda () (read-piece-file path)))))
     (test-equal "error kind" 'duplicate-piece (kind-of c))
@@ -188,7 +188,7 @@ raises, or the raised object (or no-error) unchanged."
     (test-equal "error line" 3
       (and (notasi-syntax-error? c) (notasi-syntax-error-line c))))
 
-  (let* ((path (write-temp-file "missing.gml" ";; nothing here\n"))
+  (let* ((path (write-temp-file "missing.nts" ";; nothing here\n"))
          (c (catch-syntax-error (lambda () (read-piece-file path)))))
     (test-equal "missing-piece kind" 'missing-piece (kind-of c))
     (test-equal "missing-piece file is the path given" path
@@ -196,7 +196,7 @@ raises, or the raised object (or no-error) unchanged."
     (test-equal "missing-piece line is #f" #f
       (and (notasi-syntax-error? c) (notasi-syntax-error-line c))))
 
-  (let* ((path (write-temp-file "unbalanced.gml"
+  (let* ((path (write-temp-file "unbalanced.nts"
                                 (lines "(piece \"P\")" "" "(part a b 1 2")))
          (c (catch-syntax-error (lambda () (read-piece-file path)))))
     (test-equal "read-error kind" 'read-error (kind-of c))
@@ -449,7 +449,7 @@ raises, or the raised object (or no-error) unchanged."
       (and (notasi-syntax-error? c) (notasi-syntax-error-part c)))
     (test-equal "not-implemented: step field #f" #f
       (and (notasi-syntax-error? c) (notasi-syntax-error-step c))))
-  (let* ((path (write-temp-file "text.gml" (lines "(piece \"P\")" "(text \"x\")")))
+  (let* ((path (write-temp-file "text.nts" (lines "(piece \"P\")" "(text \"x\")")))
          (c (catch-syntax-error (lambda () (read-piece-file path)))))
     (test-equal "not-implemented from a file: kind" 'not-implemented (kind-of c))
     (test-equal "not-implemented from a file: file" path
@@ -668,7 +668,7 @@ so a test using it fails rather than passing on #f."
              (vector->list (instrument-notes inst)))))))
 
 (test-group "definitions read from a file"
-  (let* ((path (write-temp-file "defs.gml" defs-text))
+  (let* ((path (write-temp-file "defs.nts" defs-text))
          (pc (try-read (lambda () (read-piece-file path)))))
     (test-assert "reads into a piece" (piece? pc))
     (test-equal "scale files are the path given" (list path path path)
@@ -691,8 +691,8 @@ so a test using it fails rather than passing on #f."
     (test-equal "files are #f from a port" '(#f #f #f)
       (map location-file (piece-scales pc)))))
 
-;;; The contents of templates/selisir.gml (before it had display forms)
-;;; and templates/gong-kebyar.gml (without its `use`), pasted into one
+;;; The contents of templates/selisir.nts (before it had display forms)
+;;; and templates/gong-kebyar.nts (without its `use`), pasted into one
 ;;; file.
 (test-group "gong kebyar definitions"
   (let ((pc (try-read-string
@@ -1027,7 +1027,7 @@ so a test using it fails rather than passing on #f."
   (for-each
    (match-lambda
      ((name kind line contents)
-      (let* ((path (write-temp-file (string-append name ".gml") contents))
+      (let* ((path (write-temp-file (string-append name ".nts") contents))
              (c (catch-syntax-error (lambda () (read-piece-file path)))))
         (test-equal (string-append name " from a file: kind") kind (kind-of c))
         (test-equal (string-append name " from a file: file") path
@@ -1080,7 +1080,7 @@ so a test using it fails rather than passing on #f."
     (list "use, then the piece's own bad-form" '(bad-form 3)
           (lines "(piece \"P\")" "(use gong-kebyar)" "(scale)"))
     (list "template-not-found comes before unknown-note" '(template-not-found 2)
-          (lines "(piece \"P\")" "(use \"defs.gml\")" "(scale s ding)"
+          (lines "(piece \"P\")" "(use \"defs.nts\")" "(scale s ding)"
                  "(instrument x s dong1)"))
     ;; Item 6 before 7.
     (list "bad-form comes before duplicate-definition" '(bad-form 4)
@@ -1417,7 +1417,7 @@ EXPECTED-KIND at line 10, part p, step STEP."
            (instrument-named pc 'ugal)))))
 
 (test-group "parts and groups read from a file"
-  (let* ((path (write-temp-file "parts.gml"
+  (let* ((path (write-temp-file "parts.nts"
                                 (defs+ "(part a reyong 1 2)"     ; 10
                                        "(part b reyong 3 4)"     ; 11
                                        "(group \"AB\" a b)")))   ; 12
@@ -1919,7 +1919,7 @@ EXPECTED-KIND at line 10, part p, step STEP."
   (for-each
    (match-lambda
      ((name expected contents)
-      (let* ((path (write-temp-file (string-append name ".gml") contents))
+      (let* ((path (write-temp-file (string-append name ".nts") contents))
              (c (catch-syntax-error (lambda () (read-piece-file path)))))
         (test-equal (string-append name " from a file: kind, line, part, step")
           expected
@@ -2248,15 +2248,15 @@ canonicalized, or the raised object (or no-error) unchanged."
 ;;; Finding templates ("Public interface")
 
 (test-group "templates: finding by name"
-  ;; (use NAME) searches %load-path for templates/NAME.gml.
+  ;; (use NAME) searches %load-path for templates/NAME.nts.
   (let* ((root (fresh-dir))
-         (tpl (put-file root "templates/tfind.gml"
+         (tpl (put-file root "templates/tfind.nts"
                         ";; a template"              ; 1
                         "(scale tfind-s a b)"        ; 2
                         "(instrument tfind-i tfind-s a1 b1)")) ; 3
          (pc (with-load-path root
                (lambda () (try-read-string "(piece \"P\")" "(use tfind)")))))
-    (test-equal "use NAME loads templates/NAME.gml from %load-path" '(tfind-s)
+    (test-equal "use NAME loads templates/NAME.nts from %load-path" '(tfind-s)
       (scale-names pc))
     (test-equal "use NAME: instruments too" '(tfind-i)
       (instrument-names pc))
@@ -2273,8 +2273,8 @@ canonicalized, or the raised object (or no-error) unchanged."
   ;; The first %load-path entry that has the template wins.
   (let* ((first (fresh-dir))
          (second (fresh-dir)))
-    (put-file first "templates/tfirst.gml" "(scale first-s a)")
-    (put-file second "templates/tfirst.gml" "(scale second-s a)")
+    (put-file first "templates/tfirst.nts" "(scale first-s a)")
+    (put-file second "templates/tfirst.nts" "(scale second-s a)")
     (test-equal "the first %load-path entry with the template is used"
       '(first-s)
       (with-load-path second
@@ -2285,8 +2285,8 @@ canonicalized, or the raised object (or no-error) unchanged."
 
   ;; A name is not looked up relative to the file or #:directory.
   (let ((dir (fresh-dir)))
-    (put-file dir "tnear.gml" "(scale near-s a)")
-    (put-file dir "templates/tnear2.gml" "(scale near2-s a)")
+    (put-file dir "tnear.nts" "(scale near-s a)")
+    (put-file dir "templates/tnear2.nts" "(scale near2-s a)")
     (error-tests
      (list
       (list "use NAME does not look in #:directory itself"
@@ -2300,8 +2300,8 @@ canonicalized, or the raised object (or no-error) unchanged."
   (let ((pc (try-read-string "(piece \"P\")" "(use selisir)")))
     (test-equal "use selisir: the repo template" '(selisir)
       (scale-names pc))
-    (test-equal "use selisir: file is templates/selisir.gml"
-      '("templates" "selisir.gml")
+    (test-equal "use selisir: file is templates/selisir.nts"
+      '("templates" "selisir.nts")
       (let ((f (source-location-file (scale-location (car (piece-scales pc))))))
         (list (basename (dirname f)) (basename f))))
     (test-equal "use selisir: scale line" 5
@@ -2310,7 +2310,7 @@ canonicalized, or the raised object (or no-error) unchanged."
       (map (lambda (d) (source-location-line (degree-location d)))
            (scale-degrees (car (piece-scales pc)))))
     (test-equal "use selisir: degree files are the template's"
-      '("selisir.gml" "selisir.gml" "selisir.gml" "selisir.gml" "selisir.gml")
+      '("selisir.nts" "selisir.nts" "selisir.nts" "selisir.nts" "selisir.nts")
       (map (lambda (d) (basename (source-location-file (degree-location d))))
            (scale-degrees (car (piece-scales pc)))))
     (test-equal "use selisir: aliases work in the piece's instrument"
@@ -2322,10 +2322,10 @@ canonicalized, or the raised object (or no-error) unchanged."
 (test-group "templates: finding by string"
   ;; read-piece-file: relative to the piece file's folder.
   (let* ((dir (fresh-dir))
-         (tpl (put-file dir "defs.gml" ";; defs" "(scale sdefs a b)"))
-         (piece (put-file dir "piece.gml"
+         (tpl (put-file dir "defs.nts" ";; defs" "(scale sdefs a b)"))
+         (piece (put-file dir "piece.nts"
                           "(piece \"P\")"                  ; 1
-                          "(use \"defs.gml\")"             ; 2
+                          "(use \"defs.nts\")"             ; 2
                           "(instrument x sdefs a1 b1)"     ; 3
                           "(part p x 1 2)"))               ; 4
          (pc (read-file piece)))
@@ -2340,44 +2340,44 @@ canonicalized, or the raised object (or no-error) unchanged."
 
   ;; A string in a template is relative to that template's folder.
   (let* ((dir (fresh-dir))
-         (more (put-file dir "sub/more.gml" "(scale sub-more a)")))
-    (put-file dir "more.gml" "(scale decoy-more a)")
-    (put-file dir "sub/defs.gml" "(use \"more.gml\")" "(scale sub-defs a)")
-    (let* ((piece (put-file dir "piece.gml" "(piece \"P\")" "(use \"sub/defs.gml\")"))
+         (more (put-file dir "sub/more.nts" "(scale sub-more a)")))
+    (put-file dir "more.nts" "(scale decoy-more a)")
+    (put-file dir "sub/defs.nts" "(use \"more.nts\")" "(scale sub-defs a)")
+    (let* ((piece (put-file dir "piece.nts" "(piece \"P\")" "(use \"sub/defs.nts\")"))
            (pc (read-file piece)))
       (test-equal "a string in a subfolder, and a string in a template is relative to the template"
         '(sub-more sub-defs) (scale-names pc))
-      (test-equal "sub/more.gml's location"
+      (test-equal "sub/more.nts's location"
         (list (canon more) 1) (file+line (car (piece-scales pc))))))
 
   ;; read-piece-string and read-piece-port: #:directory.
   (let* ((dir (fresh-dir))
-         (tpl (put-file dir "defs.gml" "(scale sdir a)")))
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.gml\")")))
+         (tpl (put-file dir "defs.nts" "(scale sdir a)")))
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.nts\")")))
       (test-equal "read-piece-string: relative to #:directory" '(sdir)
         (scale-names pc))
       (test-equal "read-piece-string: template file is #:directory joined with the string"
         (list (canon tpl) 1) (file+line (car (piece-scales pc)))))
     (let ((pc (try-read
                (lambda ()
-                 (call-with-input-string (lines "(piece \"P\")" "(use \"defs.gml\")")
+                 (call-with-input-string (lines "(piece \"P\")" "(use \"defs.nts\")")
                    (lambda (p) (read-piece-port p #:directory dir)))))))
       (test-equal "read-piece-port: relative to #:directory" '(sdir)
         (scale-names pc))
       (test-equal "read-piece-port: template file"
         (list (canon tpl) 1) (file+line (car (piece-scales pc)))))
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.gml\")" "(scale own a)")))
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.nts\")" "(scale own a)")))
       (test-equal "read-piece-string: the piece's own definitions have file #f"
         '(#f 3) (file+line (cadr (piece-scales pc))))))
 
   ;; No #:directory: the current directory.
   (let* ((dir (fresh-dir))
-         (tpl (put-file dir "cwd-defs.gml" "(scale scwd a)")))
+         (tpl (put-file dir "cwd-defs.nts" "(scale scwd a)")))
     (test-equal "read-piece-string without #:directory: current directory"
       (list '(scwd) (list (canon tpl) 1))
       (with-cwd dir
         (lambda ()
-          (let ((pc (try-read-string "(piece \"P\")" "(use \"cwd-defs.gml\")")))
+          (let ((pc (try-read-string "(piece \"P\")" "(use \"cwd-defs.nts\")")))
             (list (scale-names pc) (file+line (car (piece-scales pc))))))))
     (test-equal "read-piece-port without #:directory: current directory"
       '(scwd)
@@ -2387,23 +2387,23 @@ canonicalized, or the raised object (or no-error) unchanged."
            (try-read
             (lambda ()
               (call-with-input-string
-                  (lines "(piece \"P\")" "(use \"cwd-defs.gml\")")
+                  (lines "(piece \"P\")" "(use \"cwd-defs.nts\")")
                 read-piece-port))))))))
 
   ;; A name inside a string-found template still uses %load-path, and a
   ;; string inside a name-found template is relative to templates/.
   (let ((dir (fresh-dir)))
-    (put-file dir "defs.gml" "(use selisir)" "(instrument x selisir i1 o1)")
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.gml\")")))
+    (put-file dir "defs.nts" "(use selisir)" "(instrument x selisir i1 o1)")
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.nts\")")))
       (test-equal "a name in a string-found template: scales" '(selisir)
         (scale-names pc))
       (test-equal "a name in a string-found template: instruments" '(x)
         (instrument-names pc))))
   (let* ((root (fresh-dir))
          (other (fresh-dir)))
-    (put-file root "templates/tnest.gml" "(use \"tnest-part.gml\")" "(scale tnest a)")
-    (put-file root "templates/tnest-part.gml" "(scale tnest-part a)")
-    (put-file other "tnest-part.gml" "(scale decoy a)")
+    (put-file root "templates/tnest.nts" "(use \"tnest-part.nts\")" "(scale tnest a)")
+    (put-file root "templates/tnest-part.nts" "(scale tnest-part a)")
+    (put-file other "tnest-part.nts" "(scale decoy a)")
     (test-equal "a string in a name-found template is relative to its templates/ folder"
       '(tnest-part tnest)
       (with-load-path root
@@ -2413,24 +2413,24 @@ canonicalized, or the raised object (or no-error) unchanged."
 (test-group "templates: the same template reached twice"
   ;; Two uses reach the same template when the canonical paths are equal.
   (let ((dir (fresh-dir)))
-    (put-file dir "defs.gml" "(scale sdefs a)" "(instrument idefs sdefs a1)")
+    (put-file dir "defs.nts" "(scale sdefs a)" "(instrument idefs sdefs a1)")
     (mkdir-p (string-append dir "/sub"))
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.gml\")" "(use \"defs.gml\")")))
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.nts\")" "(use \"defs.nts\")")))
       (test-equal "same use twice: scales once" '(sdefs) (scale-names pc))
       (test-equal "same use twice: instruments once" '(idefs) (instrument-names pc)))
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.gml\")" "(use \"./defs.gml\")"
-                       "(use \"sub/../defs.gml\")")))
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"defs.nts\")" "(use \"./defs.nts\")"
+                       "(use \"sub/../defs.nts\")")))
       (test-equal "different spellings of one path: scales once" '(sdefs)
         (scale-names pc))
       (test-equal "different spellings of one path: instruments once" '(idefs)
         (instrument-names pc))))
   (let ((root (fresh-dir)))
-    (put-file root "templates/tsame.gml" "(scale tsame a)")
+    (put-file root "templates/tsame.nts" "(scale tsame a)")
     (test-equal "a name and a string reaching the same file: once" '(tsame)
       (with-load-path root
         (lambda ()
           (scale-names (read-in root "(piece \"P\")" "(use tsame)"
-                                "(use \"templates/tsame.gml\")"))))))
+                                "(use \"templates/tsame.nts\")"))))))
   (let ((pc (try-read-string "(piece \"P\")" "(use selisir)" "(use selisir)")))
     (test-equal "use selisir twice" '(selisir) (scale-names pc))))
 
@@ -2441,25 +2441,25 @@ canonicalized, or the raised object (or no-error) unchanged."
   ;; Depth-first load order; a template's definitions after those of
   ;; the templates it uses; the piece's own last.
   (let ((dir (fresh-dir)))
-    (put-file dir "c.gml" "(scale sc x)" "(instrument ic sc x1)")
-    (put-file dir "a.gml" "(use \"c.gml\")" "(scale sa x)" "(instrument ia sa x1)")
-    (put-file dir "b.gml" "(scale sb x)" "(instrument ib sb x1)")
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"a.gml\")" "(use \"b.gml\")"
+    (put-file dir "c.nts" "(scale sc x)" "(instrument ic sc x1)")
+    (put-file dir "a.nts" "(use \"c.nts\")" "(scale sa x)" "(instrument ia sa x1)")
+    (put-file dir "b.nts" "(scale sb x)" "(instrument ib sb x1)")
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"a.nts\")" "(use \"b.nts\")"
                        "(instrument ip sp x1)" "(scale sp x)")))
       (test-equal "scales: depth-first, piece last" '(sc sa sb sp)
         (scale-names pc))
       (test-equal "instruments: depth-first, piece last" '(ic ia ib ip)
         (instrument-names pc))
       (test-equal "each scale's file and line"
-        (list (list (canon (string-append dir "/c.gml")) 1)
-              (list (canon (string-append dir "/a.gml")) 2)
-              (list (canon (string-append dir "/b.gml")) 1)
+        (list (list (canon (string-append dir "/c.nts")) 1)
+              (list (canon (string-append dir "/a.nts")) 2)
+              (list (canon (string-append dir "/b.nts")) 1)
               (list #f 5))
         (map file+line (piece-scales pc)))
       (test-equal "each instrument's file and line"
-        (list (list (canon (string-append dir "/c.gml")) 2)
-              (list (canon (string-append dir "/a.gml")) 3)
-              (list (canon (string-append dir "/b.gml")) 2)
+        (list (list (canon (string-append dir "/c.nts")) 2)
+              (list (canon (string-append dir "/a.nts")) 3)
+              (list (canon (string-append dir "/b.nts")) 2)
               (list #f 4))
         (map file+line (piece-instruments pc)))))
 
@@ -2472,7 +2472,7 @@ canonicalized, or the raised object (or no-error) unchanged."
       '(ugal reyong kempli gong kendang)
       (instrument-names pc))
     (test-equal "gong-kebyar: files"
-      '("selisir.gml" "gong-kebyar.gml" "gong-kebyar.gml" "gong-kebyar.gml")
+      '("selisir.nts" "gong-kebyar.nts" "gong-kebyar.nts" "gong-kebyar.nts")
       (map (lambda (s) (basename (source-location-file (scale-location s))))
            (piece-scales pc)))
     (test-equal "gong-kebyar: instrument lines" '(14 17 21 22 23)
@@ -2491,25 +2491,25 @@ canonicalized, or the raised object (or no-error) unchanged."
       '(selisir kempli-strokes gong-strokes kendang-strokes)
       (scale-names pc)))
   (let ((dir (fresh-dir)))
-    (put-file dir "d.gml" "(scale sd a)")
-    (put-file dir "b.gml" "(use \"d.gml\")" "(scale sb a)")
-    (put-file dir "c.gml" "(use \"./d.gml\")" "(scale sc a)")
+    (put-file dir "d.nts" "(scale sd a)")
+    (put-file dir "b.nts" "(use \"d.nts\")" "(scale sb a)")
+    (put-file dir "c.nts" "(use \"./d.nts\")" "(scale sc a)")
     (test-equal "diamond (b and c both use d): d once, first, no conflict"
       '(sd sb sc)
-      (scale-names (read-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")")))
+      (scale-names (read-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")")))
     (test-equal "diamond with d also used directly afterwards: still at its first place"
       '(sd sb sc)
-      (scale-names (read-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")"
-                            "(use \"d.gml\")")))))
+      (scale-names (read-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")"
+                            "(use \"d.nts\")")))))
 
 (test-group "templates: replacing definitions"
   ;; The piece replaces a scale and an instrument: removed from their
   ;; earlier place, the replacement where the piece puts it.
   (let ((dir (fresh-dir)))
-    (put-file dir "t.gml"
+    (put-file dir "t.nts"
               "(scale s1 x)" "(scale s2 x)" "(scale s3 x)"
               "(instrument i1 s1 x1)" "(instrument i2 s2 x1)" "(instrument i3 s3 x1)")
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"t.gml\")"
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"t.nts\")"
                        "(instrument i2 s1 x1)"     ; 3
                        "(scale s2 y)")))           ; 4
       (test-equal "a replaced scale moves to the piece's place" '(s1 s3 s2)
@@ -2530,11 +2530,11 @@ canonicalized, or the raised object (or no-error) unchanged."
   ;; Names are resolved after merging: a template instrument whose notes
   ;; only exist on the piece's replacement scale.
   (let* ((dir (fresh-dir))
-         (t-path (put-file dir "t.gml" "(scale s a b)" "(instrument x s a1 c1)")))
+         (t-path (put-file dir "t.nts" "(scale s a b)" "(instrument x s a1 c1)")))
     (test-equal "without the replacement: unknown-note in the template"
       (at 'unknown-note t-path 2)
-      (err-at (string-in dir "(piece \"P\")" "(use \"t.gml\")")))
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"t.gml\")" "(scale s a b c)")))
+      (err-at (string-in dir "(piece \"P\")" "(use \"t.nts\")")))
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"t.nts\")" "(scale s a b c)")))
       (test-equal "with the replacement: the template instrument resolves against it"
         '(a1 c1) (note-names (instrument-named pc 'x)))
       (test-assert "the template instrument's scale is the replacement record"
@@ -2561,9 +2561,9 @@ canonicalized, or the raised object (or no-error) unchanged."
 
   ;; A template replaces its own template's definitions.
   (let ((dir (fresh-dir)))
-    (put-file dir "d.gml" "(scale s a)" "(instrument x s a1)")
-    (let ((m (put-file dir "m.gml" "(use \"d.gml\")" "(scale s a b)")))
-      (let ((pc (read-in dir "(piece \"P\")" "(use \"m.gml\")")))
+    (put-file dir "d.nts" "(scale s a)" "(instrument x s a1)")
+    (let ((m (put-file dir "m.nts" "(use \"d.nts\")" "(scale s a b)")))
+      (let ((pc (read-in dir "(piece \"P\")" "(use \"m.nts\")")))
         (test-equal "a template's own definition replaces its template's" '(s)
           (scale-names pc))
         (test-equal "the replacing scale is the template's own" '(a b)
@@ -2575,10 +2575,10 @@ canonicalized, or the raised object (or no-error) unchanged."
 
 (test-group "templates: no conflict"
   (let ((dir (fresh-dir)))
-    (put-file dir "b.gml" "(scale s a)")
-    (put-file dir "c.gml" "(scale s b)")
-    (put-file dir "m.gml" "(use \"b.gml\")" "(use \"c.gml\")" "(scale s m)")
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")"
+    (put-file dir "b.nts" "(scale s a)")
+    (put-file dir "c.nts" "(scale s b)")
+    (put-file dir "m.nts" "(use \"b.nts\")" "(use \"c.nts\")" "(scale s m)")
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")"
                        "(scale s c)")))
       (test-equal "the piece's own definition resolves a would-be conflict" '(s)
         (scale-names pc))
@@ -2587,11 +2587,11 @@ canonicalized, or the raised object (or no-error) unchanged."
       (test-equal "and its location" '(#f 4) (file+line (scale-named pc 's))))
     (test-equal "a template's own definition resolves its templates' conflict" '(m)
       (degree-names
-       (scale-named (read-in dir "(piece \"P\")" "(use \"m.gml\")") 's))))
+       (scale-named (read-in dir "(piece \"P\")" "(use \"m.nts\")") 's))))
   (let ((dir (fresh-dir)))
-    (put-file dir "b.gml" "(scale s a)" "(instrument i s a1)")
-    (put-file dir "c.gml" "(strokes i K)")
-    (let ((pc (read-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")")))
+    (put-file dir "b.nts" "(scale s a)" "(instrument i s a1)")
+    (put-file dir "c.nts" "(strokes i K)")
+    (let ((pc (read-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")")))
       (test-equal "an instrument and a stroke set of the same name don't conflict: scales"
         '(s i) (scale-names pc))
       (test-equal "an instrument and a stroke set of the same name don't conflict: instruments"
@@ -2602,26 +2602,26 @@ canonicalized, or the raised object (or no-error) unchanged."
 
 (test-group "template-not-found"
   (let* ((dir (fresh-dir))
-         (t (put-file dir "t.gml" ";; t" "(use \"nope.gml\")"))
-         (piece (put-file dir "piece.gml" "(piece \"P\")" "" "(use \"nope.gml\")"))
-         (piece2 (put-file dir "piece2.gml" "(piece \"P\")" "(use \"t.gml\")")))
+         (t (put-file dir "t.nts" ";; t" "(use \"nope.nts\")"))
+         (piece (put-file dir "piece.nts" "(piece \"P\")" "" "(use \"nope.nts\")"))
+         (piece2 (put-file dir "piece2.nts" "(piece \"P\")" "(use \"t.nts\")")))
     (error-tests
      (list
       (list "a string that doesn't exist" (at 'template-not-found #f 2)
-            (string-in dir "(piece \"P\")" "(use \"nope.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nope.nts\")"))
       (list "a name that doesn't exist" (at 'template-not-found #f 2)
             (string-in dir "(piece \"P\")" "(use notasi-test-no-such-template)"))
       (list "from a file: the piece's file and the use's line"
             (at 'template-not-found piece 3) (file-thunk piece))
       (list "inside a template: the template's file and line"
             (at 'template-not-found t 2)
-            (string-in dir "(piece \"P\")" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"t.nts\")"))
       (list "inside a template, the piece read from a file"
             (at 'template-not-found t 2) (file-thunk piece2))
       (list "a string relative to #:directory, not the current directory"
             (at 'template-not-found #f 2)
             (string-in dir "(piece \"P\")" "(use \"tests/reader.scm\")"))))
-    (let ((c (catch-syntax-error (string-in dir "(piece \"P\")" "(use \"nope.gml\")"))))
+    (let ((c (catch-syntax-error (string-in dir "(piece \"P\")" "(use \"nope.nts\")"))))
       (test-equal "kind, part field #f, step field #f" '(template-not-found #f #f)
         (and (notasi-syntax-error? c)
              (list (notasi-syntax-error-kind c) (notasi-syntax-error-part c)
@@ -2629,28 +2629,28 @@ canonicalized, or the raised object (or no-error) unchanged."
 
 (test-group "template-cycle"
   (let* ((dir (fresh-dir))
-         (self (put-file dir "self.gml" ";; self" "(use \"self.gml\")"))
-         (self2 (put-file dir "self2.gml" "(use \"./self2.gml\")"))
-         (a (put-file dir "a.gml" "(use \"b.gml\")" "(scale sa x)"))
-         (b (put-file dir "b.gml" ";; b" "(use \"a.gml\")"))
-         (piece (put-file dir "piece.gml" "(piece \"P\")" "(use \"piece.gml\")")))
+         (self (put-file dir "self.nts" ";; self" "(use \"self.nts\")"))
+         (self2 (put-file dir "self2.nts" "(use \"./self2.nts\")"))
+         (a (put-file dir "a.nts" "(use \"b.nts\")" "(scale sa x)"))
+         (b (put-file dir "b.nts" ";; b" "(use \"a.nts\")"))
+         (piece (put-file dir "piece.nts" "(piece \"P\")" "(use \"piece.nts\")")))
     (error-tests
      (list
       (list "a template using itself" (at 'template-cycle self 2)
-            (string-in dir "(piece \"P\")" "(use \"self.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"self.nts\")"))
       (list "a template using itself, spelled differently"
             (at 'template-cycle self2 1)
-            (string-in dir "(piece \"P\")" "(use \"self2.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"self2.nts\")"))
       (list "a uses b, b uses a: at b's use" (at 'template-cycle b 2)
-            (string-in dir "(piece \"P\")" "(use \"a.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"a.nts\")"))
       (list "b uses a, a uses b: at a's use" (at 'template-cycle a 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")"))
       (list "the piece file using itself" (at 'template-cycle piece 2)
             (file-thunk piece)))))
   (let ((root (fresh-dir)))
-    (put-file root "templates/cyc-a.gml" "(use cyc-b)")
-    (put-file root "templates/cyc-b.gml" "(use cyc-c)")
-    (let ((c (put-file root "templates/cyc-c.gml" ";; c" ";; c" "(use cyc-a)")))
+    (put-file root "templates/cyc-a.nts" "(use cyc-b)")
+    (put-file root "templates/cyc-b.nts" "(use cyc-c)")
+    (let ((c (put-file root "templates/cyc-c.nts" ";; c" ";; c" "(use cyc-a)")))
       (test-equal "a three-template cycle by name: at the use that closes it"
         (at 'template-cycle c 3)
         (with-load-path root
@@ -2658,16 +2658,16 @@ canonicalized, or the raised object (or no-error) unchanged."
             (err-at (lambda () (read-piece-string
                                 (lines "(piece \"P\")" "(use cyc-a)")))))))))
   (let* ((dir (fresh-dir))
-         (t1 (put-file dir "t1.gml" "(use \"t1.gml\")" "(use \"nope.gml\")"))
-         (t2 (put-file dir "t2.gml" "(use \"nope.gml\")" "(use \"t2.gml\")")))
+         (t1 (put-file dir "t1.nts" "(use \"t1.nts\")" "(use \"nope.nts\")"))
+         (t2 (put-file dir "t2.nts" "(use \"nope.nts\")" "(use \"t2.nts\")")))
     (error-tests
      (list
       (list "a cycle at an earlier use before a later not-found"
             (at 'template-cycle t1 1)
-            (string-in dir "(piece \"P\")" "(use \"t1.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"t1.nts\")"))
       (list "a not-found at an earlier use before a later cycle"
             (at 'template-not-found t2 1)
-            (string-in dir "(piece \"P\")" "(use \"t2.gml\")"))))))
+            (string-in dir "(piece \"P\")" "(use \"t2.nts\")"))))))
 
 (test-group "bad-form of a use"
   (let ((dir (fresh-dir)))
@@ -2679,121 +2679,121 @@ canonicalized, or the raised object (or no-error) unchanged."
           (list (list "(use)" "(use)")
                 (list "(use 42)" "(use 42)")
                 (list "(use a b)" "(use a b)")
-                (list "two strings" "(use \"a.gml\" \"b.gml\")")
+                (list "two strings" "(use \"a.nts\" \"b.nts\")")
                 (list "(use #t)" "(use #t)")
                 (list "a list" "(use (selisir))"))))
-    (let ((t (put-file dir "t.gml" ";; t" "(use 42)")))
+    (let ((t (put-file dir "t.nts" ";; t" "(use 42)")))
       (test-equal "in a template: the template's file and line"
         (at 'bad-form t 2)
-        (err-at (string-in dir "(piece \"P\")" "(use \"t.gml\")"))))))
+        (err-at (string-in dir "(piece \"P\")" "(use \"t.nts\")"))))))
 
 (test-group "not-in-template"
   (let ((dir (fresh-dir)))
     (error-tests
      (map (match-lambda
             ((name form)
-             (let ((t (put-file dir (string-append name ".gml")
+             (let ((t (put-file dir (string-append name ".nts")
                                 "(scale s a)" form "(scale s2 a)")))
                (list (string-append name " in a template") (at 'not-in-template t 2)
                      (string-in dir "(piece \"P\")"
-                                (string-append "(use \"" name ".gml\")"))))))
+                                (string-append "(use \"" name ".nts\")"))))))
           (list (list "piece" "(piece \"T\")")
                 (list "part" "(part p x 1)")
                 (list "group" "(group \"G\" p)")
                 (list "text" "(text \"x\")"))))
-    (let ((t (put-file dir "two.gml" "(scale s a)" "(group \"G\" p)" "(part p x 1)")))
+    (let ((t (put-file dir "two.nts" "(scale s a)" "(group \"G\" p)" "(part p x 1)")))
       (test-equal "the first such form in file order" (at 'not-in-template t 2)
-        (err-at (string-in dir "(piece \"P\")" "(use \"two.gml\")"))))))
+        (err-at (string-in dir "(piece \"P\")" "(use \"two.nts\")"))))))
 
 (test-group "use-not-first"
   (let ((dir (fresh-dir)))
-    (put-file dir "t.gml" "(scale ts a)")
+    (put-file dir "t.nts" "(scale ts a)")
     (error-tests
      (list
       (list "after a scale" (at 'use-not-first #f 3)
-            (string-in dir "(piece \"P\")" "(scale s a)" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(scale s a)" "(use \"t.nts\")"))
       (list "after a stroke set" (at 'use-not-first #f 3)
-            (string-in dir "(piece \"P\")" "(strokes k K)" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(strokes k K)" "(use \"t.nts\")"))
       (list "after an instrument" (at 'use-not-first #f 4)
-            (string-in dir "(piece \"P\")" "(use \"t.gml\")"
-                       "(instrument x ts a1)" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"t.nts\")"
+                       "(instrument x ts a1)" "(use \"t.nts\")"))
       (list "after a part" (at 'use-not-first #f 3)
-            (string-in dir "(piece \"P\")" "(part p x 1)" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(part p x 1)" "(use \"t.nts\")"))
       (list "after a group" (at 'use-not-first #f 3)
-            (string-in dir "(piece \"P\")" "(group \"G\" p)" "(use \"t.gml\")"))
+            (string-in dir "(piece \"P\")" "(group \"G\" p)" "(use \"t.nts\")"))
       (list "the first late use" (at 'use-not-first #f 4)
-            (string-in dir "(piece \"P\")" "(use \"t.gml\")" "(scale s a)"
-                       "(use \"t.gml\")" "(use \"t.gml\")"))))
+            (string-in dir "(piece \"P\")" "(use \"t.nts\")" "(scale s a)"
+                       "(use \"t.nts\")" "(use \"t.nts\")"))))
     (test-assert "several uses right after piece are fine"
-      (piece? (read-in dir "(piece \"P\")" "(use \"t.gml\")" "(use selisir)"
+      (piece? (read-in dir "(piece \"P\")" "(use \"t.nts\")" "(use selisir)"
                        "(scale s a)")))
-    (let ((t (put-file dir "late.gml" "(scale s a)" ";; c" "(use \"t.gml\")")))
+    (let ((t (put-file dir "late.nts" "(scale s a)" ";; c" "(use \"t.nts\")")))
       (test-equal "in a template: the template's file and line"
         (at 'use-not-first t 3)
-        (err-at (string-in dir "(piece \"P\")" "(use \"late.gml\")"))))))
+        (err-at (string-in dir "(piece \"P\")" "(use \"late.nts\")"))))))
 
 (test-group "template-conflict"
   (let* ((dir (fresh-dir))
-         (b (put-file dir "b.gml" "(scale s a)"))
-         (c (put-file dir "c.gml" ";; c" "(scale s b)"))
-         (c-same (put-file dir "c-same.gml" "(scale s a)"))
-         (c-strokes (put-file dir "c-strokes.gml" "(strokes s K)"))
-         (bi (put-file dir "bi.gml" "(scale sb a)" "(instrument x sb a1)"))
-         (ci (put-file dir "ci.gml" "(scale sc a)" "(instrument x sc a1)"))
-         (e (put-file dir "e.gml" "(scale s e)"))
-         (ce (put-file dir "ce.gml" "(use \"e.gml\")" "(scale other a)"))
-         (cr (put-file dir "cr.gml" "(use \"e.gml\")" "(scale s r)"))
-         (m (put-file dir "m.gml" "(use \"b.gml\")" "(use \"c.gml\")")))
+         (b (put-file dir "b.nts" "(scale s a)"))
+         (c (put-file dir "c.nts" ";; c" "(scale s b)"))
+         (c-same (put-file dir "c-same.nts" "(scale s a)"))
+         (c-strokes (put-file dir "c-strokes.nts" "(strokes s K)"))
+         (bi (put-file dir "bi.nts" "(scale sb a)" "(instrument x sb a1)"))
+         (ci (put-file dir "ci.nts" "(scale sc a)" "(instrument x sc a1)"))
+         (e (put-file dir "e.nts" "(scale s e)"))
+         (ce (put-file dir "ce.nts" "(use \"e.nts\")" "(scale other a)"))
+         (cr (put-file dir "cr.nts" "(use \"e.nts\")" "(scale s r)"))
+         (m (put-file dir "m.nts" "(use \"b.nts\")" "(use \"c.nts\")")))
     (error-tests
      (list
       (list "two templates define the same scale: at the second"
             (at 'template-conflict c 2)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")"))
       (list "the other use order: at the second in load order"
             (at 'template-conflict b 1)
-            (string-in dir "(piece \"P\")" "(use \"c.gml\")" "(use \"b.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"c.nts\")" "(use \"b.nts\")"))
       (list "identical text in two files is still a conflict"
             (at 'template-conflict c-same 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c-same.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c-same.nts\")"))
       (list "a scale and a stroke set share names"
             (at 'template-conflict c-strokes 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c-strokes.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c-strokes.nts\")"))
       (list "two templates define the same instrument"
             (at 'template-conflict ci 2)
-            (string-in dir "(piece \"P\")" "(use \"bi.gml\")" "(use \"ci.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"bi.nts\")" "(use \"ci.nts\")"))
       (list "a name a template gets from its own template conflicts too"
             (at 'template-conflict e 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"ce.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"ce.nts\")"))
       (list "a template's replacement conflicts at its own definition"
             (at 'template-conflict cr 2)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"cr.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"cr.nts\")"))
       (list "a conflict between a template's templates"
             (at 'template-conflict c 2)
-            (string-in dir "(piece \"P\")" "(use \"m.gml\")"))))
+            (string-in dir "(piece \"P\")" "(use \"m.nts\")"))))
     (let ((cnd (catch-syntax-error
-                (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")"))))
+                (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")"))))
       (test-assert "the message names the first definition's file"
         (and (notasi-syntax-error? cnd)
-             (string-contains (exception-message cnd) "b.gml")))
+             (string-contains (exception-message cnd) "b.nts")))
       (test-equal "kind, part field #f, step field #f" '(template-conflict #f #f)
         (and (notasi-syntax-error? cnd)
              (list (notasi-syntax-error-kind cnd) (notasi-syntax-error-part cnd)
                    (notasi-syntax-error-step cnd))))))
-  ;; With the real templates: my.gml also uses selisir (no conflict
+  ;; With the real templates: my.nts also uses selisir (no conflict
   ;; there) but defines ugal, which gong-kebyar defines too.
   (let* ((dir (fresh-dir))
-         (my (put-file dir "my.gml" "(use selisir)" "(instrument ugal selisir i2)")))
+         (my (put-file dir "my.nts" "(use selisir)" "(instrument ugal selisir i2)")))
     (test-equal "ugal from gong-kebyar and from another template"
       (at 'template-conflict my 2)
-      (err-at (string-in dir "(piece \"P\")" "(use gong-kebyar)" "(use \"my.gml\")")))))
+      (err-at (string-in dir "(piece \"P\")" "(use gong-kebyar)" "(use \"my.nts\")")))))
 
 (test-group "errors inside a template"
   (let* ((dir (fresh-dir))
          (t (lambda (name . strs)
-              (apply put-file dir (string-append name ".gml") strs)))
+              (apply put-file dir (string-append name ".nts") strs)))
          (use (lambda (name)
                 (string-in dir "(piece \"P\")"
-                           (string-append "(use \"" name ".gml\")")))))
+                           (string-append "(use \"" name ".nts\")")))))
     (let ((rd (t "rd" "(scale s a)" "(scale s2 b")))
       (test-equal "read-error: kind and file" (list 'read-error (canon rd))
         (list-head (err-at (use "rd")) 2))
@@ -2835,10 +2835,10 @@ canonicalized, or the raised object (or no-error) unchanged."
             (use "dn"))
       (list "an error two templates deep"
             (at 'bad-form (t "deep2" "(scale)") 1)
-            (begin (t "deep1" "(use \"deep2.gml\")") (use "deep1")))))
-    (let* ((piece (put-file dir "piece.gml" "(piece \"P\")" "(use \"un.gml\")")))
+            (begin (t "deep1" "(use \"deep2.nts\")") (use "deep1")))))
+    (let* ((piece (put-file dir "piece.nts" "(piece \"P\")" "(use \"un.nts\")")))
       (test-equal "from a file: the template's file, not the piece's"
-        (at 'unknown-note (string-append dir "/un.gml") 3)
+        (at 'unknown-note (string-append dir "/un.nts") 3)
         (err-at (file-thunk piece))))))
 
 ;;; ------------------------------------------------------------------
@@ -2847,19 +2847,19 @@ canonicalized, or the raised object (or no-error) unchanged."
 (test-group "templates: check order"
   (let* ((dir (fresh-dir))
          (t (lambda (name . strs)
-              (apply put-file dir (string-append name ".gml") strs)))
+              (apply put-file dir (string-append name ".nts") strs)))
          (bf (t "bf" "(scale)"))                           ; bad-form at 1
          (dup (t "dup" "(scale s a)" "(scale s b)"))       ; duplicate at 2
          (q (t "q" "(instrument)"))                         ; bad-form at 1
-         (m (t "m" "(use \"q.gml\")" "(scale)"))
-         (late (t "late" "(use \"q.gml\")" "(scale s a)" "(use \"nope.gml\")"))
-         (nit (t "nit" "(use \"nope.gml\")" "(part p x 1)"))
+         (m (t "m" "(use \"q.nts\")" "(scale)"))
+         (late (t "late" "(use \"q.nts\")" "(scale s a)" "(use \"nope.nts\")"))
+         (nit (t "nit" "(use \"nope.nts\")" "(part p x 1)"))
          (nit2 (t "nit2" "(use)" "(group \"G\" p)"))
          (nit3 (t "nit3" "(scale)" "(text \"x\")"))
          (unk (t "unk" "(part p x 1)" "(foo)"))
          (b (t "b" "(scale s a)"))
          (c (t "c" "(scale s b)"))
-         (mc (t "mc" "(use \"b.gml\")" "(use \"c.gml\")"))
+         (mc (t "mc" "(use \"b.nts\")" "(use \"c.nts\")"))
          (tdeg (t "tdeg" "(scale s (a (bogus 1)))"))
          (tnote (t "tnote" "(scale ts a)" "(instrument tx ts b1)"))
          (tus (t "tus" "(instrument tx nosuch a1)"))
@@ -2869,115 +2869,115 @@ canonicalized, or the raised object (or no-error) unchanged."
       ;; Items 1-4 of the piece come before its templates.
       (list "unknown-form in the piece before template-not-found"
             (at 'unknown-form #f 4)
-            (string-in dir "(piece \"P\")" "(use \"nope.gml\")" "(scale s a)" "(foo)"))
+            (string-in dir "(piece \"P\")" "(use \"nope.nts\")" "(scale s a)" "(foo)"))
       (list "bad-title before template-not-found" (at 'bad-title #f 1)
-            (string-in dir "(piece 1)" "(use \"nope.gml\")"))
+            (string-in dir "(piece 1)" "(use \"nope.nts\")"))
       (list "bad-option before a template's error" (at 'bad-option #f 1)
-            (string-in dir "(piece \"P\" (steps-per-pulse 0))" "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\" (steps-per-pulse 0))" "(use \"bf.nts\")"))
       ;; 5.1: the piece's use forms before loading any template.
       (list "use-not-first before bad-form of an earlier use"
             (at 'use-not-first #f 4)
-            (string-in dir "(piece \"P\")" "(use)" "(scale s a)" "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\")" "(use)" "(scale s a)" "(use \"bf.nts\")"))
       (list "use-not-first before template-not-found"
             (at 'use-not-first #f 4)
-            (string-in dir "(piece \"P\")" "(use \"nope.gml\")" "(scale s a)"
-                       "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nope.nts\")" "(scale s a)"
+                       "(use \"bf.nts\")"))
       (list "a later use's bad-form before an earlier use's template-not-found"
             (at 'bad-form #f 3)
-            (string-in dir "(piece \"P\")" "(use \"nope.gml\")" "(use 42)"))
+            (string-in dir "(piece \"P\")" "(use \"nope.nts\")" "(use 42)"))
       (list "a later use's bad-form before an earlier template's error"
             (at 'bad-form #f 3)
-            (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(use)"))
+            (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(use)"))
       ;; 5.2: templates in use order, depth-first.
       (list "the first use's template error first" (at 'bad-form bf 1)
-            (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(use \"nope.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(use \"nope.nts\")"))
       (list "the first use's not-found first" (at 'template-not-found #f 2)
-            (string-in dir "(piece \"P\")" "(use \"nope.gml\")" "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nope.nts\")" "(use \"bf.nts\")"))
       (list "depth-first: a template's template before the template's own forms"
             (at 'bad-form q 1)
-            (string-in dir "(piece \"P\")" "(use \"m.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"m.nts\")"))
       (list "depth-first: a template's template before a later use"
             (at 'bad-form q 1)
-            (string-in dir "(piece \"P\")" "(use \"m.gml\")" "(use \"dup.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"m.nts\")" "(use \"dup.nts\")"))
       (list "in a template: use-not-first before loading its templates"
             (at 'use-not-first late 3)
-            (string-in dir "(piece \"P\")" "(use \"late.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"late.nts\")"))
       (list "in a template: not-in-template before its use errors"
             (at 'not-in-template nit 2)
-            (string-in dir "(piece \"P\")" "(use \"nit.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nit.nts\")"))
       (list "in a template: not-in-template before a use's bad-form"
             (at 'not-in-template nit2 2)
-            (string-in dir "(piece \"P\")" "(use \"nit2.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nit2.nts\")"))
       (list "in a template: not-in-template before bad-form of a definition"
             (at 'not-in-template nit3 2)
-            (string-in dir "(piece \"P\")" "(use \"nit3.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"nit3.nts\")"))
       (list "in a template: unknown-form before not-in-template"
             (at 'unknown-form unk 2)
-            (string-in dir "(piece \"P\")" "(use \"unk.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"unk.nts\")"))
       ;; 5.3: a conflict after all of a file's templates are loaded.
       (list "a later template's error before a conflict between earlier ones"
             (at 'bad-form bf 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")"
-                       "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")"
+                       "(use \"bf.nts\")"))
       (list "a conflict inside a template before a later use's error"
             (at 'template-conflict c 1)
-            (string-in dir "(piece \"P\")" "(use \"mc.gml\")" "(use \"bf.gml\")"))
+            (string-in dir "(piece \"P\")" "(use \"mc.nts\")" "(use \"bf.nts\")"))
       ;; Templates before the piece's own items 6-13.
       (list "a template error before the piece's bad-form" (at 'duplicate-definition dup 2)
-            (string-in dir "(piece \"P\")" "(use \"dup.gml\")" "(scale)"))
+            (string-in dir "(piece \"P\")" "(use \"dup.nts\")" "(scale)"))
       (list "a template error before the piece's duplicate-definition"
             (at 'bad-form bf 1)
-            (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(scale s a)" "(scale s b)"))
+            (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(scale s a)" "(scale s b)"))
       (list "a template error before the piece's part errors"
             (at 'bad-form bf 1)
-            (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(part p nope 1)"))
+            (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(part p nope 1)"))
       (list "a template error before the piece's text"
             (at 'bad-form bf 1)
-            (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(text \"x\")"))
+            (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(text \"x\")"))
       (list "template-conflict before the piece's bad-form"
             (at 'template-conflict c 1)
-            (string-in dir "(piece \"P\")" "(use \"b.gml\")" "(use \"c.gml\")" "(part)"))
+            (string-in dir "(piece \"P\")" "(use \"b.nts\")" "(use \"c.nts\")" "(part)"))
       ;; Items 8 and 9 run over the merged definitions, after item 6 of
       ;; the piece.
       (list "the piece's bad-form before a template's bad-degree"
             (at 'bad-form #f 3)
-            (string-in dir "(piece \"P\")" "(use \"tdeg.gml\")" "(scale)"))
+            (string-in dir "(piece \"P\")" "(use \"tdeg.nts\")" "(scale)"))
       (list "the piece's bad-degree before a template's unknown-note"
             (at 'bad-degree #f 3)
-            (string-in dir "(piece \"P\")" "(use \"tnote.gml\")" "(scale s (a (bogus 1)))"))
+            (string-in dir "(piece \"P\")" "(use \"tnote.nts\")" "(scale s (a (bogus 1)))"))
       (list "the piece's degree-ends-in-digit before a template's undefined-scale"
             (at 'degree-ends-in-digit #f 3)
-            (string-in dir "(piece \"P\")" "(use \"tus.gml\")" "(scale s a1)"))
+            (string-in dir "(piece \"P\")" "(use \"tus.nts\")" "(scale s a1)"))
       (list "a template's bad-degree before the piece's (merged order)"
             (at 'bad-degree tdeg 1)
-            (string-in dir "(piece \"P\")" "(use \"tdeg.gml\")" "(scale s2 (b (bogus 1)))"))
+            (string-in dir "(piece \"P\")" "(use \"tdeg.nts\")" "(scale s2 (b (bogus 1)))"))
       (list "a template's unknown-note before the piece's (merged order)"
             (at 'unknown-note tnote 2)
-            (string-in dir "(piece \"P\")" "(use \"tnote.gml\")" "(scale s a)"
+            (string-in dir "(piece \"P\")" "(use \"tnote.nts\")" "(scale s a)"
                        "(instrument x s b1)"))
       ;; Replaced definitions.
       (list "a replaced template scale's bad-form is still an error"
             (at 'bad-form tshape 1)
-            (string-in dir "(piece \"P\")" "(use \"tshape.gml\")" "(scale s a)"))
+            (string-in dir "(piece \"P\")" "(use \"tshape.nts\")" "(scale s a)"))
       (list "a duplicate in a template is an error even if the piece replaces the name"
             (at 'duplicate-definition dup 2)
-            (string-in dir "(piece \"P\")" "(use \"dup.gml\")" "(scale s c)"))
+            (string-in dir "(piece \"P\")" "(use \"dup.nts\")" "(scale s c)"))
       (list "a replaced template scale's bad-degree is not checked"
             'no-error
-            (string-in dir "(piece \"P\")" "(use \"tdeg.gml\")" "(scale s a)"))
+            (string-in dir "(piece \"P\")" "(use \"tdeg.nts\")" "(scale s a)"))
       (list "a replaced template instrument's unknown-note is not checked"
             'no-error
-            (string-in dir "(piece \"P\")" "(use \"tnote.gml\")"
+            (string-in dir "(piece \"P\")" "(use \"tnote.nts\")"
                        "(instrument tx ts a1)"))))
     (test-equal "read-error in the piece before a template error" 'read-error
       (kind-of (catch-syntax-error
-                (string-in dir "(piece \"P\")" "(use \"bf.gml\")" "(scale s a"))))))
+                (string-in dir "(piece \"P\")" "(use \"bf.nts\")" "(scale s a"))))))
 
 ;;; ------------------------------------------------------------------
-;;; examples/tenzer1.gml reads end to end (slice 4)
+;;; examples/tenzer1.nts reads end to end (slice 4)
 
 (test-group "tenzer1"
-  (let ((pc (read-file "examples/tenzer1.gml")))
+  (let ((pc (read-file "examples/tenzer1.nts")))
     (test-assert "reads into a piece" (piece? pc))
     (test-equal "title" "Eight-pulse gong cycle" (piece-title pc))
     (test-equal "steps-per-pulse" 1 (piece-steps-per-pulse pc))
@@ -3012,15 +3012,15 @@ canonicalized, or the raised object (or no-error) unchanged."
         (list (note-label inst (vector-ref v 0))
               (note-label inst (vector-ref v 9)))))
     (test-equal "selisir's file and line"
-      '("selisir.gml" 5)
+      '("selisir.nts" 5)
       (let ((loc (scale-location (scale-named pc 'selisir))))
         (list (basename (source-location-file loc)) (source-location-line loc))))
     (test-equal "ugal instrument's file and line"
-      '("gong-kebyar.gml" 14)
+      '("gong-kebyar.nts" 14)
       (let ((loc (instrument-location (instrument-named pc 'ugal))))
         (list (basename (source-location-file loc)) (source-location-line loc))))
-    (test-equal "parts' files are tenzer1.gml, with their lines"
-      '(("tenzer1.gml" 18) ("tenzer1.gml" 19) ("tenzer1.gml" 20))
+    (test-equal "parts' files are tenzer1.nts, with their lines"
+      '(("tenzer1.nts" 18) ("tenzer1.nts" 19) ("tenzer1.nts" 20))
       (map (lambda (p)
              (let ((loc (part-location p)))
                (list (basename (source-location-file loc))

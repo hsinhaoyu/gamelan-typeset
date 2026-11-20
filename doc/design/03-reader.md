@@ -5,7 +5,7 @@ Status: implemented (all four slices; see "Slices"). Module:
 
 ## Responsibility
 
-Turn a `.gml` file into a valid `piece` record, or fail with clear error
+Turn a `.nts` file into a valid `piece` record, or fail with clear error
 messages. Nothing else in the system validates input.
 
 ## Public interface
@@ -19,18 +19,18 @@ messages. Nothing else in the system validates input.
 ```
 
 Finding templates:
-- `(use "file.gml")` is relative to the folder of the file containing
+- `(use "file.nts")` is relative to the folder of the file containing
   the `use`. For `read-piece-file` that is the piece file's folder; for
   a port or string there is no file, so `directory` is used instead
   (default: the current directory).
-- `(use NAME)` searches Guile's `%load-path` for `templates/NAME.gml`.
+- `(use NAME)` searches Guile's `%load-path` for `templates/NAME.nts`.
   Running from the repo root with `-L .`, as the tests do, finds the
   repo's `templates/` folder; an installed package finds its own.
 - A template's `file` (in errors) is the path it was found at: the
-  `%load-path` entry joined with `templates/NAME.gml`, or the folder
+  `%load-path` entry joined with `templates/NAME.nts`, or the folder
   joined with the string (just the string when the folder is the
-  current directory, so messages show `my-gamelan.gml`, not
-  `./my-gamelan.gml`). Two `use`s reach the same template when the
+  current directory, so messages show `my-gamelan.nts`, not
+  `./my-gamelan.nts`). Two `use`s reach the same template when the
   canonical paths are equal.
 
 ## Steps
@@ -103,7 +103,7 @@ Finding templates:
 Errors must say where and what, in musician terms:
 
 ```
-example.gml:14: part `sangsih`, step 7: note 13 does not exist on
+example.nts:14: part `sangsih`, step 7: note 13 does not exist on
   instrument `reyong` (it has 12 notes)
 ```
 
@@ -128,7 +128,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   | step | `notasi-syntax-error-step` | 0-based step, or `#f` |
 
   The predicate is `notasi-syntax-error?`. The condition also carries a
-  `&message` with the readable text (`song.gml:3: a second (piece
+  `&message` with the readable text (`song.nts:3: a second (piece
   ...) form`). Tests check `kind` and the location fields, never the message.
 - Checks run in this order, so a file with several problems always
   reports the same one:
@@ -361,7 +361,7 @@ All four slices are implemented.
      tokens); 4 and 6 are checked as above.
    Only `text` still raised `not-implemented` (besides `use`, slice 4).
 4. **Implemented.** `feat/reader-templates`: step 3 and the template-finding rules under
-   "Public interface". `examples/tenzer1.gml` reads end to end. Every
+   "Public interface". `examples/tenzer1.nts` reads end to end. Every
    location (on scales, degrees and instruments, and in errors) names
    the file the form came from. `use` no longer raises
    `not-implemented`; only `text` does.

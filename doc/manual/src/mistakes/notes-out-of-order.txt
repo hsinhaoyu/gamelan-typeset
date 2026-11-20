@@ -1,1 +1,1 @@
-notes-out-of-order.gml:3: instrument `ugal': `dong1' comes after `deng1'; list notes from low to high
+notes-out-of-order.nts:3: instrument `ugal': `dong1' comes after `deng1'; list notes from low to high

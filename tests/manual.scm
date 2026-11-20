@@ -2,10 +2,10 @@
 ;;; - Every example in doc/manual/src/examples/ reads without errors.
 ;;; - Every {{#include ...}} in a manual page points to a file that exists.
 ;;; - Every example is included by at least one page.
-;;; - Every mistake in doc/manual/src/mistakes/ (NAME.gml) fails to read,
+;;; - Every mistake in doc/manual/src/mistakes/ (NAME.nts) fails to read,
 ;;;   with exactly the message in NAME.txt, and a page includes both.
 ;;; - Every figure a page shows (figures/NAME.svg, drawn by `make manual')
-;;;   has an example, examples/NAME.gml, to draw it from.
+;;;   has an example, examples/NAME.nts, to draw it from.
 ;;; - Files in a templates/ folder under examples/ or mistakes/ are
 ;;;   templates, not pieces: they are read through the pieces that use
 ;;;   them, and each must be included by a page.
@@ -72,22 +72,22 @@ the file reads without a notasi error."
           #f))
       (lambda () (chdir here)))))
 
-(define (expected-message gml)
-  (string-trim-right (slurp (string-append (string-drop-right gml 4) ".txt"))))
+(define (expected-message nts)
+  (string-trim-right (slurp (string-append (string-drop-right nts 4) ".txt"))))
 
 (define (template-file? f)
   (string-contains f "/templates/"))
 
-(define examples (remove template-file? (files-under examples-dir ".gml")))
-(define mistakes (remove template-file? (files-under mistakes-dir ".gml")))
+(define examples (remove template-file? (files-under examples-dir ".nts")))
+(define mistakes (remove template-file? (files-under mistakes-dir ".nts")))
 (define templates
-  (filter template-file? (append (files-under examples-dir ".gml")
-                                 (files-under mistakes-dir ".gml"))))
+  (filter template-file? (append (files-under examples-dir ".nts")
+                                 (files-under mistakes-dir ".nts"))))
 (define pages (files-under src ".md"))
 (define (figures page)
-  "The examples/NAME.gml files PAGE's figures/NAME.svg images need."
+  "The examples/NAME.nts files PAGE's figures/NAME.svg images need."
   (map (lambda (m)
-         (string-append examples-dir "/" (match:substring m 1) ".gml"))
+         (string-append examples-dir "/" (match:substring m 1) ".nts"))
        (list-matches "figures/([a-z0-9-]+)\\.svg" (slurp page))))
 
 ;; A page uses a file by {{#include}}, or an example as a drawn figure.

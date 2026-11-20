@@ -13,21 +13,21 @@ each step.
 
 ## Draw a piece
 
-Here is a short piece. Save it as `gilak.gml`:
+Here is a short piece. Save it as `gilak.nts`:
 
 ```scheme
-{{#include examples/drawing.gml}}
+{{#include examples/drawing.nts}}
 ```
 
 From the notasi folder, run:
 
 ```text
-scripts/notasi render gilak.gml
+scripts/notasi render gilak.nts
 ```
 
-notasi writes `gilak.pdf` next to `gilak.gml` and prints its name. If
+notasi writes `gilak.pdf` next to `gilak.nts` and prints its name. If
 you put the `scripts` folder on your PATH, you can type just
-`notasi render gilak.gml` from any folder.
+`notasi render gilak.nts` from any folder.
 
 This is what you get:
 
@@ -56,8 +56,8 @@ This is what you get:
 To get a picture instead of a PDF, choose the file name with `-o`:
 
 ```text
-scripts/notasi render gilak.gml -o gilak.png
-scripts/notasi render gilak.gml -o gilak.svg
+scripts/notasi render gilak.nts -o gilak.png
+scripts/notasi render gilak.nts -o gilak.svg
 ```
 
 The ending of the name (`.pdf`, `.png` or `.svg`) chooses the kind of

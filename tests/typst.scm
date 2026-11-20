@@ -164,9 +164,9 @@ these tests from passing by accident."
 ;;; ------------------------------------------------------------------
 ;;; A real figure
 
-(let ((figure (layout-piece (read-piece-file "examples/tenzer1.gml")))
+(let ((figure (layout-piece (read-piece-file "examples/tenzer1.nts")))
       (path (tmp-path "tenzer1.json")))
-  (test-equal "writes a real figure (examples/tenzer1.gml)"
+  (test-equal "writes a real figure (examples/tenzer1.nts)"
     (string->utf8 (expected-text figure))
     (begin (write-figure figure path)
            (read-bytes path))))
@@ -179,7 +179,7 @@ these tests from passing by accident."
 
 (define repo-dir (getcwd))
 (define template-path (string-append repo-dir "/typst/notasi.typ"))
-(define example-path (string-append repo-dir "/examples/tenzer1.gml"))
+(define example-path (string-append repo-dir "/examples/tenzer1.nts"))
 (define releases-url "https://github.com/typst/typst/releases")
 
 (define (spec-entry-text json-name)
@@ -310,9 +310,9 @@ path at the front of %load-path, then restore both."
            (and (file-exists? file) (access? file X_OK))))
        (string-split path #\:)))
 
-(define (expected-figure-text gml-path style)
-  "What write-figure writes for GML-PATH laid out with STYLE."
-  (expected-text (layout-piece (read-piece-file gml-path) #:style style)))
+(define (expected-figure-text nts-path style)
+  "What write-figure writes for NTS-PATH laid out with STYLE."
+  (expected-text (layout-piece (read-piece-file nts-path) #:style style)))
 
 ;;; ------------------------------------------------------------------
 ;;; write-entry-file
@@ -338,7 +338,7 @@ path at the front of %load-path, then restore both."
 (define (compile-path name) (string-append compile-dir "/" name))
 (copy-file template-path (compile-path "notasi.typ"))
 (write-text (compile-path "figure.json")
-            (expected-figure-text "examples/tenzer1.gml" (default-style)))
+            (expected-figure-text "examples/tenzer1.nts" (default-style)))
 (write-text (compile-path "entry.typ") (spec-entry-text "figure.json"))
 (write-text (compile-path "broken.typ") "#nonexistent()\n")
 (write-text (compile-path "inch.typ")
@@ -480,13 +480,13 @@ path at the front of %load-path, then restore both."
           (and (file-exists? json) (read-text json))))))
 
   ;; A reader error passes through unchanged.
-  (let ((gml (tmp-path "bad.gml"))
+  (let ((nts (tmp-path "bad.nts"))
         (out (render-path "bad.pdf")))
-    (write-text gml "(piece \"Bad\")\n(bogus 1)\n")
-    (let ((direct (exception-from (lambda () (read-piece-file gml))))
+    (write-text nts "(piece \"Bad\")\n(bogus 1)\n")
+    (let ((direct (exception-from (lambda () (read-piece-file nts))))
           (e (with-render-tmp
               (lambda ()
-                (exception-from (lambda () (render-piece gml out)))))))
+                (exception-from (lambda () (render-piece nts out)))))))
       (test-assert "syntax error: raises &notasi-syntax-error"
         (and e (notasi-syntax-error? e)))
       (test-equal "syntax error: same kind, file and line as the reader's"

@@ -7,7 +7,7 @@ you where it is and what is wrong:
 {{#include mistakes/not-a-number.txt}}
 ```
 
-This says: in the file `not-a-number.gml`, on line 2, the number of
+This says: in the file `not-a-number.nts`, on line 2, the number of
 steps per pulse is the word `four`, not a number.
 
 Fix that one problem and try again. If there is another, notasi will
@@ -16,7 +16,7 @@ tell you about it next.
 ## The piece needs a title
 
 ```scheme
-{{#include mistakes/no-title.gml}}
+{{#include mistakes/no-title.nts}}
 ```
 
 ```text
@@ -28,7 +28,7 @@ The title must be in double quotes: `(piece "Gilak")`.
 ## Unknown form
 
 ```scheme
-{{#include mistakes/misspelt-form.gml}}
+{{#include mistakes/misspelt-form.nts}}
 ```
 
 ```text
@@ -41,7 +41,7 @@ notasi doesn't know `pice`; check the spelling.
 ## Unknown piece option
 
 ```scheme
-{{#include mistakes/unknown-option.gml}}
+{{#include mistakes/unknown-option.nts}}
 ```
 
 ```text
@@ -54,7 +54,7 @@ The `piece` line accepts only `steps-per-pulse` and `steps-per-system`
 ## Not a whole number
 
 ```scheme
-{{#include mistakes/not-a-number.gml}}
+{{#include mistakes/not-a-number.nts}}
 ```
 
 ```text
@@ -66,7 +66,7 @@ Write the number in digits, with no decimal point: `(steps-per-pulse 4)`.
 ## Missing bracket
 
 ```scheme
-{{#include mistakes/missing-bracket.gml}}
+{{#include mistakes/missing-bracket.nts}}
 ```
 
 ```text
@@ -81,7 +81,7 @@ missing bracket is somewhere before that.
 ## Not supported yet
 
 ```scheme
-{{#include mistakes/not-yet.gml}}
+{{#include mistakes/not-yet.nts}}
 ```
 
 ```text
@@ -96,7 +96,7 @@ aren't ready yet. Everything in this manual works.
 ### No scale with that name
 
 ```scheme
-{{#include mistakes/undefined-scale.gml}}
+{{#include mistakes/undefined-scale.nts}}
 ```
 
 ```text
@@ -109,7 +109,7 @@ misspelt.
 ### Not a note of the scale
 
 ```scheme
-{{#include mistakes/wrong-note-name.gml}}
+{{#include mistakes/wrong-note-name.nts}}
 ```
 
 ```text
@@ -122,7 +122,7 @@ Each note must be a degree (or alias) of the instrument's scale. Here
 ### No octave number
 
 ```scheme
-{{#include mistakes/missing-octave.gml}}
+{{#include mistakes/missing-octave.nts}}
 ```
 
 ```text
@@ -134,7 +134,7 @@ Notes on a pitched instrument need an octave: write `dong1`, not `dong`.
 ### Notes out of order
 
 ```scheme
-{{#include mistakes/notes-out-of-order.gml}}
+{{#include mistakes/notes-out-of-order.nts}}
 ```
 
 ```text
@@ -149,7 +149,7 @@ scale: `ding1 dong1 deng1`.
 ### Hold after a rest
 
 ```scheme
-{{#include mistakes/hold-after-rest.gml}}
+{{#include mistakes/hold-after-rest.nts}}
 ```
 
 ```text
@@ -163,7 +163,7 @@ skipping `/`.
 ### Note number too high
 
 ```scheme
-{{#include mistakes/note-out-of-range.gml}}
+{{#include mistakes/note-out-of-range.nts}}
 ```
 
 ```text
@@ -176,7 +176,7 @@ This ugal has five keys, so 6 is too high.
 ### Note not on the instrument
 
 ```scheme
-{{#include mistakes/note-not-on-instrument.gml}}
+{{#include mistakes/note-not-on-instrument.nts}}
 ```
 
 ```text
@@ -189,7 +189,7 @@ instrument's range, or the octave.
 ### Parts of different lengths
 
 ```scheme
-{{#include mistakes/unequal-length.gml}}
+{{#include mistakes/unequal-length.nts}}
 ```
 
 ```text
@@ -202,7 +202,7 @@ and `·` in each (not `/`), and add rests to the shorter part.
 ### A part in two groups
 
 ```scheme
-{{#include mistakes/part-in-two-groups.gml}}
+{{#include mistakes/part-in-two-groups.nts}}
 ```
 
 ```text
@@ -216,7 +216,7 @@ Each part can be in only one group. Remove it from one of them.
 ### No template with that name
 
 ```scheme
-{{#include mistakes/template-not-found.gml}}
+{{#include mistakes/template-not-found.nts}}
 ```
 
 ```text
@@ -229,7 +229,7 @@ quotes is a file, looked up from the folder of the piece.
 ### `use` too late
 
 ```scheme
-{{#include mistakes/use-not-first.gml}}
+{{#include mistakes/use-not-first.nts}}
 ```
 
 ```text
@@ -241,15 +241,15 @@ Move the `use` line up, right after the `piece` line.
 ### Two templates define the same name
 
 ```scheme
-{{#include mistakes/template-conflict.gml}}
+{{#include mistakes/template-conflict.nts}}
 ```
 
 ```scheme
-{{#include mistakes/templates/my-reyong.gml}}
+{{#include mistakes/templates/my-reyong.nts}}
 ```
 
 ```scheme
-{{#include mistakes/templates/my-ugal.gml}}
+{{#include mistakes/templates/my-ugal.nts}}
 ```
 
 ```text
@@ -263,11 +263,11 @@ the piece's own definition replaces both.
 ### Music in a template
 
 ```scheme
-{{#include mistakes/part-in-template.gml}}
+{{#include mistakes/part-in-template.nts}}
 ```
 
 ```scheme
-{{#include mistakes/templates/with-a-part.gml}}
+{{#include mistakes/templates/with-a-part.nts}}
 ```
 
 ```text

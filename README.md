@@ -21,8 +21,8 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 
 ## Drawing a score
 
-    scripts/notasi render piece.gml            # writes piece.pdf
-    scripts/notasi render piece.gml -o out.png # or .svg
+    scripts/notasi render piece.nts            # writes piece.pdf
+    scripts/notasi render piece.nts -o out.png # or .svg
 
 Needs Guile 3.0 and Typst 0.15.1. See "Drawing a score" in the manual.
 

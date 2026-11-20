@@ -35,7 +35,7 @@ would need. In particular:
 
 ## File structure
 
-A file (extension `.gml`) is a sequence of top-level forms. `piece` comes
+A file (extension `.nts`, ADR 0022) is a sequence of top-level forms. `piece` comes
 first and `use` forms come before everything else; otherwise order does
 not matter, because names are resolved after all templates are loaded.
 Comments use `;`.
@@ -99,13 +99,13 @@ Exactly one per file, first. Options:
 
 ### `(use TEMPLATE)`
 
-Loads the definitions in a template. A template is a `.gml` file that
+Loads the definitions in a template. A template is a `.nts` file that
 contains only `scale`, `strokes`, `instrument` and `use` forms.
 
 | TEMPLATE | Loads |
 |---|---|
-| a name: `(use gong-kebyar)` | `templates/gong-kebyar.gml`, shipped with this package |
-| a string: `(use "my-gamelan.gml")` | that file, relative to the file containing the `use` |
+| a name: `(use gong-kebyar)` | `templates/gong-kebyar.nts`, shipped with this package |
+| a string: `(use "my-gamelan.nts")` | that file, relative to the file containing the `use` |
 
 Rules:
 - `use` forms come before any definition, part or group (in a piece,

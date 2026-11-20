@@ -1,12 +1,12 @@
 # Your first piece
 
-A notasi piece is a plain text file whose name ends in `.gml`, such as
-`gilak.gml`. You can write it in any text editor.
+A notasi piece is a plain text file whose name ends in `.nts`, such as
+`gilak.nts`. You can write it in any text editor.
 
 Every piece starts with a title. Here is a whole file:
 
 ```scheme
-{{#include examples/first-piece.gml}}
+{{#include examples/first-piece.nts}}
 ```
 
 - `(piece "Gilak for practice")` names the piece. The title goes in

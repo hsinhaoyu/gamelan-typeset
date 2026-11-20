@@ -8,7 +8,7 @@ coloured, piano-roll-style grid via Typst. It does not analyse pieces
 ## Pipeline
 
 ```
-piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
+piece.nts ──reader──▶ piece ──layout──▶ figure.json ──Typst template──▶ PDF / PNG / SVG
 ```
 
 Scores can also live inside a Typst document (06). `notasi` finds them
@@ -68,6 +68,7 @@ Each decision's context and consequences are in its record in
 12. Notes are square blocks; note names are optional: [0019](../decisions/0019-square-notes-optional-names.md)
 13. A plain white grid; notes fill their cells: [0020](../decisions/0020-plain-grid-notes-fill-cells.md)
 14. pastel1 is the default palette: [0021](../decisions/0021-pastel1-is-the-default-palette.md)
+15. Notation files end in `.nts`: [0022](../decisions/0022-notation-files-end-in-nts.md)
 
 Proposed, not yet agreed:
 
