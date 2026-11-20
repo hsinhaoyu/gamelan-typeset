@@ -1,6 +1,7 @@
 # 03 — Reader and validation
 
-Status: planned, not implemented yet (draft v1). Module: `(notasi reader)`
+Status: partly implemented: slice 1 of 4 (see "Slices"). Module:
+`(notasi reader)`, tests in `tests/reader.scm`.
 
 ## Responsibility
 
@@ -8,6 +9,9 @@ Turn a `.gml` file into a valid `piece` record, or fail with clear error
 messages. Nothing else in the system validates input.
 
 ## Public interface
+
+**Implemented**, except finding templates (**Planned**, slice 4). The
+`directory` keyword is accepted but not used yet.
 
 ```
 (read-piece-file path)   → piece       ; raises on error
@@ -25,6 +29,9 @@ Finding templates:
   repo's `templates/` folder; an installed package finds its own.
 
 ## Steps
+
+Steps 1 and 2 and the `piece` form are **Implemented**; steps 3 to 9
+are **Planned** (slices 2 to 4).
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
@@ -71,6 +78,8 @@ Finding templates:
 9. **Check the piece invariants** (02-piece.md) and equal part lengths.
 
 ## Error reporting
+
+**Implemented** for slice 1's error cases.
 
 Errors must say where and what, in musician terms:
 
@@ -173,13 +182,14 @@ chosen when those slices start.
 
 ## Slices
 
-Planned. The reader is built in four slices, each its own branch and PR
+The reader is built in four slices, each its own branch and PR
 into `dev`, started with `/start-milestone <branch>`. After each one,
 `make check` passes and the reader handles a larger subset of the
 notation. Each slice covers the steps below and the error cases tagged
 with its number.
+Slice 1 is implemented; slices 2 to 4 are **Planned**.
 
-1. `feat/reader-forms`: the public interface; the condition type (decide
+1. **Implemented.** `feat/reader-forms`: the public interface; the condition type (decide
    its name, fields and accessors and record them under "Error
    reporting" before writing tests); step 1 (read forms, Guile read
    errors); step 2 (dispatch, improper lists); the `piece` form and its
