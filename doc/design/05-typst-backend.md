@@ -18,31 +18,31 @@ must work in both places; see "Typst template design", points 6 and 7.
 
 ## JSON contract (version 1)
 
-An excerpt of `tests/golden/kotekan.json`, the figure for
-`examples/kotekan.gml` (one event of the first system shown):
+An excerpt of `tests/golden/tenzer1.json`, the figure for
+`examples/tenzer1.gml` (the first group, with its first event shown):
 
 ```json
 {
   "version": 1,
-  "title": "Reyong kotekan",
-  "steps_per_pulse": 4,
-  "sizes": { "label_width": "10.5em", "lane_width": "3.6em",
+  "title": "Eight-pulse gong cycle",
+  "steps_per_pulse": 1,
+  "sizes": { "label_width": "9.3em", "lane_width": "2.0em",
              "step_width": "2.0em", "row_height": "2.0em" },
   "systems": [
     {
       "start": 0,
-      "steps": 8,
+      "steps": 9,
       "groups": [
         {
-          "label": "Reyong",
-          "subtitle": "polos + sangsih",
-          "lanes": ["neng1", "nong1", "ning1", "nang1"],
+          "label": "Ugal",
+          "subtitle": null,
+          "lanes": ["e2", "o2", "i2", "a1"],
           "voices": [
             {
-              "name": "polos",
+              "name": "ugal",
               "events": [
-                { "start": 0, "dur": 2, "lane": 3, "text": "nang",
-                  "fill": "#1b9e77", "text_color": "#ffffff",
+                { "start": 0, "dur": 1, "lane": 3, "text": null,
+                  "fill": "#66a61e", "text_color": "#222222",
                   "continued": false }
               ]
             }

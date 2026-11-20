@@ -239,10 +239,6 @@ in four slices, each its own branch and PR into `dev`, started with
    - `make golden` runs the same file with `--update`: it rewrites
      every saved copy with `write-figure` and deletes saved copies
      with no example. Review the diff in the PR.
-   - A second example, `examples/kotekan.gml`: the textbook excerpt
-     from 01-notation.md (reyong polos and sangsih in one group with a
-     subtitle, and gong), with `steps-per-system 8`, so a held sangsih
-     note is cut across two systems.
 
 ## Not layout's job
 

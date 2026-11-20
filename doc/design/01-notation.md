@@ -237,10 +237,6 @@ A caption or explanatory paragraph placed after the preceding figure.
 
 ## Example: textbook excerpt (one line)
 
-The same music, with a group subtitle and systems of eight steps, is
-`examples/kotekan.gml`; its figure is checked by the golden tests
-(`tests/golden/kotekan.json`).
-
 ```scheme
 (piece "Reyong kotekan" (steps-per-pulse 4))
 (scale reyong-4  nang ning nong neng)          ; do mi fa sol
