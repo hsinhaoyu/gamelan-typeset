@@ -112,6 +112,13 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
      `unknown-option`, `duplicate-option`).
   5. The other forms, in later steps. Until a slice implements a form,
      it raises `not-implemented` at that form's line.
+- Which line an error reports:
+  - The line of the list to blame: the form, or for an option error the
+    option itself, since an option is a list with its own line.
+  - `piece-not-first`: the first form in the file.
+  - An atom on its own at the top level (e.g. `foo`), which has no
+    position: the line where reading it stopped, i.e. where it ends.
+  - `read-error`: the line where Guile stopped reading.
 - Report the first error and stop (v1). Collecting several errors is a
   possible later improvement.
 
@@ -124,13 +131,16 @@ chosen when those slices start.
 
 - [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
   `duplicate-piece` (line of the second `piece` form)
-- [1] `piece` not the first form: `piece-not-first` (line of the form
-  that comes before it)
+- [1] `piece` not the first form: `piece-not-first` (line of the first
+  form in the file)
 - [1] `piece` title not a string: `bad-title`
-- [1] An option that is not a `(NAME VALUE)` list, or a `steps-per-pulse`
-  or `steps-per-system` value that is not a positive integer: `bad-option`
-- [1] Unknown option, or an option given twice: `unknown-option`,
-  `duplicate-option`
+- [1] An option that is not a proper `(SYMBOL VALUE)` list (e.g.
+  `(steps-per-pulse . 4)`, `("steps-per-pulse" 4)`, `(tempo)`), or a
+  `steps-per-pulse` or `steps-per-system` value that is not an exact
+  positive integer (so `4.0` is rejected): `bad-option`. The shape is
+  checked before the name.
+- [1] A well-formed option with an unknown name, or an option given
+  twice: `unknown-option`, `duplicate-option`
 - [1] A form that is not a list, or whose head is not a known symbol:
   `unknown-form`
 - [1] A known form that the reader does not handle yet (e.g. `text`,
