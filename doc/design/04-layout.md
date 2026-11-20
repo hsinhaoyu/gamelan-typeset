@@ -194,9 +194,11 @@ colours that mostly take white text (all but its green and yellow).
     group label or subtitle + 1.5em.
   - `lane_width` (lane labels): 0.52em × the longest lane label + 1em.
   - `step_width` `"2.6em"` and `row_height` `"1.5em"`, fixed.
-  - Lengths are strings in `em` with one decimal, rounded to the
-    nearest: `"10.5em"`, `"3.6em"`. With no groups the longest label
-    counts as 0.
+  - Lengths are strings in `em` with one decimal, even when whole,
+    rounded to the nearest, ties upward: `"10.5em"`, `"3.6em"`,
+    `"2.0em"`. With no groups the longest label counts as 0.
+  - Sizes come from the piece's groups and their lanes, whether or not
+    there are systems (a piece of length 0 still has its groups).
   These match the prototype (`polos + sangsih` → 10.5em, `neng1` →
   3.6em) and will be tuned against real Typst output in the backend
   milestone.
