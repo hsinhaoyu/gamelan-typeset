@@ -1,6 +1,6 @@
 # 04 — Layout
 
-Status: planned, not implemented yet (draft v1). Module: `(notasi layout)`
+Status: planned, not implemented yet (draft v1); of its milestone, slice 1 (the JSON writer, in 05) is implemented (see "Slices"). Module: `(notasi layout)`
 
 ## Responsibility
 
@@ -110,6 +110,22 @@ colours.
   outputs. The label width is estimated from the longest label
   (characters × an average width), because the background and note layers
   in Typst must use identical fixed column widths (see 05).
+
+## Slices
+
+Milestone 3 (`feat/json` + `feat/layout` in the build order) is built
+in four slices, each its own branch and PR into `dev`, started with
+`/start-milestone <branch>`:
+
+1. **Implemented.** `feat/json`: the JSON writer `(notasi json)`, as specified under
+   "JSON writing" in 05.
+2. `feat/layout-style`: "Note style": the ColorBrewer palettes,
+   `make-style` and `default-style`, the `by-degree` scheme and the
+   text-colour contrast rule.
+3. `feat/layout`: `layout-piece` → figure: systems and cut events,
+   groups and lanes, events with their look, sizes.
+4. `feat/layout-golden`: writing the figure as JSON (05's contract),
+   `make golden`, and golden tests for every file in `examples/`.
 
 ## Not layout's job
 
