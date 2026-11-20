@@ -59,8 +59,8 @@ is an open question.
   of length 0 has no systems.
 - Events crossing a system boundary are cut at every boundary they
   cross. The first piece has `continued: false`; every later piece has
-  `continued: true`, so it can be drawn differently (e.g. no label,
-  open left edge).
+  `continued: true`; the template draws it without its name
+  (05, ADR 0020).
 - Each system carries its absolute start step, so pulse numbers continue
   across systems; an event's `start` is relative to its system.
 

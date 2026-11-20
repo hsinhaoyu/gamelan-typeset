@@ -94,7 +94,7 @@ Exactly one per file, first. Options:
 
 | Option | Default | Meaning |
 |---|---|---|
-| `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and shading |
+| `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and pulse lines |
 | `(steps-per-system N)` | whole piece | Where the figure breaks into systems |
 
 ### `(use TEMPLATE)`

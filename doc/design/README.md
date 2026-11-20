@@ -42,7 +42,8 @@ workflow).
    [03-reader.md](03-reader.md#slices)
 3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests;
    built in four slices, see [04-layout.md](04-layout.md#slices)
-4. `feat/typst-backend`: template matching the prototype; built in
+4. `feat/typst-backend`: the Typst template, entry file and `notasi
+   render`; built in
    three slices, see [05-typst-backend.md](05-typst-backend.md#slices)
 5. `feat/documents`: scores in Typst documents; built in three slices,
    see [06-documents.md](06-documents.md#slices)
@@ -107,9 +108,12 @@ Proposed, not yet agreed:
 
 ## Prototype
 
-`../prototypes/score.typ` and `../prototypes/piece.json` are a hand-made mockup of
-the target output, transcribed from a textbook excerpt (reyong kotekan, ugal,
-calung, kempli, gong, kendang). The Typst backend should produce visually
-equivalent output for the same music, except for colour: the mockup
-colours each part, while notasi colours each pitch and draws strokes as
-characters (04, "Note style"; ADR 0017).
+`../prototypes/score.typ` and `../prototypes/piece.json` are a hand-made mockup,
+transcribed from a textbook excerpt (reyong kotekan, ugal, calung,
+kempli, gong, kendang), from before the template existed. The template
+keeps its structure (groups of lanes, a step grid, pulse numbers and
+lines) but no longer its look. notasi colours each pitch rather than
+each part (ADR 0017); draws square notes that fill their cells, with
+names only where an instrument asks for them, and strokes as grey boxes
+(ADRs 0019, 0020); and leaves the background white. The two examples'
+drawings (`make preview`) are the reference now.
