@@ -117,6 +117,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   unbalanced parentheses, reported with file and line
 - Parts of unequal length
 - A part in more than one group
+- A group with parts on two different pitched instruments
 
 ## Not the reader's job
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. Currently a skeleton: all modules are empty stubs.
+GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(notasi piece)` is implemented; the other modules are empty stubs, built in the order given under "Build order" in `doc/design/README.md`.
 
 ## Commands
 
