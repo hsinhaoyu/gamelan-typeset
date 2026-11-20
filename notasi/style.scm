@@ -66,6 +66,7 @@
 
 (define white "#ffffff")
 (define near-black "#222222")
+(define stroke-grey "#999999")         ; strokes have no pitch to colour
 
 (define (color? x)
   (and (string? x)
@@ -162,7 +163,7 @@ naming any bad value."
 
 (define (by-degree style instrument note)
   "Colour a pitched NOTE by its scale degree, the same in every octave
-and on every instrument; draw a stroke as its character only."
+and on every instrument; draw a stroke grey (ADR 0019)."
   (let* ((scale (instrument-scale instrument))
          (text (note-display instrument note)))
     (if (scale-pitched? scale)
@@ -172,7 +173,7 @@ and on every instrument; draw a stroke as its character only."
                (fill (or (assq-ref (style-degree-colors style) name)
                          (list-ref palette (modulo index (length palette))))))
           (make-look fill text (text-color-for fill)))
-        (make-look #f text near-black))))
+        (make-look stroke-grey text (text-color-for stroke-grey)))))
 
 (define (note-look style instrument note)
   "Return the look of NOTE on INSTRUMENT under STYLE."

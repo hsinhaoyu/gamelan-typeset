@@ -5,8 +5,8 @@
   "sizes": {
     "label_width": "9.3em",
     "lane_width": "2.0em",
-    "step_width": "2.6em",
-    "row_height": "1.5em"
+    "step_width": "2.0em",
+    "row_height": "2.0em"
   },
   "systems": [
     {
@@ -25,7 +25,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 3,
-                  "text": "a",
+                  "text": null,
                   "fill": "#66a61e",
                   "text_color": "#222222",
                   "continued": false
@@ -34,7 +34,7 @@
                   "start": 1,
                   "dur": 1,
                   "lane": 1,
-                  "text": "o",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -43,7 +43,7 @@
                   "start": 2,
                   "dur": 1,
                   "lane": 2,
-                  "text": "i",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -52,7 +52,7 @@
                   "start": 3,
                   "dur": 1,
                   "lane": 0,
-                  "text": "e",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": false
@@ -61,7 +61,7 @@
                   "start": 4,
                   "dur": 1,
                   "lane": 1,
-                  "text": "o",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -70,7 +70,7 @@
                   "start": 5,
                   "dur": 1,
                   "lane": 3,
-                  "text": "a",
+                  "text": null,
                   "fill": "#66a61e",
                   "text_color": "#222222",
                   "continued": false
@@ -79,7 +79,7 @@
                   "start": 6,
                   "dur": 1,
                   "lane": 1,
-                  "text": "o",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -88,7 +88,7 @@
                   "start": 7,
                   "dur": 1,
                   "lane": 2,
-                  "text": "i",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -97,7 +97,7 @@
                   "start": 8,
                   "dur": 1,
                   "lane": 3,
-                  "text": "a",
+                  "text": null,
                   "fill": "#66a61e",
                   "text_color": "#222222",
                   "continued": false
@@ -119,7 +119,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -128,7 +128,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -137,7 +137,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -146,7 +146,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -155,7 +155,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -164,7 +164,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -173,7 +173,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -182,7 +182,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -191,7 +191,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "K",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 }
@@ -212,7 +212,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "G",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -221,7 +221,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "G",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -230,7 +230,7 @@
                   "dur": 1,
                   "lane": 1,
                   "text": "P",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -239,7 +239,7 @@
                   "dur": 1,
                   "lane": 1,
                   "text": "P",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 },
@@ -248,7 +248,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "G",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 }

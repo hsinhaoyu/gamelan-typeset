@@ -33,4 +33,8 @@ out and compared with its saved figure in `tests/golden/`. When you
 change the output on purpose, run `make golden` to rewrite the saved
 figures, and review the diff.
 
-Requires Guile 3.0. Run code from the repo root with `guile -L .`.
+Requires Guile 3.0, and Typst 0.15.1 (the tested version) for drawing
+figures. Run code from the repo root with `guile -L .`.
+
+`make preview` draws each saved figure with the Typst template, to
+`build/preview/NAME.png`, so you can check how it looks.

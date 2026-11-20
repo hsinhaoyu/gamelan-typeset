@@ -1,8 +1,9 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-and `write-figure` in `(notasi typst)` are implemented; the template,
-the entry file and running Typst are planned (milestone 4). Modules: `(notasi json)`,
+and `write-figure` in `(notasi typst)` are implemented, and the
+template `typst/notasi.typ` (slice 1 of 3); the entry file and running
+Typst are planned (see "Slices"). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -17,31 +18,31 @@ must work in both places; see "Typst template design", points 6 and 7.
 
 ## JSON contract (version 1)
 
-An excerpt of `tests/golden/kotekan.json`, the figure for
-`examples/kotekan.gml` (one event of the first system shown):
+An excerpt of `tests/golden/tenzer1.json`, the figure for
+`examples/tenzer1.gml` (the first group, with its first event shown):
 
 ```json
 {
   "version": 1,
-  "title": "Reyong kotekan",
-  "steps_per_pulse": 4,
-  "sizes": { "label_width": "10.5em", "lane_width": "3.6em",
-             "step_width": "2.6em", "row_height": "1.5em" },
+  "title": "Eight-pulse gong cycle",
+  "steps_per_pulse": 1,
+  "sizes": { "label_width": "9.3em", "lane_width": "2.0em",
+             "step_width": "2.0em", "row_height": "2.0em" },
   "systems": [
     {
       "start": 0,
-      "steps": 8,
+      "steps": 9,
       "groups": [
         {
-          "label": "Reyong",
-          "subtitle": "polos + sangsih",
-          "lanes": ["neng1", "nong1", "ning1", "nang1"],
+          "label": "Ugal",
+          "subtitle": null,
+          "lanes": ["e2", "o2", "i2", "a1"],
           "voices": [
             {
-              "name": "polos",
+              "name": "ugal",
               "events": [
-                { "start": 0, "dur": 2, "lane": 3, "text": "nang",
-                  "fill": "#1b9e77", "text_color": "#ffffff",
+                { "start": 0, "dur": 1, "lane": 3, "text": null,
+                  "fill": "#66a61e", "text_color": "#222222",
                   "continued": false }
               ]
             }
@@ -59,8 +60,9 @@ Rules:
 - `lane` is a 0-based index into `lanes` (top row = 0).
 - A chord produces one event per note, same start and duration.
 - `fill`, `text` and `text_color` come from layout's colour scheme
-  (04, "Note style"). `fill` is `null` for a note drawn as text only,
-  such as a stroke.
+  (04, "Note style"). `text` is `null` when the note's instrument
+  doesn't show names (ADR 0019); `fill` is `null` only from a custom
+  scheme, for a note drawn as text alone.
 - All lengths are Typst length strings.
 - Any change to this format increments `version` and updates the
   template and the golden tests in the same PR.
@@ -135,17 +137,19 @@ Compact output (`#:pretty? #f`) has no spaces or newlines at all:
 
 Lessons from the prototype (`doc/prototypes/score.typ`):
 
-1. **Two layers.** A background grid draws pulse shading and pulse lines;
-   a transparent foreground grid draws labels, header and notes, placed on
-   top with `place`. A single grid does not work: a note spanning several
-   columns (`colspan`) covers the pulse lines and shading underneath it.
+1. **Two layers.** A background grid draws the pulse lines; a
+   transparent foreground grid draws labels, header and notes, placed on
+   top with `place`. A single grid does not work: a note spanning
+   several columns (`colspan`) would hide the lines it crosses even
+   where it doesn't sound.
 2. **Fixed column widths.** Both layers must align exactly, so the label
    column cannot be `auto`. Its width comes from the JSON `sizes`.
 3. **Positioned cells.** Notes use `grid.cell(x:, y:, colspan:)`; empty
    cells are filled automatically, so rests need no handling.
-4. **Notes as rounded blocks** filled with the event's `fill`, with
-   bold text in its `text_color`; an event whose `fill` is `null` is
-   just its text, centred in the cell.
+4. **Notes as square blocks** filled with the event's `fill`, with
+   bold text in its `text_color` when `text` isn't `null` (ADR 0019);
+   an event whose `fill` is `null` is just its text, centred in the
+   cell.
 5. **Header row** with bold pulse numbers and `·` for other steps, numbered
    from `system.start`.
 6. **`score` returns plain content**, systems stacked. It does not make
@@ -156,6 +160,48 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
 7. **No page or font settings in the template.** In a document the
    score uses the document's font and text size. Only the standalone
    entry file sets the page (`width: auto, height: auto`) and font.
+
+**Implemented** (slice 1, `feat/typst-template`): the template
+`typst/notasi.typ` exports `score(data)`, where DATA is the figure
+(05's contract, e.g. from `json("piece.json")`). It returns content:
+
+- **Systems** are drawn in order, each as its own two-layer grid with
+  its own header row and group labels, so each can be read alone,
+  separated by a 1em gap. No systems: empty content.
+- **Columns:** `label_width` (group label and subtitle), `lane_width`
+  (lane labels), then `steps` columns of `step_width`. **Rows:** a
+  header row, then one row per lane of each group, all `row_height`.
+- **Header:** at each step whose absolute number (`system.start` + i)
+  is a multiple of `steps_per_pulse`, the pulse number
+  ((`start` + i) / `steps_per_pulse` + 1) in bold; at other steps a
+  grey `·`. A system that doesn't start on a pulse starts with `·`.
+- **Background:** always white, with no shading (ADR 0020). Pulse
+  lines (background layer) follow the same absolute steps: a thin
+  vertical line (`0.5pt`, `luma(170)`) runs down the left of every step
+  that starts a pulse.
+- **Groups:** a horizontal rule (`0.8pt`, `luma(120)`) above each group
+  and below the last. The group label in bold, slightly larger
+  (`1.1em`), with its subtitle under it in grey italics when not
+  `null`, spanning the group's rows. Lane labels right-aligned, small
+  (`0.85em`) and grey (`luma(140)`).
+- **Notes** (ADRs 0019, 0020): a block filling its cells exactly, with
+  no margin, in `fill`, with a thin white border (`0.5pt`) so that
+  neighbouring notes stay apart (repeated strokes don't merge into what
+  looks like one held note). The `text`, when not `null`, is centred in
+  bold in `text_color`. When `continued` is true the block has no text:
+  it is the same note carrying on from the previous system. When `fill`
+  is `null`, no block: just the text, centred and bold, in
+  `text_color`.
+- Sizes relative to the text (`em`, `luma` greys), never absolute font
+  sizes or fonts: the surrounding document or entry file sets those.
+
+Tests (slice 1): `tests/template.scm` compiles every
+`tests/golden/*.json` with `score` (from an entry file made in a
+temporary folder) and fails if `typst compile` fails or prints a
+warning. If `typst` isn't installed it says so and fails, since CI
+always installs it. `make preview` renders each golden figure to
+`build/preview/NAME.png` (not committed) for a person to compare with
+the prototype; every PR touching the template is checked that way.
 
 Entry point produced by Guile for a standalone figure:
 
@@ -178,4 +224,22 @@ Entry point produced by Guile for a standalone figure:
 ## Version pinning
 
 Typst is pre-1.0. Record the tested version in CLAUDE.md and the README;
-the template needs positioned grid cells (Typst ≥ 0.11).
+the template needs positioned grid cells (Typst ≥ 0.11). The tested
+version is **0.15.1**. CI installs exactly that version, so every PR
+compiles the examples with it; upgrading Typst is a deliberate change
+to the pin, with the golden figures and template checked again.
+
+## Slices
+
+Milestone 4 (`feat/typst-backend` in the build order) is built in three
+slices, each its own branch and PR into `dev`, started with
+`/start-milestone <branch>`:
+
+1. **Implemented.** `feat/typst-template`: `typst/notasi.typ` and its `score`, following
+   "Typst template design"; CI installs Typst 0.15.1; tests compile the
+   golden figures.
+2. `feat/typst-render`: the rest of "Running Typst" on the Guile side:
+   writing the entry file, `compile-typst`, and one procedure from a
+   `.gml` file to a PDF.
+3. `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
+   and the manual page "Drawing a score".

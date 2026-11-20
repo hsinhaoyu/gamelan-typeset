@@ -419,16 +419,17 @@
   (test-assert "degree-colors that is not a list"
     (style-error? 'x #:degree-colors 'x)))
 
+;;; Strokes are grey boxes (ADR 0019, replacing 0017's "character only").
 (test-group "by-degree: strokes"
-  (let ((stroke-looks (list (list #f "D" dark)
-                            (list #f "dug" dark)
-                            (list #f "du" dark))))
-    (test-equal "kendang: no box, display form or name, near-black"
+  (let ((stroke-looks (list (list "#999999" "D" dark)
+                            (list "#999999" "dug" dark)
+                            (list "#999999" "du" dark))))
+    (test-equal "kendang: grey box, display form or name, near-black"
       stroke-looks (looks (default-style) kendang))
-    (test-equal "gong" (list (list #f "G" dark)) (looks (default-style) gong))
+    (test-equal "gong" (list (list "#999999" "G" dark)) (looks (default-style) gong))
     (test-equal "palette does not affect strokes"
       stroke-looks (looks (make-style #:palette 'set1) kendang))
-    (test-equal "degree-colors naming a stroke give it no box"
+    (test-equal "degree-colors naming a stroke leave it grey"
       stroke-looks
       (looks (make-style #:degree-colors '((dag . "#000000") (du . "#ffffff")))
              kendang))))

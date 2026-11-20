@@ -16,6 +16,8 @@
 ;; Reyong: 12 pots, e1 (deng1) to u3 (dung3).
 (instrument reyong  selisir  e1 u1 a1 i2 o2 e2 u2 a2 i3 o3 e3 u3)
 
-(instrument kempli  kempli-strokes   K)
-(instrument gong    gong-strokes     G P)
-(instrument kendang kendang-strokes  dag dug du)
+;; Strokes show their letters in the score; pitched notes are plain
+;; coloured blocks (ADR 0019).
+(instrument kempli  kempli-strokes   K          (show-names yes))
+(instrument gong    gong-strokes     G P        (show-names yes))
+(instrument kendang kendang-strokes  dag dug du (show-names yes))

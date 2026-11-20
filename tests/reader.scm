@@ -1936,6 +1936,52 @@ EXPECTED-KIND at line 10, part p, step STEP."
                (defs+ "(part p reyong 1)" "(part q reyong 1 2)")))))
 
 ;;; ------------------------------------------------------------------
+;;; Instrument options (ADR 0019): (show-names yes) or (show-names no)
+
+(test-group "instrument options"
+  (define (show-names? . extra)
+    (let ((pc (apply try-read-string
+                     "(piece \"P\")"
+                     "(strokes gong-strokes G P)"
+                     extra)))
+      (and pc (instrument-show-names? (instrument-named pc 'gong)))))
+  (test-equal "names are hidden by default" #f
+    (show-names? "(instrument gong gong-strokes G P)"))
+  (test-equal "(show-names yes)" #t
+    (show-names? "(instrument gong gong-strokes G P (show-names yes))"))
+  (test-equal "(show-names no)" #f
+    (show-names? "(instrument gong gong-strokes G P (show-names no))"))
+  (test-equal "the option may be on its own line" #t
+    (show-names? "(instrument gong gong-strokes G P" "  (show-names yes))"))
+  (for-each
+   (match-lambda
+     ((name expected . strs)
+      (test-equal name expected
+        (string-error (apply lines "(piece \"P\")" "(strokes gong-strokes G P)"
+                             strs)))))
+   (list
+    (list "a value other than yes or no" '(bad-option 3)
+          "(instrument gong gong-strokes G (show-names #t))")
+    (list "an option with no value" '(bad-option 3)
+          "(instrument gong gong-strokes G (show-names))")
+    (list "an unknown option" '(unknown-option 3)
+          "(instrument gong gong-strokes G (colour red))")
+    (list "an option given twice" '(duplicate-option 4)
+          "(instrument gong gong-strokes G (show-names yes)"
+          "  (show-names no))")
+    (list "the option's own line" '(bad-option 4)
+          "(instrument gong gong-strokes G"
+          "  (show-names maybe))")
+    (list "a note after an option" '(bad-form 3)
+          "(instrument gong gong-strokes G (show-names yes) P)")
+    (list "options but no notes" '(bad-form 3)
+          "(instrument gong gong-strokes (show-names yes))")
+    (list "options come before the scale" '(bad-option 3)
+          "(instrument gong no-such-strokes G (show-names 1))")
+    (list "options come before the notes" '(unknown-option 3)
+          "(instrument gong gong-strokes Q (tempo 2))"))))
+
+;;; ------------------------------------------------------------------
 ;;; Check order (03-reader.md, "Error reporting", items 5 to 13)
 
 (test-group "slice 3 check order"
@@ -2429,7 +2475,7 @@ canonicalized, or the raised object (or no-error) unchanged."
       '("selisir.gml" "gong-kebyar.gml" "gong-kebyar.gml" "gong-kebyar.gml")
       (map (lambda (s) (basename (source-location-file (scale-location s))))
            (piece-scales pc)))
-    (test-equal "gong-kebyar: instrument lines" '(14 17 19 20 21)
+    (test-equal "gong-kebyar: instrument lines" '(14 17 21 22 23)
       (map (lambda (i) (source-location-line (instrument-location i)))
            (piece-instruments pc)))
     (test-equal "gong-kebyar: ugal notes resolve against selisir"

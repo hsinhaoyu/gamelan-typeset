@@ -95,11 +95,12 @@
 
 (define (expected-look style piece instrument-name* note-name*)
   "The (text fill text_color) an event of that note should have, from
-(notasi style), with fill #f as null."
+(notasi style), with fill #f as null, and text null when the instrument
+doesn't show names (ADR 0019)."
   (let* ((instrument (instrument-named piece instrument-name*))
          (look (note-look style instrument
                           (note-named instrument note-name*))))
-    (list (look-text look)
+    (list (if (instrument-show-names? instrument) (look-text look) 'null)
           (or (look-fill look) 'null)
           (look-text-color look))))
 
@@ -136,6 +137,7 @@ and every array a vector?"
 
 (define white "#ffffff")
 (define dark "#222222")
+(define grey "#999999")              ; strokes (ADR 0019)
 ;; dark2, degree k → colour k
 (define ding-fill "#1b9e77")
 (define dong-fill "#d95f02")
@@ -163,7 +165,7 @@ and every array a vector?"
    "(scale selisir (ding (display \"i\")) (dong (display \"o\")) (deng (display \"e\")))"
    "(strokes gong-strokes G P)"
    "(instrument ugal selisir ding1 dong1 deng1 ding2)"
-   "(instrument gong gong-strokes G P)"
+   "(instrument gong gong-strokes G P (show-names yes))"
    "(part polos   ugal 1 _ 2 _ _)"
    "(part sangsih ugal - 4 _ (1 3) -)"
    "(part gong    gong 2 - - 1 -)"
@@ -180,6 +182,7 @@ and every array a vector?"
   `((name . ,name) (events . ,(list->vector events))))
 
 ;; Lanes of "Ugal": ding2 deng1 dong1 ding1 → i2 e1 o1 i1 (0 1 2 3).
+;; The ugal hides names (the default); the gong shows them (ADR 0019).
 ;; Lanes of "gong": G P (0 1).
 (define tiny-expected
   `((version . 1)
@@ -187,30 +190,30 @@ and every array a vector?"
     (steps_per_pulse . 2)
     (sizes . ((label_width . "10.5em")   ; "polos + sangsih": 15 chars
               (lane_width . "2.0em")     ; "i2": 2 chars
-              (step_width . "2.6em")
-              (row_height . "1.5em")))
+              (step_width . "2.0em")
+              (row_height . "2.0em")))
     (systems
      . ,(vector
          (sys 0 3
               (grp "Ugal" "polos + sangsih" #("i2" "e1" "o1" "i1")
                    (voice "polos"
-                          (ev 0 2 3 "i" ding-fill white #f)
-                          (ev 2 1 2 "o" dong-fill white #f))
+                          (ev 0 2 3 'null ding-fill white #f)
+                          (ev 2 1 2 'null dong-fill white #f))
                    (voice "sangsih"
-                          (ev 1 2 0 "i" ding-fill white #f)))
+                          (ev 1 2 0 'null ding-fill white #f)))
               (grp "gong" 'null #("G" "P")
                    (voice "gong"
-                          (ev 0 1 1 "P" 'null dark #f))))
+                          (ev 0 1 1 "P" grey dark #f))))
          (sys 3 2
               (grp "Ugal" "polos + sangsih" #("i2" "e1" "o1" "i1")
                    (voice "polos"
-                          (ev 0 2 2 "o" dong-fill white #t))
+                          (ev 0 2 2 'null dong-fill white #t))
                    (voice "sangsih"
-                          (ev 0 1 1 "e" deng-fill white #f)
-                          (ev 0 1 3 "i" ding-fill white #f)))
+                          (ev 0 1 1 'null deng-fill white #f)
+                          (ev 0 1 3 'null ding-fill white #f)))
               (grp "gong" 'null #("G" "P")
                    (voice "gong"
-                          (ev 0 1 0 "G" 'null dark #f))))))
+                          (ev 0 1 0 "G" grey dark #f))))))
     (caption . null)))
 
 ;; Pieces of 10 steps with various steps-per-system.
@@ -233,7 +236,7 @@ and every array a vector?"
   (piece-of
    "(piece \"Cuts\" (steps-per-pulse 2) (steps-per-system 4))"
    "(scale s (ding (display \"i\")) (dong (display \"o\")))"
-   "(instrument u s ding1 dong1)"
+   "(instrument u s ding1 dong1 (show-names yes))"
    ;; ding1 at 2 for 4 steps: crosses step 4.
    "(part one   u - - 1 _ / _ _ - - / - - - - / - - - -)"
    ;; ding1 at 3 for 6 steps: crosses steps 4 and 8.
@@ -320,7 +323,7 @@ and every array a vector?"
 (test-group "sizes"
   (test-equal "the prototype: \"polos + sangsih\" → 10.5em, \"neng1\" → 3.6em"
     '((label_width . "10.5em") (lane_width . "3.6em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of
      "(piece \"Reyong kotekan\")"
      "(scale reyong-4 nang ning nong neng)"
@@ -331,12 +334,12 @@ and every array a vector?"
 
   (test-equal "no groups: 1.5em and 1.0em"
     '((label_width . "1.5em") (lane_width . "1.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"Empty\")"))
 
   (test-equal "one-letter label and stroke: 2.1em, 1.5em"
     '((label_width . "2.1em") (lane_width . "1.5em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"P\")"
               "(strokes k-strokes K)"
               "(instrument kempli k-strokes K)"
@@ -414,7 +417,7 @@ and every array a vector?"
 
   (test-equal "a group of rests adds no lane label"
     '((label_width . "2.7em") (lane_width . "1.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"P\")"
               "(scale s a)"
               "(instrument u s a1)"
@@ -422,7 +425,7 @@ and every array a vector?"
 
   (test-equal "tenzer1: \"Gong & kempur\" → 9.3em, \"e2\" → 2.0em"
     '((label_width . "9.3em") (lane_width . "2.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (field (layout-piece tenzer) 'sizes))
 
   (test-equal "sizes are the same with and without systems breaks"
@@ -431,7 +434,7 @@ and every array a vector?"
 
   (test-equal "groups piece: \"sangsih + polos\" → 10.5em, \"e2\" → 2.0em"
     '((label_width . "10.5em") (lane_width . "2.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (field (layout-piece (groups-piece)) 'sizes)))
 
 ;;; ------------------------------------------------------------------
@@ -687,6 +690,23 @@ and every array a vector?"
                                   "(part p kendang (dug dag) du)"))
                        0 0 0)))
 
+  (test-equal "names are hidden by default: text null, colours kept"
+    (list (ev 0 1 0 'null dung-fill white #f)
+          (ev 1 1 1 'null dang-fill dark #f))
+    (events-of (layout-piece
+                (apply piece-of
+                       (append '("(piece \"P\")") selisir-lines
+                               '("(instrument u selisir a1 u2)"
+                                 "(part p u u2 a1)"))))
+               0 0 0))
+  (test-equal "a stroke instrument hiding names: grey boxes, text null"
+    (list (ev 0 1 0 'null grey dark #f))
+    (events-of (layout-piece
+                (piece-of "(piece \"P\")"
+                          "(strokes k dag)"
+                          "(instrument kendang k dag (show-names no))"
+                          "(part p kendang dag)"))
+               0 0 0))
   (test-equal "default style, hard-coded: selisir degrees in dark2"
     (list (ev 0 1 0 "u" dung-fill white #f)
           (ev 1 1 1 "e" deng-fill white #f)
@@ -696,14 +716,14 @@ and every array a vector?"
     (events-of (layout-piece
                 (apply piece-of
                        (append '("(piece \"P\")") selisir-lines
-                               '("(instrument u selisir a1 i2 o2 e2 u2)"
+                               '("(instrument u selisir a1 i2 o2 e2 u2 (show-names yes))"
                                  "(part p u u2 e2 o2 i2 a1)"))))
                0 0 0))
   (test-equal "degree without display: text is the degree name"
     (list (ev 0 1 0 "dong" dong-fill white #f))
     (events-of (layout-piece (piece-of "(piece \"P\")"
                                        "(scale s ding dong)"
-                                       "(instrument u s ding1 dong1)"
+                                       "(instrument u s ding1 dong1 (show-names yes))"
                                        "(part p u 2)"))
                0 0 0))
   (test-equal "a selisir with (display \"i\") shows \"i\", not \"ding\""
@@ -711,17 +731,17 @@ and every array a vector?"
     (field (car (events-of (layout-piece
                             (piece-of "(piece \"P\")"
                                       "(scale selisir (ding (display \"i\")) dong)"
-                                      "(instrument u selisir ding1 dong1)"
+                                      "(instrument u selisir ding1 dong1 (show-names yes))"
                                       "(part p u ding1)"))
                            0 0 0))
            'text))
-  (test-equal "strokes: fill null, display form, text #222222"
-    (list (ev 0 1 0 "D" 'null dark #f)
-          (ev 1 1 1 "dug" 'null dark #f))
+  (test-equal "strokes: grey, display form, text #222222 (ADR 0019)"
+    (list (ev 0 1 0 "D" grey dark #f)
+          (ev 1 1 1 "dug" grey dark #f))
     (events-of (layout-piece
                 (piece-of "(piece \"P\")"
                           "(strokes k (dag (display \"D\")) dug du)"
-                          "(instrument kendang k dag dug du)"
+                          "(instrument kendang k dag dug du (show-names yes))"
                           "(part p kendang dag dug)"))
                0 0 0))
 
@@ -731,7 +751,7 @@ and every array a vector?"
          (events-of (layout-piece
                      (apply piece-of
                             (append '("(piece \"P\")") selisir-lines
-                                    '("(instrument u selisir i2 o2)"
+                                    '("(instrument u selisir i2 o2 (show-names yes))"
                                       "(part p u i2 o2)")))
                      #:style (make-style #:palette 'set1))
                     0 0 0)))
@@ -741,7 +761,7 @@ and every array a vector?"
          (events-of (layout-piece
                      (apply piece-of
                             (append '("(piece \"P\")") selisir-lines
-                                    '("(instrument u selisir i2 o2)"
+                                    '("(instrument u selisir i2 o2 (show-names yes))"
                                       "(part p u i2 o2)")))
                      #:style (make-style
                               #:degree-colors '((dong . "#000000"))))
@@ -752,7 +772,7 @@ and every array a vector?"
     (events-of (layout-piece
                 (piece-of "(piece \"P\")"
                           "(scale s a b)"
-                          "(instrument u s a1 b1)"
+                          "(instrument u s a1 b1 (show-names yes))"
                           "(part p u 2 1)")
                 #:style (make-style
                          #:scheme (lambda (style instrument note)
@@ -779,26 +799,26 @@ and every array a vector?"
              (list (field group 'label) (field group 'subtitle)
                    (voice-names (layout-piece tenzer) 0 g))))
          '(0 1 2)))
-  (test-equal "tenzer1: the ugal's events, by vowel"
-    (list (ev 0 1 3 "a" dang-fill dark #f)
-          (ev 1 1 1 "o" dong-fill white #f)
-          (ev 2 1 2 "i" ding-fill white #f)
-          (ev 3 1 0 "e" deng-fill white #f)
-          (ev 4 1 1 "o" dong-fill white #f)
-          (ev 5 1 3 "a" dang-fill dark #f)
-          (ev 6 1 1 "o" dong-fill white #f)
-          (ev 7 1 2 "i" ding-fill white #f)
-          (ev 8 1 3 "a" dang-fill dark #f))
+  (test-equal "tenzer1: the ugal's events: colours, no names"
+    (list (ev 0 1 3 'null dang-fill dark #f)
+          (ev 1 1 1 'null dong-fill white #f)
+          (ev 2 1 2 'null ding-fill white #f)
+          (ev 3 1 0 'null deng-fill white #f)
+          (ev 4 1 1 'null dong-fill white #f)
+          (ev 5 1 3 'null dang-fill dark #f)
+          (ev 6 1 1 'null dong-fill white #f)
+          (ev 7 1 2 'null ding-fill white #f)
+          (ev 8 1 3 'null dang-fill dark #f))
     (events-of (layout-piece tenzer) 0 0 0))
   (test-equal "tenzer1: kempli on every step"
-    (map (lambda (i) (ev i 1 0 "K" 'null dark #f)) (iota 9))
+    (map (lambda (i) (ev i 1 0 "K" grey dark #f)) (iota 9))
     (events-of (layout-piece tenzer) 0 1 0))
   (test-equal "tenzer1: gong and kempur"
-    (list (ev 0 1 0 "G" 'null dark #f)
-          (ev 4 1 0 "G" 'null dark #f)
-          (ev 5 1 1 "P" 'null dark #f)
-          (ev 7 1 1 "P" 'null dark #f)
-          (ev 8 1 0 "G" 'null dark #f))
+    (list (ev 0 1 0 "G" grey dark #f)
+          (ev 4 1 0 "G" grey dark #f)
+          (ev 5 1 1 "P" grey dark #f)
+          (ev 7 1 1 "P" grey dark #f)
+          (ev 8 1 0 "G" grey dark #f))
     (events-of (layout-piece tenzer) 0 2 0)))
 
 ;;; ------------------------------------------------------------------

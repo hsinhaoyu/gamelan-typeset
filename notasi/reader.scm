@@ -172,6 +172,9 @@ first form."
 (define group-options
   `((subtitle ,string? . "a string")))
 
+(define instrument-options
+  `((show-names ,(lambda (v) (memq v '(yes no))) . "yes or no")))
+
 (define (list-line datum fallback)
   "The 1-based line of DATUM if it is a list read with a position, else
 FALLBACK.  Atoms carry no position."
@@ -245,24 +248,24 @@ in file order."
 
 (define definition-heads '(scale strokes instrument part group))
 
-(define (split-group-body body)
-  "Split the body of a group after its label into (PART-NAMES . OPTIONS):
-the leading symbols, then the rest."
+(define (split-names body)
+  "Split BODY into (NAMES . OPTIONS): the leading symbols (a group's part
+names, an instrument's notes), then the rest."
   (call-with-values (lambda () (span symbol? body)) cons))
 
-(define (group-shape-ok? body)
-  (match (split-group-body body)
-    ((names . options)
-     ;; Options are lists, so a stray string or number among the part
-     ;; names is a bad form, not a bad option.
-     (and (pair? names) (every pair? options)))))
+(define (names-then-options? body)
+  "Is BODY one or more symbols, then any number of option lists?  Options
+are lists, so a stray string or number among the names is a bad form,
+not a bad option."
+  (match (split-names body)
+    ((names . options) (and (pair? names) (every pair? options)))))
 
 (define (check-definition-shape form)
   (match form
     ((((or 'scale 'strokes) (? symbol?) _ ..1) . _) #t)
-    ((('instrument (? symbol?) (? symbol?) (? symbol?) ..1) . _) #t)
+    ((('instrument (? symbol?) (? symbol?) . (? names-then-options?)) . _) #t)
     ((('part (? symbol?) (? symbol?) _ ..1) . _) #t)
-    ((('group (? string?) . (? group-shape-ok?)) . _) #t)
+    ((('group (? string?) . (? names-then-options?)) . _) #t)
     ((('scale . _) . line)
      (syntax-error 'bad-form line
                    "a scale needs a name and its degrees: (scale NAME DEGREE ...)"))
@@ -598,8 +601,12 @@ with 0)."
   "Build an instrument record from FORM.  SCALES is an alist from name to
 scale record."
   (match form
-    ((('instrument name scale-name . note-names) . line)
-     (let* ((scale (or (assq-ref scales scale-name)
+    ((('instrument name scale-name . body) . line)
+     (let* ((names+options (split-names body))
+            (note-names (car names+options))
+            (options (parse-options (cdr names+options)
+                                    instrument-options "instrument" line))
+            (scale (or (assq-ref scales scale-name)
                        (syntax-error 'undefined-scale line
                                      "instrument `~a': no scale or stroke set called `~a'"
                                      name scale-name)))
@@ -613,6 +620,7 @@ scale record."
                          '()
                          note-names)))
        (make-instrument name scale (list->vector (reverse notes))
+                        (eq? (assq-ref options 'show-names) 'yes)
                         (location line))))))
 
 ;;; ------------------------------------------------------------------
@@ -787,7 +795,7 @@ USED lists the names of parts already in a group.  Return (GROUP . USED)
 with this group's parts added to USED."
   (match form
     ((('group label . body) . line)
-     (match (split-group-body body)
+     (match (split-names body)
        ((names . options)
         (let* ((opts (parse-options options group-options "group" line))
                (used+parts

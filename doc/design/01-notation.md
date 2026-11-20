@@ -94,7 +94,7 @@ Exactly one per file, first. Options:
 
 | Option | Default | Meaning |
 |---|---|---|
-| `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and shading |
+| `(steps-per-pulse N)` | 4 | Steps per pulse (kempli stroke), for pulse numbers and pulse lines |
 | `(steps-per-system N)` | whole piece | Where the figure breaks into systems |
 
 ### `(use TEMPLATE)`
@@ -173,6 +173,16 @@ Rules:
   in any order. The order sets the note indices and the lane order.
 - Note indices are 1-based in list order.
 
+Optional settings, after the notes:
+
+| Option | Default | Meaning |
+|---|---|---|
+| `(show-names yes)` or `(show-names no)` | `no` | Whether this instrument's notes show their name in the score. Without it, notes are plain coloured blocks (ADR 0019). |
+
+```scheme
+(instrument gong gong-strokes G P (show-names yes))
+```
+
 ### `(part NAME INSTRUMENT TOKEN ...)`
 
 A line of music. Tokens:
@@ -226,10 +236,6 @@ A caption or explanatory paragraph placed after the preceding figure.
 (v2; see open questions.)
 
 ## Example: textbook excerpt (one line)
-
-The same music, with a group subtitle and systems of eight steps, is
-`examples/kotekan.gml`; its figure is checked by the golden tests
-(`tests/golden/kotekan.json`).
 
 ```scheme
 (piece "Reyong kotekan" (steps-per-pulse 4))
