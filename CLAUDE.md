@@ -22,7 +22,22 @@ Modules live in `notasi/` under the `(notasi <name>)` namespace. The intended pi
 
 `reader` (text notation → piece) → `piece` (core records: instruments, notes, parts, gongan) → `layout` (visual structure) → `typst` (Typst source output), with `analysis` working on the piece alongside this pipeline.
 
-`doc/notation.md` is the place to define the input notation that `reader` parses; `examples/` is for example pieces.
+The notation that `reader` parses is specified in `doc/design/01-notation.md`.
+
+Repository layout (entries marked *planned* don't exist yet):
+
+```
+notasi/             Guile modules: piece, reader, layout, json (planned), typst, analysis
+typst/notasi.typ    Typst template (planned)
+scripts/            command-line entry points: notasi-render, notasi-analyse (planned)
+examples/           real pieces (.gml), used as test fixtures
+templates/          shared definitions (.gml) loaded with (use NAME)
+tests/              SRFI-64 test files, one per module
+tests/golden/       expected outputs: JSON, analysis reports (planned)
+doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
+doc/design/         design documents (the current design)
+doc/decisions/      decision log (ADRs)
+```
 
 ## Design documents
 
@@ -32,6 +47,21 @@ Modules live in `notasi/` under the `(notasi <name>)` namespace. The intended pi
 - Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
 - Never edit an accepted ADR except its `Status:` line.
 - `gh pr create --body` replaces `.github/pull_request_template.md`, so copy its docs checkbox into every PR description and tick it only if docs were updated or aren't needed.
+
+## Git workflow
+
+- `main` is stable. It only receives merge-commit PRs from `dev` at milestones (`/release`).
+- `dev` is the integration branch. Feature branches are squash-merged into it.
+- Never commit directly to `main` or `dev`. Work on a branch from an up-to-date `dev`, named `feat/…`, `fix/…`, `chore/…` or `doc/…`.
+- Commit when the user asks; push and open a PR only when the user asks. Use `/ship` to open a PR.
+- Every PR targets `dev` and needs green CI before merging.
+- After a PR is merged, `/cleanup-branches` deletes its branch.
+
+## Working on a milestone
+
+The build order is in `doc/design/README.md` under "Build order". Start each one with `/start-milestone`, which creates the branch, has a subagent write tests from the design doc before any code exists (so tests aren't shaped by the implementation), and plans the implementation for approval. Run `/doc-audit` at the end of each milestone to find drift between the docs and the code.
+
+A PostToolUse hook (`.claude/hooks/guild-compile.sh`) compiles every edited `.scm` file with `guild`, catching unbalanced parentheses and unbound variables immediately.
 
 ## Scheme style
 
@@ -50,4 +80,9 @@ Write idiomatic Guile 3, not another language translated into Scheme:
 
 ## Tests
 
-Tests use SRFI-64. Each `tests/*.scm` file is a standalone script that `make check` picks up automatically. A test file must exit non-zero on failure: save `(test-runner-current)` before `test-end`, then `(exit (zero? (+ fail-count xpass-count)))`. See `tests/smoke.scm`.
+Tests use SRFI-64. Each `tests/*.scm` file is a standalone script that `make check` picks up automatically; CI runs the same command. A test file must exit non-zero on failure: save `(test-runner-current)` before `test-end`, then `(exit (zero? (+ fail-count xpass-count)))`. See `tests/smoke.scm`.
+
+What to test:
+- Unit tests, one file per module: reader token handling and every error case listed in `doc/design/03-reader.md`, piece derived functions, layout decisions (lanes, system splitting, colours), JSON serialiser escaping.
+- Golden tests (planned): for each file in `examples/`, the generated JSON and analysis report are compared with `tests/golden/`. When an output change is intended, regenerate them (a `make golden` target, to be added) and review the diff in the PR.
+- Typst smoke test (planned, optional in CI): compile one example with Typst and check that it succeeds.

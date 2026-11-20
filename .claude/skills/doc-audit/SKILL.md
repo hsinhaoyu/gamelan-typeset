@@ -11,8 +11,9 @@ anything until the user says so.
 
 ## Steps
 
-1. Read `doc/design/README.md`, every `doc/design/0*.md`, and every ADR in
-   `doc/decisions/` whose status is `accepted`.
+1. Read `doc/design/README.md`, every `doc/design/0*.md`, every ADR in
+   `doc/decisions/` whose status is `accepted`, and the repository layout
+   in CLAUDE.md.
 
 2. Read the code and its executable spec: `notasi/*.scm`, `tests/*.scm`,
    `examples/`, `tests/golden/` (if present), `typst/` (if present) and the
