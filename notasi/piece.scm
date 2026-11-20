@@ -28,7 +28,7 @@ make-source-location source-location?
 
             make-instrument instrument?
             instrument-name instrument-scale instrument-notes
-            instrument-location
+            instrument-show-names? instrument-location
 
             make-note note?
             note-name note-degree note-octave
@@ -87,12 +87,13 @@ make-source-location source-location?
 ;;; NOTES is a vector: ascending pitch for a pitched instrument, the
 ;;; listed order for a stroke instrument.
 (define-record-type <instrument>
-  (make-instrument name scale notes location)
+  (make-instrument name scale notes show-names? location)
   instrument?
-  (name     instrument-name)
-  (scale    instrument-scale)
-  (notes    instrument-notes)
-  (location instrument-location))
+  (name        instrument-name)
+  (scale       instrument-scale)
+  (notes       instrument-notes)
+  (show-names? instrument-show-names?)  ; draw note names (ADR 0019)
+  (location    instrument-location))
 
 ;;; DEGREE indexes the scale's degrees; OCTAVE is #f for a stroke.
 (define-record-type <note>

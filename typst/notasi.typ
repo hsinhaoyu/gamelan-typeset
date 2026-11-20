@@ -11,20 +11,27 @@
 // A length from the figure, e.g. "10.5em".
 #let _len(s) = float(s.trim("em", at: end)) * 1em
 
-// The content of one note's cell.
+// The content of one note's cell: a square block in the note's colour,
+// with its name when the figure gives one (ADR 0019). A note with no
+// colour is just its name.
 #let _note(e) = {
-  if e.fill == none {
+  let name = if e.text != none and not e.continued {
     align(center + horizon,
       text(fill: rgb(e.text_color), weight: "bold", e.text))
-  } else if e.continued {
-    // The same note carrying on from the previous system.
-    block(width: 100%, height: 100%, fill: rgb(e.fill),
-      radius: (right: 3pt))
-  } else {
-    block(width: 100%, height: 100%, fill: rgb(e.fill), radius: 3pt,
-      align(center + horizon,
-        text(fill: rgb(e.text_color), weight: "bold", e.text)))
   }
+  if e.fill == none {
+    name
+  } else {
+    block(width: 100%, height: 100%, fill: rgb(e.fill), name)
+  }
+}
+
+// A note cut across systems has no inset on its left, so it starts
+// flush with the system's edge, carrying on from before.
+#let _inset(e) = if e.continued {
+  (left: 0pt, rest: 1.5pt)
+} else {
+  1.5pt
 }
 
 // One system as a grid: a background layer for pulse shading and pulse
@@ -59,7 +66,7 @@
       for v in g.voices {
         for e in v.events {
           cells.push(grid.cell(x: first + e.start, y: row + e.lane,
-            colspan: e.dur, inset: 1.5pt, _note(e)))
+            colspan: e.dur, inset: _inset(e), _note(e)))
         }
       }
     }

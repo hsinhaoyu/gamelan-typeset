@@ -74,24 +74,24 @@
     (map (match-lambda ((name octave) (pitched-note selisir name octave)))
          '((deng 1) (dung 1) (dang 1)
            (ding 2) (dong 2) (deng 2) (dung 2) (dang 2))))
-   loc))
+   #f loc))
 
 (define plain-instrument
   (make-instrument 'plain plain-scale
                    (vector (pitched-note plain-scale 'ding 1)
                            (pitched-note plain-scale 'dung 1))
-                   loc))
+                   #f loc))
 
 (define gong
   (make-instrument 'gong gong-strokes
                    (vector (stroke-note gong-strokes 'G)
                            (stroke-note gong-strokes 'P))
-                   loc))
+                   #f loc))
 
 (define kempli
   (make-instrument 'kempli kempli-strokes
                    (vector (stroke-note kempli-strokes 'K))
-                   loc))
+                   #f loc))
 
 ;; kendang lists dag dug du.
 (define kendang
@@ -99,7 +99,7 @@
                    (vector (stroke-note kendang-strokes 'dag)
                            (stroke-note kendang-strokes 'dug)
                            (stroke-note kendang-strokes 'du))
-                   loc))
+                   #f loc))
 
 (define (inst-note instrument index)
   (vector-ref (instrument-notes instrument) index))

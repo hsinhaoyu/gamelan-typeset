@@ -46,8 +46,10 @@
 
 (define (note-events part lanes style)
   "PART's events, one per note (a chord gives several), as
-(START DURATION LANE LOOK) lists."
-  (let ((instrument (part-instrument part)))
+(START DURATION LANE LOOK) lists.  The look's text is dropped (#f) when
+the instrument doesn't show names (ADR 0019)."
+  (let* ((instrument (part-instrument part))
+         (names? (instrument-show-names? instrument)))
     (append-map
      (lambda (event)
        (map (lambda (index)
@@ -55,7 +57,11 @@
                 (list (event-start event)
                       (event-duration event)
                       (list-index (match-lambda ((_ . n) (eq? n note))) lanes)
-                      (note-look style instrument note))))
+                      (let ((look (note-look style instrument note)))
+                        (if names?
+                            look
+                            (make-look (look-fill look) #f
+                                       (look-text-color look)))))))
             (event-notes event)))
      (part-events part))))
 
@@ -70,7 +76,7 @@ start relative to FROM, or #f if it doesn't sound there."
               `((start . ,(- first from))
                 (dur . ,(- (min end to) first))
                 (lane . ,lane)
-                (text . ,(look-text look))
+                (text . ,(null-if-false (look-text look)))
                 (fill . ,(null-if-false (look-fill look)))
                 (text_color . ,(look-text-color look))
                 (continued . ,(< start from)))))))))

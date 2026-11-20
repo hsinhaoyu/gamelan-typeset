@@ -15,7 +15,7 @@
 (strokes gong-strokes  G)
 
 (instrument reyong reyong-4  nang1 ning1 nong1 neng1)
-(instrument gong   gong-strokes G)
+(instrument gong   gong-strokes G (show-names yes))
 
 (part polos   reyong  1 _ 1 2 / _ 1 2 _ / 2 1 _ 2)
 (part sangsih reyong  4 3 4 _ / 3 4 _ 3 / _ 4 3 _)

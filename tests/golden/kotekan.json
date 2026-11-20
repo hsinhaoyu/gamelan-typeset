@@ -25,7 +25,7 @@
                   "start": 0,
                   "dur": 2,
                   "lane": 3,
-                  "text": "nang",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -34,7 +34,7 @@
                   "start": 2,
                   "dur": 1,
                   "lane": 3,
-                  "text": "nang",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -43,7 +43,7 @@
                   "start": 3,
                   "dur": 2,
                   "lane": 2,
-                  "text": "ning",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -52,7 +52,7 @@
                   "start": 5,
                   "dur": 1,
                   "lane": 3,
-                  "text": "nang",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -61,7 +61,7 @@
                   "start": 6,
                   "dur": 2,
                   "lane": 2,
-                  "text": "ning",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -75,7 +75,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 0,
-                  "text": "neng",
+                  "text": null,
                   "fill": "#e7298a",
                   "text_color": "#ffffff",
                   "continued": false
@@ -84,7 +84,7 @@
                   "start": 1,
                   "dur": 1,
                   "lane": 1,
-                  "text": "nong",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": false
@@ -93,7 +93,7 @@
                   "start": 2,
                   "dur": 2,
                   "lane": 0,
-                  "text": "neng",
+                  "text": null,
                   "fill": "#e7298a",
                   "text_color": "#ffffff",
                   "continued": false
@@ -102,7 +102,7 @@
                   "start": 4,
                   "dur": 1,
                   "lane": 1,
-                  "text": "nong",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": false
@@ -111,7 +111,7 @@
                   "start": 5,
                   "dur": 2,
                   "lane": 0,
-                  "text": "neng",
+                  "text": null,
                   "fill": "#e7298a",
                   "text_color": "#ffffff",
                   "continued": false
@@ -120,7 +120,7 @@
                   "start": 7,
                   "dur": 1,
                   "lane": 1,
-                  "text": "nong",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": false
@@ -142,7 +142,7 @@
                   "dur": 1,
                   "lane": 0,
                   "text": "G",
-                  "fill": null,
+                  "fill": "#999999",
                   "text_color": "#222222",
                   "continued": false
                 }
@@ -168,7 +168,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 2,
-                  "text": "ning",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -177,7 +177,7 @@
                   "start": 1,
                   "dur": 2,
                   "lane": 3,
-                  "text": "nang",
+                  "text": null,
                   "fill": "#1b9e77",
                   "text_color": "#ffffff",
                   "continued": false
@@ -186,7 +186,7 @@
                   "start": 3,
                   "dur": 1,
                   "lane": 2,
-                  "text": "ning",
+                  "text": null,
                   "fill": "#d95f02",
                   "text_color": "#ffffff",
                   "continued": false
@@ -200,7 +200,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 1,
-                  "text": "nong",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": true
@@ -209,7 +209,7 @@
                   "start": 1,
                   "dur": 1,
                   "lane": 0,
-                  "text": "neng",
+                  "text": null,
                   "fill": "#e7298a",
                   "text_color": "#ffffff",
                   "continued": false
@@ -218,7 +218,7 @@
                   "start": 2,
                   "dur": 2,
                   "lane": 1,
-                  "text": "nong",
+                  "text": null,
                   "fill": "#7570b3",
                   "text_color": "#ffffff",
                   "continued": false
