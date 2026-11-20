@@ -18,6 +18,10 @@
 - [Chords](chords.md)
 - [Groups](groups.md)
 
+# Templates
+
+- [Using templates](templates.md)
+
 # When something goes wrong
 
 - [Error messages](errors.md)

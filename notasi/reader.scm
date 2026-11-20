@@ -3,8 +3,8 @@
 ;;;
 ;;; Slice 1: the public interface, &notasi-syntax-error, reading forms,
 ;;; dispatch, and the `piece` form.  Slice 2: scales, stroke sets and
-;;; instruments.  Slice 3: parts and groups.  `use' (slice 4) and `text'
-;;; (v2) raise `not-implemented'.
+;;; instruments.  Slice 3: parts and groups.  Slice 4: templates (`use').
+;;; Only `text' (v2) raises `not-implemented'.
 
 (define-module (notasi reader)
   #:use-module (notasi piece)
@@ -98,6 +98,15 @@ from FMT and ARGS."
       (if (eof-object? datum)
           (reverse forms)
           (loop (cons (cons datum (datum-line datum port)) forms))))))
+
+(define (call-with-source-file path proc)
+  "Call PROC with a port open on PATH.  The port is named PATH exactly,
+so Guile's own read errors name the file as the user wrote it, not
+relative to some %load-path entry."
+  (call-with-input-file path
+    (lambda (port)
+      (set-port-filename! port path)
+      (proc port))))
 
 (define (datum-line datum port)
   (match (and (pair? datum) (source-property datum 'line))
@@ -292,6 +301,150 @@ the leading symbols, then the rest."
                (cons key seen)))))
         '()
         definitions))
+
+;;; ------------------------------------------------------------------
+;;; Item 5 (step 3): templates.  A definition is (FILE . FORM): the file
+;;; it came from (#f for a string or port) and its (DATUM . LINE).
+
+(define template-heads '(scale strokes instrument use))
+(define merged-heads '(scale strokes instrument))
+
+(define (definition-key form)
+  (match form
+    (((head name . _) . _) (cons (namespace head) name))))
+
+(define (use-target form)
+  "The template a `use' FORM names: a symbol or a string."
+  (match form
+    ((('use (and target (or (? symbol?) (? string?)))) . _) target)
+    ((_ . line)
+     (syntax-error 'bad-form line
+                   "a use names one template: (use NAME) or (use \"file.gml\")"))))
+
+(define (check-use-forms forms)
+  "Item 5.1: every `use' in FORMS comes before the other forms (after
+`piece'), then each names one template."
+  (let loop ((forms forms) (after-other? #f))
+    (match forms
+      (() #t)
+      ((form . rest)
+       (match (form-head form)
+         ('piece (loop rest after-other?))
+         ('use
+          (when after-other?
+            (syntax-error 'use-not-first (cdr form)
+                          "a use must come before the definitions, parts and groups"))
+          (loop rest after-other?))
+         (_ (loop rest #t))))))
+  (for-each use-target (forms-with-heads forms '(use))))
+
+(define (template-path target dir)
+  "The file TARGET names, or #f if there is none.  A name is looked up
+as templates/NAME.gml along %load-path; a string is relative to DIR."
+  (match target
+    ((? symbol?)
+     (search-path %load-path
+                  (string-append "templates/" (symbol->string target) ".gml")))
+    ((? string?)
+     ;; Inside the current directory, the path is the string itself, so
+     ;; messages show `my-gamelan.gml', not `./my-gamelan.gml'.
+     (let ((path (if (or (absolute-file-name? target) (string=? dir "."))
+                     target
+                     (in-vicinity dir target))))
+       (and (file-exists? path)
+            (not (file-is-directory? path))
+            path)))))
+
+(define (use-template form dir chain table)
+  "Item 5.2: the definitions the template named by the `use' FORM makes
+visible.  CHAIN holds the canonical paths being loaded; TABLE maps the
+canonical path of each template already loaded to its definitions."
+  (let* ((line (cdr form))
+         (target (use-target form))
+         (path (template-path target dir))
+         (id (and path (canonicalize-path path))))
+    (cond
+     ((and id (member id chain))
+      (syntax-error 'template-cycle line
+                    "template ~s uses itself, through a cycle of uses" target))
+     ((not path)
+      (match target
+        ((? symbol?)
+         (syntax-error 'template-not-found line
+                       "no template called `~a' (looked for templates/~a.gml)"
+                       target target))
+        (_ (syntax-error 'template-not-found line
+                         "no template file ~s in ~a" target dir))))
+     ((hash-ref table id))
+     (else
+      (let ((definitions (load-template path (cons id chain) table)))
+        (hash-set! table id definitions)
+        definitions)))))
+
+(define (load-template path chain table)
+  "Read the template at PATH and return the definitions it makes visible."
+  (parameterize ((current-source-file path))
+    (let ((forms (call-with-source-file path read-forms)))
+      (for-each check-form forms)
+      (match (find (lambda (form) (not (memq (form-head form) template-heads)))
+                   forms)
+        (#f #t)
+        ((datum . line)
+         (syntax-error 'not-in-template line
+                       "a template holds only scale, strokes, instrument and use forms, not `~a'"
+                       (car datum))))
+      (file-definitions forms (dirname path) chain table))))
+
+(define (own-keys forms)
+  "The keys of the scales, stroke sets and instruments FORMS define."
+  (filter-map (match-lambda
+                ((((? symbol? head) (? symbol? name) . _) . _)
+                 (and (memq head merged-heads)
+                      (cons (namespace head) name)))
+                (_ #f))
+              forms))
+
+(define (merge-templates lists keys)
+  "Item 5.3: join the definitions in LISTS, one list per `use', in
+order.  A definition reached twice keeps its first place; one whose key
+is in KEYS (defined by the file itself) is dropped; any other name
+defined twice is a `template-conflict'."
+  (reverse
+   (fold (lambda (definition merged)
+           (let ((key (definition-key (cdr definition))))
+             (cond
+              ((memq definition merged) merged)
+              ((member key keys) merged)
+              ((find (lambda (other)
+                       (equal? key (definition-key (cdr other))))
+                     merged)
+               => (lambda (first) (template-conflict definition first)))
+              (else (cons definition merged)))))
+         '()
+         (concatenate lists))))
+
+(define (template-conflict definition first)
+  (match definition
+    ((file . ((_ name . _) . line))
+     (parameterize ((current-source-file file))
+       (syntax-error 'template-conflict line
+                     "`~a' is also defined in ~a; two templates used by one file can't define the same name"
+                     name (or (car first) "<string>"))))))
+
+(define (file-definitions forms dir chain table)
+  "Items 5 to 7 for one file's FORMS: load its templates, check its own
+definitions, and return the scales, stroke sets and instruments visible
+from it, as definitions in merged order."
+  (check-use-forms forms)
+  (let* ((lists (map (lambda (form) (use-template form dir chain table))
+                     (forms-with-heads forms '(use))))
+         (merged (merge-templates lists (own-keys forms)))
+         (definitions (forms-with-heads forms definition-heads)))
+    (for-each check-definition-shape definitions)
+    (check-duplicates definitions)
+    (append merged
+            (map (lambda (form) (cons (current-source-file) form))
+                 (forms-with-heads forms merged-heads)))))
 
 ;;; ------------------------------------------------------------------
 ;;; Item 8: scales and stroke sets
@@ -686,22 +839,33 @@ the file."
 ;;; ------------------------------------------------------------------
 ;;; Entry points
 
-(define (read-piece forms)
-  "Check FORMS, a list of (DATUM . LINE), and build the piece.  The
-checks run in the order given in 03-reader.md, so a file with several
-problems always reports the same one."
+(define (read-piece forms dir chain)
+  "Check FORMS, a list of (DATUM . LINE), and build the piece.  DIR is
+where `(use \"file.gml\")' looks; CHAIN holds the canonical path of the
+piece file, if any.  The checks run in the order given in 03-reader.md,
+so a file with several problems always reports the same one."
   (define (named records name-of)
     (map (lambda (record) (cons (name-of record) record)) records))
+  (define (build-each build definitions)
+    ;; Each definition is built in the context of its own file, so its
+    ;; locations and errors name that file.
+    (map (match-lambda
+           ((file . form)
+            (parameterize ((current-source-file file))
+              (build form))))
+         definitions))
+  (define (with-heads heads definitions)
+    (filter (lambda (definition) (memq (form-head (cdr definition)) heads))
+            definitions))
   (for-each check-form forms)
-  (let ((piece (parse-piece-form (find-piece-form forms))))
-    (check-not-implemented forms '(use))       ; slice 4
-    (let ((definitions (forms-with-heads forms definition-heads)))
-      (for-each check-definition-shape definitions)
-      (check-duplicates definitions))
-    (let* ((scales (map build-scale (forms-with-heads forms '(scale strokes))))
-           (instruments (map (lambda (form)
-                               (build-instrument form (named scales scale-name)))
-                             (forms-with-heads forms '(instrument))))
+  (let* ((piece (parse-piece-form (find-piece-form forms)))
+         (definitions (file-definitions forms dir chain (make-hash-table))))
+    (let* ((scales (build-each build-scale
+                               (with-heads '(scale strokes) definitions)))
+           (instruments (build-each
+                         (lambda (form)
+                           (build-instrument form (named scales scale-name)))
+                         (with-heads '(instrument) definitions)))
            (parts+steps (map (lambda (form)
                                (build-part form (named instruments
                                                        instrument-name)))
@@ -715,10 +879,14 @@ problems always reports the same one."
                   (piece-steps-per-system piece)
                   length scales instruments parts groups))))
 
+(define (read-port port dir chain)
+  (read-piece (read-forms port) dir chain))
+
 (define* (read-piece-port port #:key directory)
   "Read a piece from PORT.  Raise a &notasi-syntax-error on any error.
-DIRECTORY is where `(use \"file.gml\")' looks (not used yet)."
-  (read-piece (read-forms port)))
+DIRECTORY is where `(use \"file.gml\")' looks; it defaults to the
+current directory."
+  (read-port port (or directory (getcwd)) '()))
 
 (define* (read-piece-string str #:key directory)
   "Read a piece from the string STR.  See `read-piece-port'."
@@ -728,4 +896,6 @@ DIRECTORY is where `(use \"file.gml\")' looks (not used yet)."
 (define (read-piece-file path)
   "Read a piece from the file at PATH.  Errors report PATH as their file."
   (parameterize ((current-source-file path))
-    (call-with-input-file path read-piece-port)))
+    (call-with-source-file path
+      (lambda (port)
+        (read-port port (dirname path) (list (canonicalize-path path)))))))

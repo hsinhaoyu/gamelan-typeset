@@ -1,0 +1,5 @@
+(piece "Gender practice")
+
+(use "templates/my-gamelan.gml")
+
+(part melody gender  o1 e1 u1 a1 i2 a1 u1 e1)
