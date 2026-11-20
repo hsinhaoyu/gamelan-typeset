@@ -2,7 +2,7 @@
 ;;; doc/design/05-typst-backend.md.
 ;;;
 ;;; Writes a figure as JSON, writes the entry file Typst compiles, runs
-;;; `typst compile', and goes from a .gml file to a picture in one step.
+;;; `typst compile', and goes from a .nts file to a picture in one step.
 ;;; It comes after the reader and layout in the pipeline, so it may use
 ;;; both; they never use it.
 
@@ -112,7 +112,7 @@ missing or fails; the message then includes Typst's own output."
                     typ-path)))))
 
 ;;; ------------------------------------------------------------------
-;;; From a .gml file to a picture
+;;; From a .nts file to a picture
 
 (define (find-template)
   (or (search-path %load-path "typst/notasi.typ")
@@ -127,13 +127,13 @@ missing or fails; the message then includes Typst's own output."
 (define (temporary-folder)
   (mkdtemp (string-append (or (getenv "TMPDIR") "/tmp") "/notasi-XXXXXX")))
 
-(define* (render-piece gml-path out-path #:key (style (default-style)) keep-in)
-  "Draw the piece in GML-PATH to OUT-PATH (.pdf, .png or .svg) with
+(define* (render-piece nts-path out-path #:key (style (default-style)) keep-in)
+  "Draw the piece in NTS-PATH to OUT-PATH (.pdf, .png or .svg) with
 STYLE, and return OUT-PATH.  The figure, template and entry file are
 made in a temporary folder that is deleted afterwards, or in KEEP-IN,
 which is kept.  Reader errors pass through unchanged."
   (output-format out-path)              ; a bad extension fails first
-  (let* ((figure (layout-piece (read-piece-file gml-path) #:style style))
+  (let* ((figure (layout-piece (read-piece-file nts-path) #:style style))
          (template (find-template))
          (dir (or keep-in (temporary-folder))))
     (dynamic-wind

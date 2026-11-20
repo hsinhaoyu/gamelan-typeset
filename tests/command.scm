@@ -17,7 +17,7 @@
 ;;;   followed by one newline, like the manual's mistakes/*.txt files.
 ;;; - Every message is one or more whole lines: "notasi: " starts
 ;;;   stderr for other problems and usage errors.
-;;; - A missing PIECE.gml is "a file that can't be read" (status 1,
+;;; - A missing PIECE.nts is "a file that can't be read" (status 1,
 ;;;   "notasi: "), not a notation mistake; its message names the file.
 ;;; - Usage errors also name what is wrong where there is a name to
 ;;;   give (the unknown subcommand, the unknown option).
@@ -26,7 +26,7 @@
 ;;; - "typst not on the PATH": PATH is the current PATH minus every
 ;;;   folder holding a `typst', as in tests/typst.scm.
 ;;; - scripts/notasi is run by its absolute path from inside the
-;;;   temporary folder, with a relative PIECE.gml and OUT, so it must
+;;;   temporary folder, with a relative PIECE.nts and OUT, so it must
 ;;;   find the project (and the gong-kebyar template) from its own
 ;;;   location, not from `.'.
 
@@ -44,9 +44,9 @@
 ;;; Helpers
 
 (define repo-dir (getcwd))
-(define example-path (string-append repo-dir "/examples/tenzer1.gml"))
+(define example-path (string-append repo-dir "/examples/tenzer1.nts"))
 (define script-path (string-append repo-dir "/scripts/notasi"))
-(define usage-text "notasi render PIECE.gml")
+(define usage-text "notasi render PIECE.nts")
 
 (define tmp-dir
   (mkdtemp (string-append (or (getenv "TMPDIR") "/tmp") "/notasi-cmd-XXXXXX")))
@@ -161,7 +161,7 @@ each string in ALSO."
 
 ;;; The piece, copied next to its outputs (it uses gong-kebyar, which is
 ;;; found along %load-path, so the copy reads the same).
-(define piece (tmp-path "tenzer1.gml"))
+(define piece (tmp-path "tenzer1.nts"))
 (copy-file example-path piece)
 
 (test-begin "command")
@@ -208,13 +208,13 @@ each string in ALSO."
 ;;; A notation mistake: the reader's message exactly, status 1
 
 (test-group "notation mistake"
-  (let* ((gml (tmp-path "mistake.gml"))
+  (let* ((nts (tmp-path "mistake.nts"))
          (out (tmp-path "mistake.pdf")))
-    (write-text gml "(piece \"Gilak\")\n(pice \"Kotekan\")\n")
+    (write-text nts "(piece \"Gilak\")\n(pice \"Kotekan\")\n")
     (let ((message (guard (e ((notasi-syntax-error? e) (exception-message e)))
-                     (read-piece-file gml)
+                     (read-piece-file nts)
                      #f))
-          (r (run "render" gml)))
+          (r (run "render" nts)))
       (test-assert "(the reader rejects the test file)" (string? message))
       (test-equal "exits with status 1" 1 (status-of r))
       (test-equal "stderr is the reader's message and a newline"
@@ -240,11 +240,11 @@ each string in ALSO."
    also))
 
 (test-group "other problems"
-  ;; A missing PIECE.gml can't be read: not a notation mistake.
-  (let ((gml (tmp-path "missing.gml"))
+  ;; A missing PIECE.nts can't be read: not a notation mistake.
+  (let ((nts (tmp-path "missing.nts"))
         (out (tmp-path "missing.pdf")))
-    (other-problem-checks "missing PIECE.gml" (run "render" gml) out
-                          "missing.gml"))
+    (other-problem-checks "missing PIECE.nts" (run "render" nts) out
+                          "missing.nts"))
 
   (let ((out (tmp-path "x.jpg")))
     (other-problem-checks "unsupported extension (.jpg)"
@@ -267,9 +267,9 @@ each string in ALSO."
   (usage-error-checks "no arguments" (run))
   (usage-error-checks "unknown subcommand" (run "draw" piece) "draw")
   (usage-error-checks "unknown option" (run "render" piece "--colour") "--colour")
-  (usage-error-checks "render with no PIECE.gml" (run "render"))
-  (usage-error-checks "render with two PIECE.gml"
-                      (run "render" piece (tmp-path "other.gml")))
+  (usage-error-checks "render with no PIECE.nts" (run "render"))
+  (usage-error-checks "render with two PIECE.nts"
+                      (run "render" piece (tmp-path "other.nts")))
   (usage-error-checks "-o without a value" (run "render" piece "-o")))
 
 ;;; ------------------------------------------------------------------
@@ -295,7 +295,7 @@ each string in ALSO."
   ;; Run from the temporary folder, so `.' is not the project.
   (let* ((port (open-input-pipe
                 (string-append "cd '" tmp-dir "' && '" script-path
-                               "' render tenzer1.gml -o script.pdf 2>/dev/null")))
+                               "' render tenzer1.nts -o script.pdf 2>/dev/null")))
          (output (get-string-all port))
          (status (status:exit-val (close-pipe port))))
     (test-equal "run from another folder: exits with status 0" 0 status)

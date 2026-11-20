@@ -1,1 +1,1 @@
-not-yet.gml:2: the `text' form is not supported yet
+not-yet.nts:2: the `text' form is not supported yet

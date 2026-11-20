@@ -4,7 +4,7 @@ An instrument lists the notes it can play: the keys of a gangsa, the
 pots of a reyong, or the strokes of a drum.
 
 ```scheme
-{{#include examples/instruments.gml}}
+{{#include examples/instruments.nts}}
 ```
 
 Each `instrument` line gives:
@@ -37,7 +37,7 @@ write each note's name inside its block, add `(show-names yes)` after
 the instrument's notes:
 
 ```scheme
-{{#include examples/show-names.gml}}
+{{#include examples/show-names.nts}}
 ```
 
 This is most useful for gongs and drums, whose strokes are all drawn in

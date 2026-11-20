@@ -11,7 +11,7 @@
 ;;; ------------------------------------------------------------------
 ;;; Fixtures
 
-(define loc (make-source-location "test.gml" 1))
+(define loc (make-source-location "test.nts" 1))
 
 (define (deg name alias display)
   "A degree with at most one alias."
@@ -123,9 +123,9 @@
 ;;; Records
 
 (test-group "source-location record"
-  (let ((l (make-source-location "song.gml" 12)))
+  (let ((l (make-source-location "song.nts" 12)))
     (test-assert "predicate" (source-location? l))
-    (test-equal "file" "song.gml" (source-location-file l))
+    (test-equal "file" "song.nts" (source-location-file l))
     (test-equal "line" 12 (source-location-line l)))
   (let ((l (make-source-location #f 3)))
     (test-assert "file #f: predicate" (source-location? l))

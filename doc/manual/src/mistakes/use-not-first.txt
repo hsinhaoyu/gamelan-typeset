@@ -1,1 +1,1 @@
-use-not-first.gml:3: a use must come before the definitions, parts and groups
+use-not-first.nts:3: a use must come before the definitions, parts and groups

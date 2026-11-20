@@ -231,7 +231,7 @@ in four slices, each its own branch and PR into `dev`, started with
 4. **Implemented.** `feat/layout-golden`: writing the figure as JSON (05's contract),
    `make golden`, and golden tests for every file in `examples/`:
    - `write-figure` in `(notasi typst)` (05, "Writing the figure file").
-   - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.gml`
+   - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.nts`
      has its figure, laid out with the default style, saved in
      `tests/golden/NAME.json`, exactly as `write-figure` writes it.
      `make check` runs the file, which compares each example's figure

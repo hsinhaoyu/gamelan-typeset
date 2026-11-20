@@ -9,7 +9,7 @@ drums and the kempli take theirs from a **stroke set**.
 A scale names its degrees, lowest first, within one octave:
 
 ```scheme
-{{#include examples/selisir-scale.gml}}
+{{#include examples/selisir-scale.nts}}
 ```
 
 - `selisir` is the scale's name. Instruments refer to it by that name.
@@ -27,7 +27,7 @@ A stroke set names the strokes of an unpitched instrument. Strokes have
 no octave and no order:
 
 ```scheme
-{{#include examples/stroke-sets.gml}}
+{{#include examples/stroke-sets.nts}}
 ```
 
 `(display "D")` sets how a stroke or degree will be shown in the score.

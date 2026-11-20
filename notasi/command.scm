@@ -11,14 +11,14 @@
   #:use-module (ice-9 match)
   #:export (run-notasi))
 
-(define usage "usage: notasi render PIECE.gml [-o OUT]")
+(define usage "usage: notasi render PIECE.nts [-o OUT]")
 
 (define help
   (string-append usage "
 
 Draw a piece of notation as a score.
 
-  render PIECE.gml    draw PIECE.gml; by default to PIECE.pdf beside it
+  render PIECE.nts    draw PIECE.nts; by default to PIECE.pdf beside it
   -o, --output OUT    write OUT instead; its extension (.pdf, .png or
                       .svg) chooses the format
   --help              show this help"))
@@ -63,8 +63,8 @@ as the message."
 ;;; notasi render
 
 (define (default-output piece)
-  "PIECE's folder and name with .pdf: songs/gilak.gml → songs/gilak.pdf."
-  (string-append (if (string-suffix? ".gml" piece)
+  "PIECE's folder and name with .pdf: songs/gilak.nts → songs/gilak.pdf."
+  (string-append (if (string-suffix? ".nts" piece)
                      (string-drop-right piece 4)
                      piece)
                  ".pdf"))
@@ -86,9 +86,9 @@ as the message."
     (match args
       (()
        (match files
-         (() (usage-error "render needs a PIECE.gml file"))
+         (() (usage-error "render needs a PIECE.nts file"))
          ((piece) (render piece (or out (default-output piece))))
-         (_ (usage-error "render takes one PIECE.gml file"))))
+         (_ (usage-error "render takes one PIECE.nts file"))))
       (("--help" . _) (show-help))
       (((or "-o" "--output") value . rest)
        (if (option? value)

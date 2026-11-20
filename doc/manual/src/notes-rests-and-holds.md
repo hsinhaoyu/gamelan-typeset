@@ -4,7 +4,7 @@ A **part** is the line of music one player plays. It names the part,
 then the instrument, then the music, one step at a time:
 
 ```scheme
-{{#include examples/notes-by-name-and-number.gml}}
+{{#include examples/notes-by-name-and-number.nts}}
 ```
 
 Both parts play the same melody. A note can be written two ways:
@@ -22,7 +22,7 @@ number.
 Not every step strikes a new note:
 
 ```scheme
-{{#include examples/holds-and-rests.gml}}
+{{#include examples/holds-and-rests.nts}}
 ```
 
 | You write | It means |

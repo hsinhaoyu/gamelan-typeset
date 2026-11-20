@@ -270,7 +270,7 @@ and every array a vector?"
            "(group \"Reyong-ish\" sangsih polos (subtitle \"sangsih + polos\"))"
            "(group \"Colotomic\" gong kempli)"))))
 
-(define tenzer (read-piece-file "examples/tenzer1.gml"))
+(define tenzer (read-piece-file "examples/tenzer1.nts"))
 
 (define (sizes-of . lines)
   (field (layout-piece (apply piece-of lines)) 'sizes))

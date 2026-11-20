@@ -1,1 +1,1 @@
-template-not-found.gml:2: no template called `gong-kebjar' (looked for templates/gong-kebjar.gml)
+template-not-found.nts:2: no template called `gong-kebjar' (looked for templates/gong-kebjar.nts)

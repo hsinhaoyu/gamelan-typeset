@@ -1,1 +1,1 @@
-undefined-scale.gml:3: instrument `ugal': no scale or stroke set called `selisr'
+undefined-scale.nts:3: instrument `ugal': no scale or stroke set called `selisr'

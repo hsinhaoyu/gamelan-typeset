@@ -10,8 +10,8 @@ Let someone writing a document, handout or textbook about gamelan in
 Typst put scores into it, the way lilypond-book puts LilyPond scores
 into LaTeX, while keeping the document a normal Typst file:
 
-- notation is written in the document (a ` ```gml ` block) or kept in a
-  `.gml` file and referred to by path;
+- notation is written in the document (a ` ```nts ` block) or kept in a
+  `.nts` file and referred to by path;
 - captions, figure numbers, cross-references, fonts and page layout are
   Typst's, not notasi's;
 - `typst watch` and editor previews (tinymist) keep working;
@@ -49,7 +49,7 @@ records this choice.
 The reyong interlocks like this:
 
 #notasi.figure(caption: [Kotekan: polos and sangsih])[
-  ```gml
+  ```nts
   (part polos   reyong i2 _ i2 o2 / _ i2 o2 _)
   (part sangsih reyong e2 u2 e2 _ / u2 e2 _ u2)
   (group "Reyong" polos sangsih)
@@ -58,15 +58,15 @@ The reyong interlocks like this:
 
 As @fig:kotekan shows, …
 
-#notasi.file("examples/tenzer1.gml")
+#notasi.file("examples/tenzer1.nts")
 ```
 
 - `setup` takes the loaded manifest as its first argument. A Typst
   package can only read files inside the package, so the document has
   to load the manifest itself and pass it in.
-- Every ` ```gml ` block in the document is drawn as a score: the show
+- Every ` ```nts ` block in the document is drawn as a score: the show
   rule `setup` installs replaces the code block with the figure.
-- `notasi.file(path)` draws a whole `.gml` file. The path is relative to
+- `notasi.file(path)` draws a whole `.nts` file. The path is relative to
   the folder of the main `.typ` file.
 - `notasi.figure` is `figure` with `kind: image`. A plain `figure` around
   a code block would be numbered as a listing, because Typst works out a
@@ -85,7 +85,7 @@ reading. It adds one line in front of it:
 
 built from the `setup` options. The title is empty because the caption
 does that job. A snippet that starts with its own `piece` form is read
-as a complete file and `setup` does not apply to it. `.gml` files given
+as a complete file and `setup` does not apply to it. `.nts` files given
 to `notasi.file` are always complete files.
 
 This needs no change to the reader: an empty string is a valid title,
@@ -102,10 +102,10 @@ numbers in error messages are shifted back by one.
   "setup": { "use": ["gong-kebyar"], "steps-per-pulse": 4 },
   "snippets": {
     "(part polos reyong i2 _ ...)\n...": { "figure": { ...05 contract... } },
-    "(part melody ugal a1 o9 ...)":       { "error": "book.typ, gml block 2, line 1: part `melody', step 2: `o9' is not a note of instrument `ugal'" }
+    "(part melody ugal a1 o9 ...)":       { "error": "book.typ, nts block 2, line 1: part `melody', step 2: `o9' is not a note of instrument `ugal'" }
   },
   "files": {
-    "examples/tenzer1.gml": { "figure": { ... } }
+    "examples/tenzer1.nts": { "figure": { ... } }
   }
 }
 ```
@@ -138,7 +138,7 @@ numbers in error messages are shifted back by one.
 
 The document always compiles, so previews never stop at a score.
 
-A known limit: an edited `.gml` file named by `notasi.file` keeps its
+A known limit: an edited `.nts` file named by `notasi.file` keeps its
 path, and the package can't read the file to compare, so until notasi
 runs again the old figure is drawn without a warning. `notasi typst`
 and `notasi watch` always update first, so this only shows in a
@@ -149,21 +149,21 @@ preview with neither running.
 **Planned.** One command, `scripts/notasi`, with subcommands (ADR
 0018):
 
-- `notasi render PIECE.gml [-o OUT]`: a standalone figure (05, "The
+- `notasi render PIECE.nts [-o OUT]`: a standalone figure (05, "The
   `notasi` command"). **Implemented**; the subcommands below are
   planned.
 - `notasi typst DOC.typ [typst options]`: update the manifest, then run
   `typst compile` with the remaining options.
 - `notasi update DOC.typ`: update the manifest only.
 - `notasi watch DOC.typ`: update the manifest whenever the document,
-  a file it includes or a `.gml` file it names changes. Meant to run
+  a file it includes or a `.nts` file it names changes. Meant to run
   beside `typst watch` or an editor preview.
 
 Updating the manifest:
 
 1. If the manifest doesn't exist, write an empty one, so that the
    document compiles.
-2. `typst eval 'query(raw.where(lang: "gml")).map(it => it.text)' --in DOC.typ`
+2. `typst eval 'query(raw.where(lang: "nts")).map(it => it.text)' --in DOC.typ`
    lists every snippet, in document order, including from `#include`d
    files. The same with `query(<notasi-file>)` and
    `query(<notasi-setup>)` lists the `notasi.file` paths and the

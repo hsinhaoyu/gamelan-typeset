@@ -33,8 +33,8 @@ Repository layout (entries marked *planned* don't exist yet):
 notasi/             Guile modules: piece, reader, style, layout, json, typst, command
 typst/              Typst template notasi.typ; the package's typst.toml (planned, 06)
 scripts/            the notasi command: notasi render (typst, update, watch planned, 06)
-examples/           real pieces (.gml), used as test fixtures
-templates/          shared definitions (.gml) loaded with (use NAME)
+examples/           real pieces (.nts), used as test fixtures
+templates/          shared definitions (.nts) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected JSON figures, one per example (make golden)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
@@ -59,8 +59,8 @@ doc/decisions/      decision log (ADRs)
 - Any change a user can see (notation, error messages, commands, output) updates the manual in the same PR. Behaviour that isn't implemented yet is never documented there.
 - Read `doc/manual/STYLE.md` before writing a page. It sets the reader, the tone and the outline.
 - Examples are files in `doc/manual/src/examples/`, shown with `{{#include ...}}`. `tests/manual.scm` (under `make check`) checks that each one reads and is used by a page.
-- Mistakes shown on a page are files in `doc/manual/src/mistakes/`: `NAME.gml` and the exact error message in `NAME.txt`. `tests/manual.scm` checks that each fails with that message, so a changed error message means updating its `.txt`.
-- A page can show a drawn score as `![…](figures/NAME.svg)`: `make manual` draws it from `src/examples/NAME.gml` with `scripts/notasi render` before building. `figures/` is generated, never committed; `tests/manual.scm` checks each figure has its example.
+- Mistakes shown on a page are files in `doc/manual/src/mistakes/`: `NAME.nts` and the exact error message in `NAME.txt`. `tests/manual.scm` checks that each fails with that message, so a changed error message means updating its `.txt`.
+- A page can show a drawn score as `![…](figures/NAME.svg)`: `make manual` draws it from `src/examples/NAME.nts` with `scripts/notasi render` before building. `figures/` is generated, never committed; `tests/manual.scm` checks each figure has its example.
 - `make manual` builds it (needs `mdbook`, Guile and Typst); CI builds it on every PR and deploys it to GitHub Pages when `main` changes.
 
 ## Git workflow
