@@ -59,6 +59,9 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 - Undefined scale / instrument / part name
 - Duplicate definitions
 - Instrument note not in its scale, or notes not ascending
+- Duplicate degree name or alias within a scale
+- Degree name or alias ending in a digit
+- Unknown degree option, or `display` that is not a string
 - Note index out of range; unknown note name
 - `_` at the start of a part or after `-`
 - Unknown token (e.g. a string or `#t` inside a part)

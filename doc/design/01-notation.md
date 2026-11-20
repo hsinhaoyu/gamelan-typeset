@@ -19,7 +19,12 @@ only in that a name must be defined before it is used. Comments use `;`.
   (steps-per-pulse 4)
   (steps-per-system 16))
 
-(scale selisir  ding dong deng dung dang)
+(scale selisir
+  (ding (alias i) (display "i"))
+  (dong (alias o) (display "o"))
+  (deng (alias e) (display "e"))
+  (dung (alias u) (display "u"))
+  (dang (alias a) (display "a")))
 
 (instrument reyong selisir
   deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2 ding3 dong3 deng3 dung3)
@@ -52,6 +57,25 @@ Used to validate instrument notes and for interval analysis.
 The special scale name `strokes` needs no definition: it means the
 instrument's notes are unpitched strokes (drums, gongs) and have no
 octave or degree.
+
+Each DEGREE is either a bare name (`ding`) or a list of a name and
+options:
+
+```scheme
+(ding (alias i) (display "i"))
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `(alias NAME ...)` | none | Other names for the degree. An alias can be used anywhere the degree name can: `i2` means `ding2` in instrument definitions and part tokens. |
+| `(display STRING)` | the degree name | Short form shown in the grid. Any text, including Unicode symbols. |
+
+Rules:
+- Degree names and aliases must be unique within the scale.
+- Names and aliases must not end in a digit, so that the octave number
+  in `ding2` is unambiguous.
+- The reader resolves aliases: the piece always stores the degree's
+  own name, so `i2` and `ding2` are the same note.
 
 ### `(instrument NAME SCALE NOTE ...)`
 

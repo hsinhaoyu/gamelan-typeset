@@ -30,8 +30,13 @@ piece
 
 scale
   name     : symbol
-  degrees  : list of symbol            ascending, one octave
+  degrees  : list of degree            ascending, one octave
   pitched? : boolean                   #f for the built-in `strokes`
+
+degree
+  name     : symbol                    e.g. ding
+  aliases  : list of symbol            e.g. (i); may be empty
+  display  : string                    short form for the grid, e.g. "i"
 
 instrument
   name   : symbol
@@ -39,7 +44,7 @@ instrument
   notes  : vector of note              ascending pitch order
 
 note
-  name   : symbol                      e.g. ding2, dag
+  name   : symbol                      e.g. ding2, dag (never an alias)
   degree : integer | #f                index into scale degrees; #f for strokes
   octave : integer | #f                #f for strokes
 

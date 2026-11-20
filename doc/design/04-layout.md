@@ -40,10 +40,12 @@ data makes layout easy to test with `equal?`.
 
 ### Text in cells
 
-- Pitched notes show the degree name (`ding`), without the octave number,
-  since the lane position already shows the octave.
+- Pitched notes show the degree's display form (`"i"` for `ding`, or the
+  degree name if the scale sets none), without the octave number, since
+  the lane position already shows the octave.
 - Strokes show the stroke name.
-- Lane labels show the full note name (`ding2`) in small grey text.
+- Lane labels show the display form followed by the octave number
+  (`i2`) in small grey text.
 
 ### Colours
 
