@@ -34,9 +34,9 @@ must work in both places; see "Typst template design", points 6 and 7.
           "voices": [
             {
               "name": "polos",
-              "color": "#2a9d8f",
               "events": [
-                { "start": 0, "dur": 2, "lane": 3, "text": "nang",
+                { "start": 0, "dur": 2, "lane": 3, "text": "a",
+                  "fill": "#66a61e", "text_color": "#ffffff",
                   "continued": false }
               ]
             }
@@ -53,6 +53,9 @@ Rules:
 - `start` in events is relative to the system; `system.start` is absolute.
 - `lane` is a 0-based index into `lanes` (top row = 0).
 - A chord produces one event per note, same start and duration.
+- `fill`, `text` and `text_color` come from layout's colour scheme
+  (04, "Note style"). `fill` is `null` for a note drawn as text only,
+  such as a stroke.
 - All lengths are Typst length strings.
 - Any change to this format increments `version` and updates the
   template and the golden tests in the same PR.
@@ -76,8 +79,9 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    column cannot be `auto`. Its width comes from the JSON `sizes`.
 3. **Positioned cells.** Notes use `grid.cell(x:, y:, colspan:)`; empty
    cells are filled automatically, so rests need no handling.
-4. **Notes as rounded blocks** with white bold text, filled with the voice
-   colour.
+4. **Notes as rounded blocks** filled with the event's `fill`, with
+   bold text in its `text_color`; an event whose `fill` is `null` is
+   just its text, centred in the cell.
 5. **Header row** with bold pulse numbers and `·` for other steps, numbered
    from `system.start`.
 6. **`score` returns plain content**, systems stacked. It does not make
