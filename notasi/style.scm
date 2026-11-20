@@ -66,7 +66,7 @@
 
 (define white "#ffffff")
 (define near-black "#222222")
-(define stroke-grey "#999999")         ; strokes have no pitch to colour
+(define stroke-grey "#cccccc")         ; strokes have no pitch to colour
 
 (define (color? x)
   (and (string? x)
@@ -144,7 +144,7 @@ contrast with FILL (WCAG's minimum for bold text), else near-black."
           (style-error "a degree colour must be (DEGREE . \"#rrggbb\")" entry)))
        entries))
 
-(define* (make-style #:key (scheme 'by-degree) (palette 'dark2)
+(define* (make-style #:key (scheme 'by-degree) (palette 'pastel1)
                      (degree-colors '()))
   "Return a style.  SCHEME is `by-degree' or a procedure (style
 instrument note) → look; PALETTE a palette name or a list of colours;
@@ -155,7 +155,7 @@ naming any bad value."
                (resolve-degree-colors degree-colors)))
 
 (define (default-style)
-  "Return the default style: `by-degree' with the dark2 palette."
+  "Return the default style: `by-degree' with the pastel1 palette."
   (make-style))
 
 ;;; ------------------------------------------------------------------
@@ -163,7 +163,7 @@ naming any bad value."
 
 (define (by-degree style instrument note)
   "Colour a pitched NOTE by its scale degree, the same in every octave
-and on every instrument; draw a stroke grey (ADR 0019)."
+and on every instrument; draw a stroke light grey (ADRs 0019, 0021)."
   (let* ((scale (instrument-scale instrument))
          (text (note-display instrument note)))
     (if (scale-pitched? scale)

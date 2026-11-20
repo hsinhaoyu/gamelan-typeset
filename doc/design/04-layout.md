@@ -134,7 +134,7 @@ picks colours (ADR 0005).
   ((c + 0.055)/1.055)^2.4; L = 0.2126 R + 0.7152 G + 0.0722 B; and the
   ratio of two luminances is (L1 + 0.05)/(L2 + 0.05), lighter over
   darker. So strong colours get white text and light ones dark text.
-- **Strokes are grey boxes** (`fill` `#999999`, ADR 0019), with the
+- **Strokes are grey boxes** (`fill` `#cccccc`, ADRs 0019 and 0021), with the
   stroke's display form (or its name) as text, in the colour
   `text-color-for` gives (near-black on this grey). `(dag (display
   "D"))` in the stroke set sets the text, which is shown when the
@@ -151,7 +151,7 @@ picks colours (ADR 0005).
 | Field | Default | Meaning |
 |---|---|---|
 | `scheme` | `'by-degree` | a scheme name, or a procedure `(style instrument note) → look` |
-| `palette` | `'dark2` | a palette name (below), or a list of colours |
+| `palette` | `'pastel1` | a palette name (below), or a list of colours |
 | `degree-colors` | `'()` | overrides by degree name, e.g. `((ding . "#000000"))` |
 
 `make-style` checks its arguments and raises an `&error` whose
@@ -171,7 +171,7 @@ colours, all colours in lowercase. `by-degree` is exported, so a
 custom scheme can fall back on it.
 
 The colours notasi makes (palettes, overrides, text colours) are
-lowercase `#rrggbb` strings; strokes are `#999999`. A custom
+lowercase `#rrggbb` strings; strokes are `#cccccc`. A custom
 scheme's look is used as it is.
 
 **Palettes.** The eight qualitative palettes of ColorBrewer (Cynthia
@@ -191,8 +191,9 @@ colours as a list (an `&error` for an unknown name).
 | `pastel2` | `#b3e2cd #fdcdac #cbd5e8 #f4cae4 #e6f5c9 #fff2ae #f1e2cc #cccccc` |
 
 The values are copied into the code with ColorBrewer's attribution, as
-its licence (Apache 2.0) requires. `dark2` is the default: strong
-colours that mostly take white text (all but its green and yellow).
+its licence (Apache 2.0) requires. `pastel1` is the default (ADR 0021): soft
+colours that leave the score calm, all of which take near-black text.
+`dark2` gives strong colours with mostly white text.
 
 ### Sizes
 

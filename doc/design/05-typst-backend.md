@@ -42,7 +42,7 @@ An excerpt of `tests/golden/tenzer1.json`, the figure for
               "name": "ugal",
               "events": [
                 { "start": 0, "dur": 1, "lane": 3, "text": null,
-                  "fill": "#66a61e", "text_color": "#222222",
+                  "fill": "#fed9a6", "text_color": "#222222",
                   "continued": false }
               ]
             }
