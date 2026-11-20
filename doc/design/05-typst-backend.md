@@ -178,4 +178,22 @@ Entry point produced by Guile for a standalone figure:
 ## Version pinning
 
 Typst is pre-1.0. Record the tested version in CLAUDE.md and the README;
-the template needs positioned grid cells (Typst ≥ 0.11).
+the template needs positioned grid cells (Typst ≥ 0.11). The tested
+version is **0.15.1**. CI installs exactly that version, so every PR
+compiles the examples with it; upgrading Typst is a deliberate change
+to the pin, with the golden figures and template checked again.
+
+## Slices
+
+Milestone 4 (`feat/typst-backend` in the build order) is built in three
+slices, each its own branch and PR into `dev`, started with
+`/start-milestone <branch>`:
+
+1. `feat/typst-template`: `typst/notasi.typ` and its `score`, following
+   "Typst template design"; CI installs Typst 0.15.1; tests compile the
+   golden figures.
+2. `feat/typst-render`: the rest of "Running Typst" on the Guile side:
+   writing the entry file, `compile-typst`, and one procedure from a
+   `.gml` file to a PDF.
+3. `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
+   and the manual page "Drawing a score".

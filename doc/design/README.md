@@ -42,7 +42,8 @@ workflow).
    [03-reader.md](03-reader.md#slices)
 3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests;
    built in four slices, see [04-layout.md](04-layout.md#slices)
-4. `feat/typst-backend`: template matching the prototype
+4. `feat/typst-backend`: template matching the prototype; built in
+   three slices, see [05-typst-backend.md](05-typst-backend.md#slices)
 5. `feat/documents`: scores in Typst documents; built in three slices,
    see [06-documents.md](06-documents.md#slices)
 6. v2 features: repeats, looping parts, sections, syllables
