@@ -113,8 +113,10 @@ layout and analysis simple: they only ever iterate over sounding events.
   several instruments, each instrument's lanes come as a block, in the
   order its first part appears in the group.
 - `(part-steps part)`: the end of the last event (`start + duration`),
-  or 0 for a part with no events. Used for validation. Trailing rests are
-  not events, so the reader checks part lengths from the token count.
+  or 0 for a part with no events. The reader uses it to check invariant 1
+  (`part-steps` ≤ `piece-length`). It is not a part's written length:
+  trailing rests are not events, so the reader checks that parts have
+  equal length from their token counts instead.
 - `(events-at piece step)`: everything sounding at a step, for analysis:
   a list of `(part . event)` pairs, one for each event with
   `start ≤ step < start + duration`, in the piece's part order. An event
