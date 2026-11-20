@@ -1,9 +1,8 @@
 # 04 — Layout
 
-Status: partly implemented (draft v1): slices 1–3 of 4 (the JSON
-writer in 05, "Note style", and `layout-piece`); writing figure files
-and golden tests (slice 4) are planned (see "Slices"). Modules:
-`(notasi style)`, `(notasi layout)`
+Status: implemented (draft v1): all four slices (see "Slices").
+Modules: `(notasi style)`, `(notasi layout)`; tests in
+`tests/style.scm`, `tests/layout.scm` and `tests/golden.scm`.
 
 ## Responsibility
 
@@ -218,8 +217,22 @@ in four slices, each its own branch and PR into `dev`, started with
    text-colour contrast rule.
 3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
    groups and lanes, events with their look, sizes.
-4. `feat/layout-golden`: writing the figure as JSON (05's contract),
-   `make golden`, and golden tests for every file in `examples/`.
+4. **Implemented.** `feat/layout-golden`: writing the figure as JSON (05's contract),
+   `make golden`, and golden tests for every file in `examples/`:
+   - `write-figure` in `(notasi typst)` (05, "Writing the figure file").
+   - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.gml`
+     has its figure, laid out with the default style, saved in
+     `tests/golden/NAME.json`, exactly as `write-figure` writes it.
+     `make check` runs the file, which compares each example's figure
+     with its saved copy as text and fails on any difference, on an
+     example with no saved copy, and on a saved copy with no example.
+   - `make golden` runs the same file with `--update`: it rewrites
+     every saved copy with `write-figure` and deletes saved copies
+     with no example. Review the diff in the PR.
+   - A second example, `examples/kotekan.gml`: the textbook excerpt
+     from 01-notation.md (reyong polos and sangsih in one group with a
+     subtitle, and gong), with `steps-per-system 8`, so a held sangsih
+     note is cut across two systems.
 
 ## Not layout's job
 

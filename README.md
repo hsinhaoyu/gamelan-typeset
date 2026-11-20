@@ -28,4 +28,9 @@ it with `make manual-serve`. Both need [mdBook](https://rust-lang.github.io/mdBo
 
     make check
 
+`make check` includes golden tests: each piece in `examples/` is laid
+out and compared with its saved figure in `tests/golden/`. When you
+change the output on purpose, run `make golden` to rewrite the saved
+figures, and review the diff.
+
 Requires Guile 3.0. Run code from the repo root with `guile -L .`.

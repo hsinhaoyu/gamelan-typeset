@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(notasi piece)`, `(notasi reader)`, `(notasi json)`, `(notasi style)` and `(notasi layout)` are implemented; the other modules are empty stubs, built in the order given under "Build order" in `doc/design/README.md`.
+GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(notasi piece)`, `(notasi reader)`, `(notasi json)`, `(notasi style)` and `(notasi layout)` are implemented, and `(notasi typst)` writes figure files; the rest of the Typst backend and the later milestones are built in the order given under "Build order" in `doc/design/README.md`.
 
 ## Commands
 
@@ -33,7 +33,7 @@ scripts/            command-line entry point: notasi render | typst | update | w
 examples/           real pieces (.gml), used as test fixtures
 templates/          shared definitions (.gml) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
-tests/golden/       expected JSON outputs (planned)
+tests/golden/       expected JSON figures, one per example (make golden)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
 doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
@@ -95,5 +95,5 @@ Tests use SRFI-64. Each `tests/*.scm` file is a standalone script that `make che
 
 What to test:
 - Unit tests, one file per module: reader token handling and every error case listed in `doc/design/03-reader.md`, piece derived functions, layout decisions (lanes, system splitting, colours), JSON serialiser escaping.
-- Golden tests (planned): for each file in `examples/`, the generated JSON is compared with `tests/golden/`. When an output change is intended, regenerate them (a `make golden` target, to be added) and review the diff in the PR.
+- Golden tests: for each file in `examples/`, the generated JSON is compared with `tests/golden/`. When an output change is intended, regenerate them with `make golden` and review the diff in the PR.
 - Typst smoke test (planned, optional in CI): compile one example with Typst and check that it succeeds.

@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "title": "Eight-pulse gong cycle",
+  "steps_per_pulse": 1,
+  "sizes": {
+    "label_width": "9.3em",
+    "lane_width": "2.0em",
+    "step_width": "2.6em",
+    "row_height": "1.5em"
+  },
+  "systems": [
+    {
+      "start": 0,
+      "steps": 9,
+      "groups": [
+        {
+          "label": "Ugal",
+          "subtitle": null,
+          "lanes": ["e2", "o2", "i2", "a1"],
+          "voices": [
+            {
+              "name": "ugal",
+              "events": [
+                {
+                  "start": 0,
+                  "dur": 1,
+                  "lane": 3,
+                  "text": "a",
+                  "fill": "#66a61e",
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 1,
+                  "dur": 1,
+                  "lane": 1,
+                  "text": "o",
+                  "fill": "#d95f02",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 2,
+                  "dur": 1,
+                  "lane": 2,
+                  "text": "i",
+                  "fill": "#1b9e77",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 3,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "e",
+                  "fill": "#7570b3",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 4,
+                  "dur": 1,
+                  "lane": 1,
+                  "text": "o",
+                  "fill": "#d95f02",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 5,
+                  "dur": 1,
+                  "lane": 3,
+                  "text": "a",
+                  "fill": "#66a61e",
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 6,
+                  "dur": 1,
+                  "lane": 1,
+                  "text": "o",
+                  "fill": "#d95f02",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 7,
+                  "dur": 1,
+                  "lane": 2,
+                  "text": "i",
+                  "fill": "#1b9e77",
+                  "text_color": "#ffffff",
+                  "continued": false
+                },
+                {
+                  "start": 8,
+                  "dur": 1,
+                  "lane": 3,
+                  "text": "a",
+                  "fill": "#66a61e",
+                  "text_color": "#222222",
+                  "continued": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Kempli",
+          "subtitle": null,
+          "lanes": ["K"],
+          "voices": [
+            {
+              "name": "kempli",
+              "events": [
+                {
+                  "start": 0,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 1,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 2,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 3,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 4,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 5,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 6,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 7,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 8,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "K",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Gong & kempur",
+          "subtitle": null,
+          "lanes": ["G", "P"],
+          "voices": [
+            {
+              "name": "gong",
+              "events": [
+                {
+                  "start": 0,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "G",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 4,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "G",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 5,
+                  "dur": 1,
+                  "lane": 1,
+                  "text": "P",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 7,
+                  "dur": 1,
+                  "lane": 1,
+                  "text": "P",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                },
+                {
+                  "start": 8,
+                  "dur": 1,
+                  "lane": 0,
+                  "text": "G",
+                  "fill": null,
+                  "text_color": "#222222",
+                  "continued": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "caption": null
+}

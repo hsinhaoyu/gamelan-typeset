@@ -1,7 +1,8 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-is implemented; the rest is planned. Modules: `(notasi json)`,
+and `write-figure` in `(notasi typst)` are implemented; the template,
+the entry file and running Typst are planned (milestone 4). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -60,6 +61,22 @@ Rules:
 - All lengths are Typst length strings.
 - Any change to this format increments `version` and updates the
   template and the golden tests in the same PR.
+
+## Writing the figure file
+
+**Implemented** (layout slice 4, `feat/layout-golden`), in `(notasi typst)`,
+tests in `tests/typst.scm`:
+
+```
+(write-figure figure path)
+```
+
+writes FIGURE (from `layout-piece`) to the file PATH as pretty JSON
+(`write-json`), in UTF-8, ending with a newline, replacing any file
+already there. The JSON is built before the file is opened, so a figure
+that can't be written raises the writer's `&error` and leaves no file
+behind (an existing file at PATH is left as it was). The rest of
+`(notasi typst)` (the entry file, running Typst) is milestone 4.
 
 ## JSON writing
 
