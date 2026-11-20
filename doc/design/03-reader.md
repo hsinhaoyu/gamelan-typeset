@@ -87,9 +87,31 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   part don't carry positions, so token errors are reported as part name
   plus step number (and pulse number), which is more meaningful to a
   musician anyway.
-- Use a dedicated condition type, e.g. `&notasi-syntax-error`, with
-  fields for file, line, part and step, so tests can check the error kind
-  rather than string-matching messages.
+- Every reader error is a `&notasi-syntax-error`, a subtype of `&error`,
+  exported from `(notasi reader)`:
+
+  | Field | Accessor | Value |
+  |---|---|---|
+  | kind | `notasi-syntax-error-kind` | a symbol naming the error case (below) |
+  | file | `notasi-syntax-error-file` | string, or `#f` when read from a string or port |
+  | line | `notasi-syntax-error-line` | 1-based, or `#f` when no form is to blame (e.g. `missing-piece`) |
+  | part | `notasi-syntax-error-part` | part name (symbol), or `#f` |
+  | step | `notasi-syntax-error-step` | 0-based step, or `#f` |
+
+  The predicate is `notasi-syntax-error?`. The condition also carries a
+  `&message` with the readable text (`song.gml:3: duplicate piece
+  form`). Tests check `kind` and the location fields, never the message.
+- Checks run in this order, so a file with several problems always
+  reports the same one:
+  1. Read all forms (`read-error`).
+  2. Each form, in file order, must be a proper list with a known head
+     symbol (`improper-form`, `unknown-form`).
+  3. The `piece` form: present, first and only once (`missing-piece`,
+     `piece-not-first`, `duplicate-piece`).
+  4. The `piece` form's title and options (`bad-title`, `bad-option`,
+     `unknown-option`, `duplicate-option`).
+  5. The other forms, in later steps. Until a slice implements a form,
+     it raises `not-implemented` at that form's line.
 - Report the first error and stop (v1). Collecting several errors is a
   possible later improvement.
 
@@ -97,7 +119,22 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 
 The number in brackets is the slice (below) that implements the case.
 
-- [1] Missing or duplicate `piece` form
+Each case is followed by its `kind` symbol. Kinds for slices 2 to 4 are
+chosen when those slices start.
+
+- [1] Missing or duplicate `piece` form: `missing-piece` (line `#f`),
+  `duplicate-piece` (line of the second `piece` form)
+- [1] `piece` not the first form: `piece-not-first` (line of the form
+  that comes before it)
+- [1] `piece` title not a string: `bad-title`
+- [1] An option that is not a `(NAME VALUE)` list, or a `steps-per-pulse`
+  or `steps-per-system` value that is not a positive integer: `bad-option`
+- [1] Unknown option, or an option given twice: `unknown-option`,
+  `duplicate-option`
+- [1] A form that is not a list, or whose head is not a known symbol:
+  `unknown-form`
+- [1] A known form that the reader does not handle yet (e.g. `text`,
+  which is v2): `not-implemented`
 - [2] Undefined scale name
 - [3] Undefined instrument or part name
 - [2] Duplicate scale, stroke set or instrument definitions within one file
@@ -117,8 +154,9 @@ The number in brackets is the slice (below) that implements the case.
 - [3] Note index out of range; unknown note name
 - [3] `_` at the start of a part or after a rest (`-` or `·`)
 - [3] Unknown token (e.g. a string or `#t` inside a part)
-- [1] A lone `.` in a part (an improper list); Guile read errors such as
-  unbalanced parentheses, reported with file and line
+- [1] A lone `.` in a part (an improper list): `improper-form`; Guile
+  read errors such as unbalanced parentheses or `. .`: `read-error`,
+  with file and the line where Guile stopped
 - [3] Parts of unequal length
 - [3] A part in more than one group
 - [3] A group with parts on two different pitched instruments
@@ -136,7 +174,10 @@ with its number.
    reporting" before writing tests); step 1 (read forms, Guile read
    errors); step 2 (dispatch, improper lists); the `piece` form and its
    options. A file with only a `piece` form reads into a piece with no
-   parts.
+   parts: length 0, empty scales, instruments, parts and groups, and the
+   default options (`steps-per-pulse` 4, `steps-per-system` `#f`). Every
+   other known form raises `not-implemented`. The `directory` keyword is
+   accepted but unused until slice 4.
 2. `feat/reader-scales`: step 4 and the scale and instrument parts of
    steps 5 and 6, for definitions in a single file.
 3. `feat/reader-parts`: parts and groups in steps 5 and 6, steps 7 to 9.
