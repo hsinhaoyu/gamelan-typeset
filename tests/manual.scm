@@ -2,9 +2,12 @@
 ;;; - Every example in doc/manual/src/examples/ reads without errors.
 ;;; - Every {{#include ...}} in a manual page points to a file that exists.
 ;;; - Every example is included by at least one page.
+;;; - Every mistake in doc/manual/src/mistakes/ (NAME.gml) fails to read,
+;;;   with exactly the message in NAME.txt, and a page includes both.
 
 (use-modules (srfi srfi-1)
              (srfi srfi-64)
+             (ice-9 exceptions)
              (ice-9 ftw)
              (ice-9 regex)
              (ice-9 textual-ports)
@@ -13,6 +16,7 @@
 
 (define src "doc/manual/src")
 (define examples-dir (string-append src "/examples"))
+(define mistakes-dir (string-append src "/mistakes"))
 
 (define (slurp file)
   (call-with-input-file file get-string-all))
@@ -46,7 +50,24 @@
          (canonical (string-append (dirname page) "/" (match:substring m 1))))
        (list-matches "\\{\\{#include ([^}:[:space:]]+)" (slurp page))))
 
+(define (message-of-reading dir name)
+  "Read the file NAME in DIR, from inside DIR so that the message names
+the file as a reader would see it.  Return the error message, or #f if
+the file reads without a notasi error."
+  (let ((here (getcwd)))
+    (dynamic-wind
+      (lambda () (chdir dir))
+      (lambda ()
+        (guard (e ((notasi-syntax-error? e) (exception-message e)))
+          (read-piece-file name)
+          #f))
+      (lambda () (chdir here)))))
+
+(define (expected-message gml)
+  (string-trim-right (slurp (string-append (string-drop-right gml 4) ".txt"))))
+
 (define examples (files-under examples-dir ".gml"))
+(define mistakes (files-under mistakes-dir ".gml"))
 (define pages (files-under src ".md"))
 (define included (append-map includes pages))
 
@@ -57,6 +78,18 @@
    (test-assert (string-append "example reads: " f)
      (piece? (read-piece-file f))))
  examples)
+
+(for-each
+ (lambda (f)
+   (test-equal (string-append "mistake gives its message: " f)
+     (expected-message f)
+     (message-of-reading (dirname f) (basename f)))
+   (for-each
+    (lambda (shown)
+      (test-assert (string-append "mistake is used by a page: " shown)
+        (member shown included)))
+    (list f (string-append (string-drop-right f 4) ".txt"))))
+ mistakes)
 
 (for-each
  (lambda (page)

@@ -56,6 +56,7 @@ doc/decisions/      decision log (ADRs)
 - Any change a user can see (notation, error messages, commands, output) updates the manual in the same PR. Behaviour that isn't implemented yet is never documented there.
 - Read `doc/manual/STYLE.md` before writing a page. It sets the reader, the tone and the outline.
 - Examples are files in `doc/manual/src/examples/`, shown with `{{#include ...}}`. `tests/manual.scm` (under `make check`) checks that each one reads and is used by a page.
+- Mistakes shown on a page are files in `doc/manual/src/mistakes/`: `NAME.gml` and the exact error message in `NAME.txt`. `tests/manual.scm` checks that each fails with that message, so a changed error message means updating its `.txt`.
 - `make manual` builds it (needs `mdbook`); CI builds it on every PR and deploys it to GitHub Pages when `main` changes.
 
 ## Git workflow

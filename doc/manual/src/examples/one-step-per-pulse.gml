@@ -1,0 +1,2 @@
+;; A slow melody: one note to each kempli stroke.
+(piece "Pokok" (steps-per-pulse 1))
