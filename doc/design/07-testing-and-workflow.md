@@ -5,7 +5,7 @@ Status: planned, not implemented yet (draft v1)
 ## Repository layout
 
 ```
-gamelan/            Guile modules: model, reader, layout, json, typst, analysis
+gamelan/            Guile modules: piece, reader, layout, json, typst, analysis
 typst/gamelan.typ   Typst template
 scripts/            command-line entry points (gamelan-render, gamelan-analyse)
 examples/           real pieces (.gml), used as test fixtures
@@ -24,7 +24,7 @@ Makefile
 - **Runner**: `make check` runs every test file and exits non-zero if any
   test fails. CI and local runs use the same command.
 - **Unit tests**: reader token handling, every error case listed in
-  03-reader.md, model derived functions, layout decisions (lanes, system
+  03-reader.md, piece derived functions, layout decisions (lanes, system
   splitting, colours), JSON serialiser escaping.
 - **Golden tests**: for each file in `examples/`, the generated JSON and
   analysis report are compared with `tests/golden/`. When an output change
@@ -45,9 +45,9 @@ Makefile
 
 ## Milestones
 
-1. `feat/model` — records and derived functions, with tests
-2. `feat/reader` — notation → model, all error cases
-3. `feat/json` + `feat/layout` — model → figure JSON, golden tests
+1. `feat/piece` — records and derived functions, with tests
+2. `feat/reader` — notation → piece, all error cases
+3. `feat/json` + `feat/layout` — piece → figure JSON, golden tests
 4. `feat/typst-backend` — template matching the prototype
 5. `feat/analysis` — v1 analyses
 6. v2 features: repeats, looping parts, sections, syllables

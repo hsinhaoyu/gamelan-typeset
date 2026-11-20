@@ -1,8 +1,8 @@
-# 02 — Internal model
+# 02 — Piece
 
-Status: planned, not implemented yet (draft v1). Module: `(gamelan model)`
+Status: planned, not implemented yet (draft v1). Module: `(gamelan piece)`
 
-The model is the single source of truth after reading. Layout and
+A `piece` record is the single source of truth after reading. Layout and
 analysis consume it; nothing downstream looks at the source text.
 
 ## Principles

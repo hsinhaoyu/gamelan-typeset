@@ -1,6 +1,6 @@
 # 0004 The model is the centre
 
-Status: accepted (2026-11-19)
+Status: superseded by 0008
 
 Context: Reader, layout and analysis could easily grow dependencies on each other (e.g. layout peeking at source text), which makes each harder to change and test.
 

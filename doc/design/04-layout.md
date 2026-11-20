@@ -33,7 +33,7 @@ data makes layout easy to test with `equal?`.
 
 - One block of rows per group, in source order.
 - Lanes are the notes the group actually uses, highest pitch at the top
-  (`group-lanes` from the model). Unused instrument notes are not drawn,
+  (`group-lanes` from `(gamelan piece)`). Unused instrument notes are not drawn,
   which keeps figures compact.
 - Option for later: `#:all-lanes #t` to draw the instrument's full range.
 - Stroke instruments: one lane per stroke type, in instrument order.

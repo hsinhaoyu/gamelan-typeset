@@ -1,4 +1,4 @@
-;;; (gamelan layout) -- Layout of the model into a page-independent visual structure.
+;;; (gamelan layout) -- Layout of a piece into a page-independent visual structure.
 
 (define-module (gamelan layout)
   #:export ())
