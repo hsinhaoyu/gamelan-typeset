@@ -1,0 +1,477 @@
+;;; Unit tests for (notasi style): palettes, the text-colour rule, the
+;;; look record, make-style / default-style and the by-degree scheme.
+;;;
+;;; Written from doc/design/04-layout.md ("Note style") and ADRs 0003,
+;;; 0005 and 0017, not from the implementation.  Error tests check
+;;; `error?` and the irritants, never the message text.
+;;;
+;;; Expected text colours were computed independently with the WCAG
+;;; formula given in the doc (contrast of the fill with white):
+;;;   dark2: #1b9e77 3.39  #d95f02 3.76  #7570b3 4.44  #e7298a 4.13
+;;;          #66a61e 2.98  #e6ab02 2.06  #a6761d 4.01  #666666 5.74
+;;;   threshold neighbours: #949494 3.03 (white), #959595 2.995 (dark).
+;;;
+;;; Choices made where the doc is not explicit:
+;;; - text-color-for is only given lowercase input: the doc does not say
+;;;   whether it accepts uppercase hex.
+;;; - The contrast threshold is tested with the nearest grey on each side
+;;;   of 3:1; no #rrggbb colour gives exactly 3:1, so "at least" (>=) is
+;;;   not tested at equality.
+;;; - A degree-colors entry naming a stroke still gives fill #f: the doc
+;;;   says strokes have no box, unconditionally.
+;;; - For a bad degree-colors entry, the irritants must include either
+;;;   the whole entry or its bad part (the key or the colour); the doc
+;;;   only says "the bad value".
+;;; - Not tested: whether note-look lowercases colours a custom scheme
+;;;   returns in uppercase; whether degree-colors keys may be aliases;
+;;;   the type of a non-list, non-symbol palette or degree-colors.
+
+(use-modules (srfi srfi-1)
+             (srfi srfi-64)
+             (ice-9 exceptions)
+             (ice-9 match)
+             (notasi piece)
+             (notasi reader)
+             (notasi style))
+
+;;; ------------------------------------------------------------------
+;;; Helpers
+
+(define (raised thunk)
+  "The object THUNK raises, or the symbol no-error."
+  (guard (c (#t c))
+    (thunk)
+    'no-error))
+
+(define (irritants-of c)
+  (if (and (exception? c) (exception-with-irritants? c))
+      (exception-irritants c)
+      '()))
+
+(define (error-with-any? thunk . bad-values)
+  "Does THUNK raise an &error whose irritants include one of BAD-VALUES?"
+  (let ((c (raised thunk)))
+    (and (exception? c)
+         (error? c)
+         (any (lambda (bad) (member bad (irritants-of c))) bad-values)
+         #t)))
+
+(define (style-error? bad . args)
+  "Does (apply make-style ARGS) raise an &error with BAD as irritant?"
+  (error-with-any? (lambda () (apply make-style args)) bad))
+
+(define (look->list look)
+  (list (look-fill look) (look-text look) (look-text-color look)))
+
+(define (instrument-named piece name)
+  (find (lambda (i) (eq? (instrument-name i) name))
+        (piece-instruments piece)))
+
+(define (looks style instrument)
+  "The look of every note of INSTRUMENT, as lists, in note order."
+  (map (lambda (note) (look->list (note-look style instrument note)))
+       (vector->list (instrument-notes instrument))))
+
+(define white "#ffffff")
+(define dark "#222222")
+
+;;; ------------------------------------------------------------------
+;;; Fixtures
+
+;; A selisir scale where some degrees have a display form and some don't,
+;; two instruments on it, a 7-degree and a 9-degree scale, and strokes.
+(define pc
+  (read-piece-string
+   (string-join
+    '("(piece \"Style test\")"
+      "(scale selisir"
+      "  (ding (alias i) (display \"i\"))"
+      "  dong"
+      "  (deng (alias e) (display \"e\"))"
+      "  dung"
+      "  (dang (alias a) (display \"a\")))"
+      "(scale seven a b c d e f g)"
+      "(scale nine p q r s t u v w x)"
+      "(strokes kendang-strokes (dag (display \"D\")) dug du)"
+      "(strokes gong-strokes G)"
+      "(instrument reyong selisir"
+      "  deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2 ding3)"
+      "(instrument ugal selisir ding1 dong1 deng1 dung1 dang1 ding2)"
+      "(instrument sevens seven a1 b1 c1 d1 e1 f1 g1 a2)"
+      "(instrument nines nine p1 q1 r1 s1 t1 u1 v1 w1 x1 p2)"
+      "(instrument kendang kendang-strokes dag dug du)"
+      "(instrument gong gong-strokes G)")
+    "\n")))
+
+(define reyong  (instrument-named pc 'reyong))
+(define ugal    (instrument-named pc 'ugal))
+(define sevens  (instrument-named pc 'sevens))
+(define nines   (instrument-named pc 'nines))
+(define kendang (instrument-named pc 'kendang))
+(define gong    (instrument-named pc 'gong))
+
+(define dark2
+  '("#1b9e77" "#d95f02" "#7570b3" "#e7298a"
+    "#66a61e" "#e6ab02" "#a6761d" "#666666"))
+
+;; Default-style look of each selisir degree: colour k of dark2 for
+;; degree k, text = display form or degree name, text colour by contrast.
+(define ding-look (list "#1b9e77" "i"    white))
+(define dong-look (list "#d95f02" "dong" white))
+(define deng-look (list "#7570b3" "e"    white))
+(define dung-look (list "#e7298a" "dung" white))
+(define dang-look (list "#66a61e" "a"    dark))
+
+(test-begin "style")
+
+;;; ------------------------------------------------------------------
+;;; Palettes
+
+(test-group "palettes"
+  (test-equal "palette-names, in table order"
+    '(dark2 set1 set2 set3 paired accent pastel1 pastel2)
+    (palette-names))
+  (test-equal "dark2" dark2 (palette-colors 'dark2))
+  (test-equal "set1"
+    '("#e41a1c" "#377eb8" "#4daf4a" "#984ea3" "#ff7f00"
+      "#ffff33" "#a65628" "#f781bf" "#999999")
+    (palette-colors 'set1))
+  (test-equal "set2"
+    '("#66c2a5" "#fc8d62" "#8da0cb" "#e78ac3"
+      "#a6d854" "#ffd92f" "#e5c494" "#b3b3b3")
+    (palette-colors 'set2))
+  (test-equal "set3"
+    '("#8dd3c7" "#ffffb3" "#bebada" "#fb8072" "#80b1d3" "#fdb462"
+      "#b3de69" "#fccde5" "#d9d9d9" "#bc80bd" "#ccebc5" "#ffed6f")
+    (palette-colors 'set3))
+  (test-equal "paired"
+    '("#a6cee3" "#1f78b4" "#b2df8a" "#33a02c" "#fb9a99" "#e31a1c"
+      "#fdbf6f" "#ff7f00" "#cab2d6" "#6a3d9a" "#ffff99" "#b15928")
+    (palette-colors 'paired))
+  (test-equal "accent"
+    '("#7fc97f" "#beaed4" "#fdc086" "#ffff99"
+      "#386cb0" "#f0027f" "#bf5b17" "#666666")
+    (palette-colors 'accent))
+  (test-equal "pastel1"
+    '("#fbb4ae" "#b3cde3" "#ccebc5" "#decbe4" "#fed9a6"
+      "#ffffcc" "#e5d8bd" "#fddaec" "#f2f2f2")
+    (palette-colors 'pastel1))
+  (test-equal "pastel2"
+    '("#b3e2cd" "#fdcdac" "#cbd5e8" "#f4cae4"
+      "#e6f5c9" "#fff2ae" "#f1e2cc" "#cccccc")
+    (palette-colors 'pastel2))
+  (test-assert "every listed name has a palette"
+    (every (lambda (name) (pair? (palette-colors name))) (palette-names)))
+  (test-assert "unknown palette name is an &error naming it"
+    (error-with-any? (lambda () (palette-colors 'no-such-palette))
+                     'no-such-palette)))
+
+;;; ------------------------------------------------------------------
+;;; text-color-for
+
+(test-group "text-color-for"
+  ;; dark2: all take white except green #66a61e and yellow #e6ab02.
+  (test-equal "dark2 teal #1b9e77"   white (text-color-for "#1b9e77"))
+  (test-equal "dark2 orange #d95f02" white (text-color-for "#d95f02"))
+  (test-equal "dark2 purple #7570b3" white (text-color-for "#7570b3"))
+  (test-equal "dark2 pink #e7298a"   white (text-color-for "#e7298a"))
+  (test-equal "dark2 green #66a61e"  dark  (text-color-for "#66a61e"))
+  (test-equal "dark2 yellow #e6ab02" dark  (text-color-for "#e6ab02"))
+  (test-equal "dark2 brown #a6761d"  white (text-color-for "#a6761d"))
+  (test-equal "dark2 grey #666666"   white (text-color-for "#666666"))
+  (test-equal "dark2: white except green and yellow"
+    (list white white white white dark dark white white)
+    (map text-color-for dark2))
+
+  (test-equal "white fill" dark  (text-color-for "#ffffff"))
+  (test-equal "black fill" white (text-color-for "#000000"))
+
+  (test-equal "pastel1 #fbb4ae" dark (text-color-for "#fbb4ae"))
+  (test-equal "pastel1 #ffffcc" dark (text-color-for "#ffffcc"))
+  (test-equal "pastel2 #b3e2cd" dark (text-color-for "#b3e2cd"))
+  (test-equal "pastel2 #cccccc" dark (text-color-for "#cccccc"))
+  (test-equal "set3 #8dd3c7"    dark (text-color-for "#8dd3c7"))
+
+  (test-equal "set1 red #e41a1c"    white (text-color-for "#e41a1c"))
+  (test-equal "set1 blue #377eb8"   white (text-color-for "#377eb8"))
+  (test-equal "set1 green #4daf4a (2.78:1)" dark (text-color-for "#4daf4a"))
+  (test-equal "set1 orange #ff7f00 (2.53:1)" dark (text-color-for "#ff7f00"))
+
+  ;; Threshold: #949494 is 3.03:1 with white, #959595 is 2.995:1.
+  (test-equal "just above 3:1 takes white" white (text-color-for "#949494"))
+  (test-equal "just below 3:1 takes dark"  dark  (text-color-for "#959595")))
+
+;;; ------------------------------------------------------------------
+;;; The look record
+
+(test-group "look record"
+  (let ((lk (make-look "#123456" "i" "#ffffff")))
+    (test-assert "look? on a look" (look? lk))
+    (test-equal "look-fill" "#123456" (look-fill lk))
+    (test-equal "look-text" "i" (look-text lk))
+    (test-equal "look-text-color" "#ffffff" (look-text-color lk)))
+  (let ((lk (make-look #f "D" "#222222")))
+    (test-assert "a look with no box" (look? lk))
+    (test-equal "fill #f" #f (look-fill lk)))
+  (test-assert "look? on a string" (not (look? "#123456")))
+  (test-assert "look? on a list" (not (look? '("#123456" "i" "#ffffff")))))
+
+;;; ------------------------------------------------------------------
+;;; make-style and default-style
+
+(test-group "make-style defaults"
+  (for-each
+   (match-lambda
+     ((label style)
+      (test-assert (string-append label ": style?") (style? style))
+      (test-assert (string-append label ": scheme is by-degree")
+        (eq? by-degree (style-scheme style)))
+      (test-equal (string-append label ": palette is dark2") dark2
+        (style-palette style))
+      (test-equal (string-append label ": no degree-colors") '()
+        (style-degree-colors style))))
+   (list (list "default-style" (default-style))
+         (list "make-style" (make-style))))
+  (test-assert "by-degree is a procedure" (procedure? by-degree))
+  (test-assert "style? on a non-style" (not (style? 'by-degree))))
+
+(test-group "make-style options"
+  (test-assert "scheme name by-degree resolves to the procedure"
+    (eq? by-degree (style-scheme (make-style #:scheme 'by-degree))))
+  (test-equal "palette by name"
+    (palette-colors 'set2)
+    (style-palette (make-style #:palette 'set2)))
+  (test-equal "palette by name: pastel1"
+    (palette-colors 'pastel1)
+    (style-palette (make-style #:palette 'pastel1)))
+  (test-equal "palette as a list"
+    '("#111111" "#eeeeee")
+    (style-palette (make-style #:palette '("#111111" "#eeeeee"))))
+  (test-equal "palette list colours are lowercased"
+    '("#abcdef" "#1b9e77" "#abcdef")
+    (style-palette (make-style #:palette '("#ABCDEF" "#1B9E77" "#AbCdEf"))))
+  (test-equal "a one-colour palette"
+    '("#000000")
+    (style-palette (make-style #:palette '("#000000"))))
+  (test-equal "degree-colors are stored"
+    '((ding . "#000000") (dang . "#ff0000"))
+    (style-degree-colors
+     (make-style #:degree-colors '((ding . "#000000") (dang . "#ff0000")))))
+  (test-equal "degree-colors values are lowercased"
+    '((ding . "#abcdef"))
+    (style-degree-colors (make-style #:degree-colors '((ding . "#ABCDEF")))))
+  (test-assert "a degree name no scale has is allowed"
+    (style? (make-style #:degree-colors '((zzz . "#000000")))))
+  (let* ((proc (lambda (style instrument note)
+                 (make-look "#123456" "x" "#ffffff")))
+         (style (make-style #:scheme proc)))
+    (test-assert "a scheme procedure is stored"
+      (eq? proc (style-scheme style)))))
+
+(test-group "make-style errors"
+  ;; Unknown scheme names: anything that is neither by-degree nor a procedure.
+  (test-assert "unknown scheme symbol" (style-error? 'by-part #:scheme 'by-part))
+  (test-assert "scheme as a string" (style-error? "by-degree" #:scheme "by-degree"))
+  (test-assert "scheme as a number" (style-error? 42 #:scheme 42))
+  ;; Palettes.
+  (test-assert "unknown palette name" (style-error? 'nope #:palette 'nope))
+  (test-assert "empty colour list" (style-error? '() #:palette '()))
+  ;; Colours in a palette list that are not #rrggbb strings.
+  (for-each
+   (lambda (bad)
+     (test-assert (call-with-output-string
+                    (lambda (port)
+                      (display "bad palette colour " port)
+                      (write bad port)))
+       (style-error? bad #:palette (list "#1b9e77" bad))))
+   '("red" "1b9e77" "#12345" "#1234567" "#gggggg" "#1b9e7" red 1193046))
+  ;; Colours in degree-colors that are not #rrggbb strings.
+  (for-each
+   (lambda (bad)
+     (let ((entry (cons 'ding bad)))
+       (test-assert (call-with-output-string
+                      (lambda (port)
+                        (display "bad degree colour " port)
+                        (write bad port)))
+         (error-with-any? (lambda () (make-style #:degree-colors (list entry)))
+                          bad entry))))
+   '("black" "000000" "#00000" "#0000000" "#00000g" black))
+  ;; degree-colors entries that are not (SYMBOL . COLOUR).
+  (let ((entry '("ding" . "#000000")))
+    (test-assert "degree-colors key is a string"
+      (error-with-any? (lambda () (make-style #:degree-colors (list entry)))
+                       entry "ding")))
+  (let ((entry '(ding "#000000")))
+    (test-assert "degree-colors entry is a list, not a pair"
+      (error-with-any? (lambda () (make-style #:degree-colors (list entry)))
+                       entry '("#000000"))))
+  (test-assert "degree-colors entry is a bare symbol"
+    (error-with-any? (lambda () (make-style #:degree-colors '(ding)))
+                     'ding))
+  (let ((entry '(3 . "#000000")))
+    (test-assert "degree-colors key is a number"
+      (error-with-any? (lambda () (make-style #:degree-colors (list entry)))
+                       entry 3)))
+  (test-assert "a bad entry after a good one"
+    (error-with-any? (lambda ()
+                       (make-style #:degree-colors
+                                   '((ding . "#000000") (dong . "nope"))))
+                     "nope" '(dong . "nope"))))
+
+;;; ------------------------------------------------------------------
+;;; by-degree, through note-look
+
+(test-group "by-degree: pitched notes"
+  (let ((style (default-style)))
+    ;; reyong: deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2 ding3
+    (test-equal "reyong, every octave"
+      (list deng-look dung-look dang-look ding-look dong-look
+            deng-look dung-look dang-look ding-look)
+      (looks style reyong))
+    ;; ugal: ding1 dong1 deng1 dung1 dang1 ding2
+    (test-equal "ugal, same colours as reyong"
+      (list ding-look dong-look deng-look dung-look dang-look ding-look)
+      (looks style ugal))
+    (test-assert "note-look returns a look"
+      (look? (note-look style ugal (vector-ref (instrument-notes ugal) 0))))
+    (test-equal "by-degree called directly gives the same look"
+      (looks style ugal)
+      (map (lambda (note) (look->list (by-degree style ugal note)))
+           (vector->list (instrument-notes ugal)))))
+
+  (test-equal "custom palette by name: set1"
+    (list (list "#e41a1c" "i"    white)
+          (list "#377eb8" "dong" white)
+          (list "#4daf4a" "e"    dark)
+          (list "#984ea3" "dung" white)
+          (list "#ff7f00" "a"    dark)
+          (list "#e41a1c" "i"    white))
+    (looks (make-style #:palette 'set1) ugal))
+
+  (test-equal "uppercase palette colours come out lowercase in looks"
+    (list (list "#abcdef" "i" dark) (list "#000000" "dong" white))
+    (take (looks (make-style #:palette '("#ABCDEF" "#000000")) ugal) 2))
+
+  ;; seven-degree scale a..g, instrument a1 b1 c1 d1 e1 f1 g1 a2, and a
+  ;; three-colour palette: colours repeat every three degrees.
+  (test-equal "palette repeats with more degrees than colours"
+    (list (list "#111111" "a" white)
+          (list "#eeeeee" "b" dark)
+          (list "#ff0000" "c" white)
+          (list "#111111" "d" white)
+          (list "#eeeeee" "e" dark)
+          (list "#ff0000" "f" white)
+          (list "#111111" "g" white)
+          (list "#111111" "a" white))
+    (looks (make-style #:palette '("#111111" "#eeeeee" "#ff0000")) sevens))
+
+  ;; nine degrees with dark2 (eight colours): degree 8 wraps to colour 0.
+  (test-equal "dark2 wraps after eight degrees"
+    (append (map (lambda (colour name)
+                   (list colour name (text-color-for colour)))
+                 dark2 '("p" "q" "r" "s" "t" "u" "v" "w"))
+            (list (list "#1b9e77" "x" white)
+                  (list "#1b9e77" "p" white)))
+    (looks (default-style) nines))
+
+  (test-equal "one-colour palette colours every degree"
+    (map (lambda (text) (list "#000000" text white))
+         '("i" "dong" "e" "dung" "a" "i"))
+    (looks (make-style #:palette '("#000000")) ugal)))
+
+(test-group "by-degree: degree-colors"
+  (let ((style (make-style #:degree-colors
+                           '((deng . "#000000") (dang . "#FFFFFF")))))
+    (test-equal "overrides take the fill; text colour from their contrast"
+      (list ding-look dong-look
+            (list "#000000" "e" white)
+            dung-look
+            (list "#ffffff" "a" dark)
+            ding-look)
+      (looks style ugal))
+    (test-equal "overrides apply in every octave and on every instrument"
+      (list (list "#000000" "e" white) dung-look (list "#ffffff" "a" dark)
+            ding-look dong-look
+            (list "#000000" "e" white) dung-look (list "#ffffff" "a" dark)
+            ding-look)
+      (looks style reyong)))
+  (test-equal "override on top of a custom palette"
+    (list (list "#111111" "a" white)
+          (list "#e6ab02" "b" dark)
+          (list "#ff0000" "c" white))
+    (take (looks (make-style #:palette '("#111111" "#eeeeee" "#ff0000")
+                             #:degree-colors '((b . "#e6ab02")))
+                 sevens)
+          3))
+  (test-equal "an override for a degree no scale has changes nothing"
+    (looks (default-style) ugal)
+    (looks (make-style #:degree-colors '((zzz . "#000000"))) ugal))
+  ;; Keys are degree names only: an alias is ignored like any unused name.
+  (test-equal "an override keyed by an alias changes nothing"
+    (looks (default-style) ugal)
+    (looks (make-style #:degree-colors '((i . "#000000"))) ugal)))
+
+(test-group "make-style: wrong types"
+  (test-assert "a palette that is neither a name nor a list"
+    (style-error? 42 #:palette 42))
+  (test-assert "a palette that is a string"
+    (style-error? "dark2" #:palette "dark2"))
+  (test-assert "degree-colors that is not a list"
+    (style-error? 'x #:degree-colors 'x)))
+
+(test-group "by-degree: strokes"
+  (let ((stroke-looks (list (list #f "D" dark)
+                            (list #f "dug" dark)
+                            (list #f "du" dark))))
+    (test-equal "kendang: no box, display form or name, near-black"
+      stroke-looks (looks (default-style) kendang))
+    (test-equal "gong" (list (list #f "G" dark)) (looks (default-style) gong))
+    (test-equal "palette does not affect strokes"
+      stroke-looks (looks (make-style #:palette 'set1) kendang))
+    (test-equal "degree-colors naming a stroke give it no box"
+      stroke-looks
+      (looks (make-style #:degree-colors '((dag . "#000000") (du . "#ffffff")))
+             kendang))))
+
+;;; ------------------------------------------------------------------
+;;; Custom schemes
+
+(test-group "custom scheme"
+  (let* ((calls '())
+         (proc (lambda (style instrument note)
+                 (set! calls (cons (list style instrument note) calls))
+                 (make-look "#123456" "x" "#ffffff")))
+         (style (make-style #:scheme proc))
+         (note (vector-ref (instrument-notes ugal) 2))
+         (lk (note-look style ugal note)))
+    (test-equal "note-look returns the scheme's look"
+      (list "#123456" "x" "#ffffff") (look->list lk))
+    (test-equal "the scheme is called once" 1 (length calls))
+    (test-assert "the scheme gets the style, instrument and note"
+      (match calls
+        (((s i n)) (and (eq? s style) (eq? i ugal) (eq? n note)))
+        (_ #f))))
+
+  ;; A scheme that boxes strokes in grey and falls back on by-degree.
+  (let* ((grey-strokes
+          (lambda (style instrument note)
+            (if (scale-pitched? (instrument-scale instrument))
+                (by-degree style instrument note)
+                (make-look "#666666"
+                           (look-text (by-degree style instrument note))
+                           (text-color-for "#666666")))))
+         (style (make-style #:scheme grey-strokes #:palette 'set1)))
+    (test-equal "fallback: pitched notes as by-degree"
+      (looks (make-style #:palette 'set1) ugal)
+      (looks style ugal))
+    (test-equal "fallback: strokes from the custom branch"
+      (list (list "#666666" "D" white)
+            (list "#666666" "dug" white)
+            (list "#666666" "du" white))
+      (looks style kendang))))
+
+(define runner (test-runner-current))
+(test-end "style")
+
+(exit (zero? (+ (test-runner-fail-count runner)
+                (test-runner-xpass-count runner))))

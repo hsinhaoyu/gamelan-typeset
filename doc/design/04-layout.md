@@ -1,6 +1,8 @@
 # 04 — Layout
 
-Status: planned, not implemented yet (draft v1); of its milestone, slice 1 (the JSON writer, in 05) is implemented (see "Slices"). Module: `(notasi layout)`
+Status: partly implemented (draft v1): slices 1–2 of 4 (the JSON
+writer in 05, and "Note style"); layout itself is planned (see
+"Slices"). Modules: `(notasi style)`, `(notasi layout)`
 
 ## Responsibility
 
@@ -52,15 +54,22 @@ Lane labels show the display form followed by the octave number
 
 ### Note style
 
-How each note looks is decided by a **colour scheme**: a procedure
-from an instrument and a note to the note's look, three values that
-go straight into the JSON event:
+**Implemented** (slice 2, `feat/layout-style`). Module `(notasi style)`,
+which depends only on `(notasi piece)`; tests in `tests/style.scm`.
+Layout (slice 3) imports it.
 
-| Value | Meaning |
-|---|---|
-| `fill` | the note's colour as a hex string, or `#f` for no box |
-| `text` | the text in the note |
-| `text_color` | the text's colour as a hex string |
+How each note looks is decided by a **colour scheme**: a procedure
+`(scheme style instrument note) → look`. A **look** is an immutable
+record whose fields go straight into the JSON event:
+
+| Field | Accessor | Meaning |
+|---|---|---|
+| fill | `look-fill` | the note's colour as a hex string, or `#f` for no box |
+| text | `look-text` | the text in the note |
+| text color | `look-text-color` | the text's colour as a hex string |
+
+with `make-look` and `look?`. `(note-look style instrument note)`
+calls the style's scheme and returns the look.
 
 Layout calls the scheme for every event and knows nothing about
 colours itself. Adding a way of colouring (by part, by octave, …) means
@@ -78,31 +87,71 @@ picks colours (ADR 0005).
 - The note's text is the degree's display form (`"i"` for `ding`, or
   the degree name if the scale sets none), without the octave number,
   since the lane already shows the octave.
-- The text colour is white or near-black, whichever contrasts more with
-  the fill (by relative luminance), so light palettes stay readable.
+- The text colour is `(text-color-for fill)`: white (`#ffffff`) if its
+  WCAG contrast ratio with the fill is at least 3:1 (the minimum for
+  bold text, which note text is), otherwise near-black (`#222222`).
+  Contrast uses WCAG relative luminance of sRGB:
+  each channel c/255 is linearised as c/12.92 if ≤ 0.04045, else
+  ((c + 0.055)/1.055)^2.4; L = 0.2126 R + 0.7152 G + 0.0722 B; and the
+  ratio of two luminances is (L1 + 0.05)/(L2 + 0.05), lighter over
+  darker. So strong colours get white text and light ones dark text.
 - **Strokes are shown as a character only**: no box (`fill` is `#f`),
-  the stroke's display form (or its name) in near-black. `(dag (display
+  the stroke's display form (or its name) in near-black (`#222222`). `(dag (display
   "D"))` in the stroke set sets the character.
 - Parts are not told apart: polos and sangsih in one group are drawn in
   the same pitch colours, so the group shows the composite melody.
   The group's label and subtitle say which parts it holds.
 
-**The style** is a record made with
-`(make-style #:key scheme palette degree-colors)`:
+**The style** is an immutable record made with
+`(make-style #:key scheme palette degree-colors)`; `(default-style)` is
+`(make-style)`. Predicate `style?`; accessors `style-scheme`,
+`style-palette`, `style-degree-colors`.
 
 | Field | Default | Meaning |
 |---|---|---|
-| `scheme` | `by-degree` | a scheme name, or a procedure for a custom scheme |
-| `palette` | `dark2` | a palette name (below), or a list of hex strings |
-| `degree-colors` | `()` | overrides by degree name, e.g. `((ding . "#000000"))` |
+| `scheme` | `'by-degree` | a scheme name, or a procedure `(style instrument note) → look` |
+| `palette` | `'dark2` | a palette name (below), or a list of colours |
+| `degree-colors` | `'()` | overrides by degree name, e.g. `((ding . "#000000"))` |
+
+`make-style` checks its arguments and raises an `&error` whose
+irritants include the bad value for: an unknown scheme name (anything
+that is neither `by-degree` nor a procedure), an unknown palette name,
+an empty colour list, a colour that is not a string `#rrggbb` (hex
+digits in either case), or a `degree-colors` entry that is not
+`(SYMBOL . COLOUR)`, and for a `palette` or `degree-colors` of the
+wrong type (`#:palette 42`, `#:degree-colors 'x`). For a malformed
+entry, the irritants include the entry or its bad part. A degree name
+that no scale has is allowed; it is just never used. Keys are degree
+names, not aliases: `(i . "#000000")` overrides nothing, even where
+`i` is an alias of `ding`. Overrides apply to pitched notes only;
+strokes are always drawn as a character. The accessors return resolved values: `style-scheme`
+a procedure (`by-degree` for the name), `style-palette` the list of
+colours, all colours in lowercase. `by-degree` is exported, so a
+custom scheme can fall back on it.
+
+The colours notasi makes (palettes, overrides, text colours) are
+lowercase `#rrggbb` strings, and a stroke's `fill` is `#f`. A custom
+scheme's look is used as it is.
 
 **Palettes.** The eight qualitative palettes of ColorBrewer (Cynthia
-Brewer, colorbrewer2.org), at their largest size: `dark2` (8),
-`set1` (9), `set2` (8), `set3` (12), `paired` (12), `accent` (8),
-`pastel1` (9), `pastel2` (8). The hex values are copied into the code,
-with ColorBrewer's attribution as its licence (Apache 2.0) requires.
-`dark2` is the default because white text stays readable on all its
-colours.
+Brewer, colorbrewer2.org), at their largest size. `(palette-names)`
+lists them in this order; `(palette-colors NAME)` returns a palette's
+colours as a list (an `&error` for an unknown name).
+
+| Name | Colours |
+|---|---|
+| `dark2` | `#1b9e77 #d95f02 #7570b3 #e7298a #66a61e #e6ab02 #a6761d #666666` |
+| `set1` | `#e41a1c #377eb8 #4daf4a #984ea3 #ff7f00 #ffff33 #a65628 #f781bf #999999` |
+| `set2` | `#66c2a5 #fc8d62 #8da0cb #e78ac3 #a6d854 #ffd92f #e5c494 #b3b3b3` |
+| `set3` | `#8dd3c7 #ffffb3 #bebada #fb8072 #80b1d3 #fdb462 #b3de69 #fccde5 #d9d9d9 #bc80bd #ccebc5 #ffed6f` |
+| `paired` | `#a6cee3 #1f78b4 #b2df8a #33a02c #fb9a99 #e31a1c #fdbf6f #ff7f00 #cab2d6 #6a3d9a #ffff99 #b15928` |
+| `accent` | `#7fc97f #beaed4 #fdc086 #ffff99 #386cb0 #f0027f #bf5b17 #666666` |
+| `pastel1` | `#fbb4ae #b3cde3 #ccebc5 #decbe4 #fed9a6 #ffffcc #e5d8bd #fddaec #f2f2f2` |
+| `pastel2` | `#b3e2cd #fdcdac #cbd5e8 #f4cae4 #e6f5c9 #fff2ae #f1e2cc #cccccc` |
+
+The values are copied into the code with ColorBrewer's attribution, as
+its licence (Apache 2.0) requires. `dark2` is the default: strong
+colours that mostly take white text (all but its green and yellow).
 
 ### Sizes
 
@@ -119,7 +168,7 @@ in four slices, each its own branch and PR into `dev`, started with
 
 1. **Implemented.** `feat/json`: the JSON writer `(notasi json)`, as specified under
    "JSON writing" in 05.
-2. `feat/layout-style`: "Note style": the ColorBrewer palettes,
+2. **Implemented.** `feat/layout-style`: "Note style": the ColorBrewer palettes,
    `make-style` and `default-style`, the `by-degree` scheme and the
    text-colour contrast rule.
 3. `feat/layout`: `layout-piece` → figure: systems and cut events,
