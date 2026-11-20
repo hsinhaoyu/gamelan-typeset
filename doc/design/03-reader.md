@@ -28,7 +28,9 @@ Finding templates:
   repo's `templates/` folder; an installed package finds its own.
 - A template's `file` (in errors) is the path it was found at: the
   `%load-path` entry joined with `templates/NAME.gml`, or the folder
-  joined with the string. Two `use`s reach the same template when the
+  joined with the string (just the string when the folder is the
+  current directory, so messages show `my-gamelan.gml`, not
+  `./my-gamelan.gml`). Two `use`s reach the same template when the
   canonical paths are equal.
 
 ## Steps
@@ -111,8 +113,9 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   with no position, so it uses its scale's location. Every location
   includes the file, since definitions can come from templates. Atoms such as numbers inside a
   part don't carry positions, so token errors are reported as part name
-  plus step number (and pulse number), which is more meaningful to a
-  musician anyway.
+  plus step number, which is more meaningful to a musician anyway. The
+  message counts steps from 1, as a musician would; the `step` field
+  counts from 0.
 - Every reader error is a `&notasi-syntax-error`, a subtype of `&error`,
   exported from `(notasi reader)`:
 
@@ -125,8 +128,8 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   | step | `notasi-syntax-error-step` | 0-based step, or `#f` |
 
   The predicate is `notasi-syntax-error?`. The condition also carries a
-  `&message` with the readable text (`song.gml:3: duplicate piece
-  form`). Tests check `kind` and the location fields, never the message.
+  `&message` with the readable text (`song.gml:3: a second (piece
+  ...) form`). Tests check `kind` and the location fields, never the message.
 - Checks run in this order, so a file with several problems always
   reports the same one:
   1. Read all forms (`read-error`).

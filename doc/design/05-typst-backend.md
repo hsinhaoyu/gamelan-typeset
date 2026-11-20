@@ -10,7 +10,7 @@ Status: planned, not implemented yet (draft v1). Modules: `(notasi typst)` (Guil
 - Typst side: draw exactly what the JSON says. No musical logic.
 
 The same template draws scores inside Typst documents, where the figure
-JSON arrives inside a side file instead (06, ADR 0016). So the template
+JSON arrives inside a side file instead (06, ADR 0016, proposed). So the template
 must work in both places; see "Typst template design", points 6 and 7.
 
 ## JSON contract (version 1)
@@ -106,7 +106,8 @@ Entry point produced by Guile for a standalone figure:
 
 - `(compile-typst typ-path #:format 'pdf)` calls `typst compile` with
   `system*` and raises a clear error if `typst` is not installed or fails.
-- The command-line script `scripts/notasi`, as `notasi render`, does:
+- The command-line script `scripts/notasi` (ADR 0018), as
+  `notasi render`, does:
   read → layout → write JSON + .typ → compile. Its other subcommands
   (`typst`, `update`, `watch`) are for documents (06).
 
