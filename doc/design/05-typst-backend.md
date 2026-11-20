@@ -289,10 +289,16 @@ notasi render --help
   (`gilak.gml:3: …`, the text the manual quotes) to standard error;
   any other problem (Typst missing or failing, a file that can't be
   read, an unsupported output extension) prints `notasi: ` and the
-  error's message. Both exit with status 1.
+  error's message. Both exit with status 1. A file that can't be read
+  is not a notation mistake, even though the reader is the one that
+  finds it: the message is made readable from Guile's error and names
+  the file.
+- Every message notasi prints (paths, errors, usage) ends with exactly
+  one newline.
 - Using the command wrongly (no subcommand, an unknown subcommand or
   option, no PIECE.gml or more than one, `-o` without a value) prints
-  `notasi: ` and what is wrong, then the usage line, to standard
+  `notasi: ` and what is wrong (naming the unknown subcommand or
+  option), then the usage line, to standard
   error, and exits with status 2.
 - `--help` prints the usage and a short description to standard output
   and exits with status 0.
