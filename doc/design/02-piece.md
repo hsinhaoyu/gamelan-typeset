@@ -13,9 +13,13 @@ analysis consume it; nothing downstream looks at the source text.
 - Notes are referred to by their index within their instrument (0-based
   internally; the notation is 1-based, and the reader converts).
 - No pitch or tuning data on notes.
-- Every record that came from the source keeps a source location (file
-  and line), for error messages. The file matters because definitions
-  can come from templates.
+- Every definition keeps a source location (file and line), for error
+  messages: scales, degrees, instruments, parts and groups. The file
+  matters because definitions can come from templates. `note` and
+  `event` have none: they come from atoms, which carry no position (see
+  03-reader.md), so token errors are reported by part and step instead.
+  `piece` has none either: errors about the piece form are found while
+  reading, before the record exists.
 - The piece holds the definitions after templates are merged: a
   definition the piece replaced is gone, and template definitions the
   piece never uses (e.g. an instrument no part plays) are kept. They are
