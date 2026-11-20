@@ -61,6 +61,7 @@ Each decision's context and consequences are in its record in
 | pulse | The steady stroke of the kempli/kajar; a fixed number of steps (`steps-per-pulse`) |
 | system | One horizontal block of the figure, e.g. one gong cycle |
 | scale | Ordered set of degree names, e.g. `ding dong deng dung dang` |
+| stroke set | Named set of unpitched strokes, e.g. kendang `dag dug du` |
 | instrument | Ordered list of the notes (keys/pots) an instrument has |
 | part | A line of music played on one instrument |
 | group | Parts drawn together in one block of rows, e.g. polos + sangsih |

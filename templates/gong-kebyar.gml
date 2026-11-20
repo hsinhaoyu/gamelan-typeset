@@ -1,0 +1,21 @@
+;; Gong kebyar: selisir scale, pitched instruments and colotomic strokes.
+;; Only the instruments used so far are defined; add others as needed.
+;; A piece can redefine any of these, e.g. to change an instrument's range.
+
+(use selisir)
+
+(strokes kempli-strokes  K)
+(strokes gong-strokes
+  G                                           ; gong
+  P)                                          ; kempur
+(strokes kendang-strokes  dag dug du)
+
+;; Ugal: 10 keys, o1 (dong1) to i3 (ding3), an octave below the pemade.
+(instrument ugal    selisir  o1 e1 u1 a1 i2 o2 e2 u2 a2 i3)
+
+;; Reyong: 12 pots, e1 (deng1) to u3 (dung3).
+(instrument reyong  selisir  e1 u1 a1 i2 o2 e2 u2 a2 i3 o3 e3 u3)
+
+(instrument kempli  kempli-strokes   K)
+(instrument gong    gong-strokes     G P)
+(instrument kendang kendang-strokes  dag dug du)

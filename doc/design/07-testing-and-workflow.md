@@ -9,6 +9,7 @@ notasi/             Guile modules: piece, reader, layout, json, typst, analysis
 typst/notasi.typ    Typst template
 scripts/            command-line entry points (notasi-render, notasi-analyse)
 examples/           real pieces (.gml), used as test fixtures
+templates/          shared definitions (.gml) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected outputs (JSON, analysis reports)
 doc/prototypes/     hand-made mockup (score.typ, piece.json)

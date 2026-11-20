@@ -28,10 +28,15 @@ piece
   parts            : list of part
   groups           : list of group     (every part is in exactly one group)
 
-scale
+scale                                  also used for stroke sets
   name     : symbol
-  degrees  : list of symbol            ascending, one octave
-  pitched? : boolean                   #f for the built-in `strokes`
+  degrees  : list of degree            ascending, one octave
+  pitched? : boolean                   #f for a stroke set (`strokes` form)
+
+degree
+  name     : symbol                    e.g. ding
+  aliases  : list of symbol            e.g. (i); may be empty
+  display  : string                    short form for the grid, e.g. "i"
 
 instrument
   name   : symbol
@@ -39,8 +44,8 @@ instrument
   notes  : vector of note              ascending pitch order
 
 note
-  name   : symbol                      e.g. ding2, dag
-  degree : integer | #f                index into scale degrees; #f for strokes
+  name   : symbol                      e.g. ding2, dag (never an alias)
+  degree : integer                     index into the scale's degrees (or strokes)
   octave : integer | #f                #f for strokes
 
 part
