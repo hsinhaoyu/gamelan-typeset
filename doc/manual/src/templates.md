@@ -14,7 +14,8 @@ notasi comes with a `gong-kebyar` template:
 
 `(use gong-kebyar)` gives the piece:
 
-- the `selisir` scale, with the vowel names `i o e u a`
+- the `selisir` scale, with the vowel names `i o e u a`, which are
+  also how its notes are shown in the score
   (see [Scales and stroke sets](scales-and-strokes.md));
 - a **ugal** with ten keys, dong1 (`o1`) to ding3 (`i3`);
 - a **reyong** with twelve pots, deng1 (`e1`) to dung3 (`u3`);

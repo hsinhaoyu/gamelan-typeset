@@ -691,8 +691,9 @@ so a test using it fails rather than passing on #f."
     (test-equal "files are #f from a port" '(#f #f #f)
       (map location-file (piece-scales pc)))))
 
-;;; The contents of templates/selisir.gml and templates/gong-kebyar.gml
-;;; (without its `use`), pasted into one file.
+;;; The contents of templates/selisir.gml (before it had display forms)
+;;; and templates/gong-kebyar.gml (without its `use`), pasted into one
+;;; file.
 (test-group "gong kebyar definitions"
   (let ((pc (try-read-string
              "(piece \"Gong kebyar\" (steps-per-pulse 1))"
@@ -2257,9 +2258,9 @@ canonicalized, or the raised object (or no-error) unchanged."
       '("templates" "selisir.gml")
       (let ((f (source-location-file (scale-location (car (piece-scales pc))))))
         (list (basename (dirname f)) (basename f))))
-    (test-equal "use selisir: scale line" 4
+    (test-equal "use selisir: scale line" 5
       (source-location-line (scale-location (car (piece-scales pc)))))
-    (test-equal "use selisir: degree lines" '(5 6 7 8 9)
+    (test-equal "use selisir: degree lines" '(6 7 8 9 10)
       (map (lambda (d) (source-location-line (degree-location d)))
            (scale-degrees (car (piece-scales pc)))))
     (test-equal "use selisir: degree files are the template's"
@@ -2955,8 +2956,17 @@ canonicalized, or the raised object (or no-error) unchanged."
     (test-equal "gong events"
       '((0 1 (0)) (4 1 (0)) (5 1 (1)) (7 1 (1)) (8 1 (0)))
       (part-triples pc 'gong))
+    (test-equal "selisir shows its degrees by vowel"
+      '("i" "o" "e" "u" "a")
+      (map degree-display (scale-degrees (scale-named pc 'selisir))))
+    (test-equal "ugal lane labels are vowel and octave"
+      '("o1" "i3")
+      (let* ((inst (instrument-named pc 'ugal))
+             (v (instrument-notes inst)))
+        (list (note-label inst (vector-ref v 0))
+              (note-label inst (vector-ref v 9)))))
     (test-equal "selisir's file and line"
-      '("selisir.gml" 4)
+      '("selisir.gml" 5)
       (let ((loc (scale-location (scale-named pc 'selisir))))
         (list (basename (source-location-file loc)) (source-location-line loc))))
     (test-equal "ugal instrument's file and line"
