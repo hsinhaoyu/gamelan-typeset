@@ -154,9 +154,9 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
    from `system.start`.
 6. **`score` returns plain content**, systems stacked. It does not make
    a `figure`: in a document, the caption, numbering and label are the
-   author's (06). For a standalone figure, the entry file wraps the
-   score in a `figure` with the JSON `caption`; a document ignores
-   `title` and `caption`.
+   author's (06). For a standalone figure, the entry file puts the
+   title above the score (see "The entry file and running Typst"); a
+   document ignores `title` and `caption`.
 7. **No page or font settings in the template.** In a document the
    score uses the document's font and text size. Only the standalone
    entry file sets the page (`width: auto, height: auto`) and font.
