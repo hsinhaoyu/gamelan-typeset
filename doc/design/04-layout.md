@@ -43,7 +43,7 @@ data makes layout easy to test with `equal?`.
 - Pitched notes show the degree's display form (`"i"` for `ding`, or the
   degree name if the scale sets none), without the octave number, since
   the lane position already shows the octave.
-- Strokes show the stroke name.
+- Strokes show the stroke's display form (or its name if it has none).
 - Lane labels show the display form followed by the octave number
   (`i2`) in small grey text.
 

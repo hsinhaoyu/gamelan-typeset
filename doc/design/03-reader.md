@@ -20,9 +20,10 @@ messages. Nothing else in the system validates input.
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `/`, `ding2`) and lists
    (chords, forms).
-2. **Dispatch** on the head symbol: `piece`, `scale`, `instrument`,
-   `part`, `group`, `text`. Unknown heads are errors.
-3. **Resolve names** in order: scales → instruments → parts → groups.
+2. **Dispatch** on the head symbol: `piece`, `scale`, `strokes`,
+   `instrument`, `part`, `group`, `text`. Unknown heads are errors.
+3. **Resolve names** in order: scales and stroke sets → instruments →
+   parts → groups.
    Undefined or duplicate names are errors.
 4. **Convert part tokens to events** with a single left-to-right pass,
    keeping a "current event" and a step counter:
@@ -58,9 +59,11 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
 - Missing or duplicate `piece` form
 - Undefined scale / instrument / part name
 - Duplicate definitions
-- Instrument note not in its scale, or notes not ascending
-- Duplicate degree name or alias within a scale
-- Degree name or alias ending in a digit
+- Instrument note not in its scale or stroke set, or pitched notes not
+  ascending
+- Duplicate degree or stroke name or alias within a scale or stroke set
+- A scale and a stroke set with the same name
+- Degree name or alias ending in a digit (scales only)
 - Unknown degree option, or `display` that is not a string
 - Note index out of range; unknown note name
 - `_` at the start of a part or after `-`

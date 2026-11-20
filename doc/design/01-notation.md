@@ -26,11 +26,17 @@ only in that a name must be defined before it is used. Comments use `;`.
   (dung (alias u) (display "u"))
   (dang (alias a) (display "a")))
 
+(strokes gong-strokes  G)
+(strokes kendang-strokes
+  (dag (display "D"))
+  (dug (display "d"))
+  du)
+
 (instrument reyong selisir
   deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2 ding3 dong3 deng3 dung3)
 (instrument ugal   selisir  ding1 dong1 deng1 dung1 dang1 ding2 dong2 deng2 dung2 dang2)
-(instrument gong   strokes  G)
-(instrument kendang strokes dag dug du)
+(instrument gong    gong-strokes    G)
+(instrument kendang kendang-strokes dag dug du)
 
 (part polos   reyong   1 _ 2 3 / _ 2 3 _ / ...)
 (part sangsih reyong   - 5 4 _ / 5 4 _ 5 / ...)
@@ -54,9 +60,7 @@ Exactly one per file, first. Options:
 
 Names the degrees of a scale, in ascending order within one octave.
 Used to validate instrument notes and for interval analysis.
-The special scale name `strokes` needs no definition: it means the
-instrument's notes are unpitched strokes (drums, gongs) and have no
-octave or degree.
+Unpitched instruments use a stroke set instead (see `strokes` below).
 
 Each DEGREE is either a bare name (`ding`) or a list of a name and
 options:
@@ -77,13 +81,30 @@ Rules:
 - The reader resolves aliases: the piece always stores the degree's
   own name, so `i2` and `ding2` are the same note.
 
-### `(instrument NAME SCALE NOTE ...)`
+### `(strokes NAME STROKE ...)`
 
-- For a pitched scale, each NOTE is `DEGREE` followed by an octave number:
+Names the strokes of unpitched instruments (gongs, drums, kempli). It
+works like `scale`, but strokes have no pitch and no octave, so they are
+not in any order.
+
+Each STROKE uses the same syntax and options as a scale degree: a bare
+name (`du`) or a name with `alias` and `display` options
+(`(dag (display "D"))`).
+
+Rules:
+- Stroke names and aliases must be unique within the stroke set.
+- A stroke set and a scale cannot share a name, because an instrument
+  refers to either by name.
+- Stroke names may end in a digit, since there is no octave number.
+
+### `(instrument NAME SCALE-OR-STROKES NOTE ...)`
+
+- With a scale, each NOTE is `DEGREE` followed by an octave number:
   `ding2`. The degree must be in the scale. Notes must be listed in
   ascending pitch order. Octave numbering is relative and local to the
   piece; it is not tied to any absolute pitch.
-- For `strokes`, each NOTE is any symbol (`G`, `dag`, `dug`).
+- With a stroke set, each NOTE is a stroke from that set (`G`, `dag`),
+  in any order. The order sets the note indices and the lane order.
 - Note indices are 1-based in list order.
 
 ### `(part NAME INSTRUMENT TOKEN ...)`
@@ -131,8 +152,9 @@ A caption or explanatory paragraph placed after the preceding figure.
 ```scheme
 (piece "Reyong kotekan" (steps-per-pulse 4))
 (scale reyong-4  nang ning nong neng)          ; do mi fa sol
+(strokes gong-strokes  G)
 (instrument reyong reyong-4  nang1 ning1 nong1 neng1)
-(instrument gong strokes G)
+(instrument gong gong-strokes G)
 
 (part polos   reyong  1 _ 1 2 / _ 1 2 _ / 2 1 _ 2)
 (part sangsih reyong  4 3 4 _ / 3 4 _ 3 / _ 4 3 _)
