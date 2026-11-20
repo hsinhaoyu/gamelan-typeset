@@ -62,10 +62,49 @@ Rules:
 
 ## JSON writing
 
-Write a small JSON serialiser in `(notasi json)` (strings, numbers,
-booleans, lists → arrays, alists → objects) instead of depending on
-guile-json. It is ~40 lines, keeps CI to a plain `apt install guile-3.0`,
-and output order is deterministic, which golden tests need.
+**Planned** (layout slice 1, `feat/json`). A small JSON writer in
+`(notasi json)` instead of depending on guile-json. It keeps CI to a
+plain `apt install guile-3.0`, and its output order is deterministic,
+which golden tests need. Its tests are in `tests/json.scm`.
+
+```
+(write-json value #:optional port #:key (pretty? #t))  ; port defaults to (current-output-port)
+(json-string value #:key (pretty? #t)) → string
+```
+
+Scheme values map to JSON as guile-json does, so there is no
+ambiguity between objects and arrays:
+
+| Scheme | JSON |
+|---|---|
+| an alist, `((key . value) ...)`; `'()` | an object, keys in the given order; `{}` |
+| a vector | an array |
+| a string | a string |
+| an exact integer, or a finite inexact real | a number (`number->string`) |
+| `#t`, `#f` | `true`, `false` |
+| the symbol `null` | `null` |
+
+- Keys are symbols or strings, written as strings. A key given twice
+  in one alist is an error.
+- Strings are written as UTF-8. Only `"`, `\` and control characters
+  (below U+0020) are escaped: `\n`, `\r`, `\t`, `\b`, `\f` by their
+  short forms, others as `\u00XX` with lowercase hex.
+- Anything else (another symbol, a rational such as `1/2`, an infinity
+  or NaN, a pair that is not part of an alist, a procedure, a bad key)
+  raises an `&error` whose irritants include the offending value.
+
+Pretty output (the default, used for figure files and golden files):
+
+- 2-space indent; each object member on its own line as `"key": value`.
+- An array whose elements are all strings, numbers, booleans or `null`
+  goes on one line: `["neng1", "nong1"]`. Any other array has one
+  element per line.
+- `{}` and `[]` for an empty object or array.
+- `write-json` ends pretty output with a newline; `json-string` does
+  not.
+
+Compact output (`#:pretty? #f`) has no spaces or newlines at all:
+`{"a":1,"b":[1,2]}`.
 
 ## Typst template design
 

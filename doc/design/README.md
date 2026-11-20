@@ -40,7 +40,8 @@ workflow).
 2. `feat/reader`: notation → piece, all error cases; built in four
    slices (`feat/reader-forms` … `feat/reader-templates`), see
    [03-reader.md](03-reader.md#slices)
-3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests
+3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests;
+   built in four slices, see [04-layout.md](04-layout.md#slices)
 4. `feat/typst-backend`: template matching the prototype
 5. `feat/documents`: scores in Typst documents; built in three slices,
    see [06-documents.md](06-documents.md#slices)
