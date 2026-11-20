@@ -21,7 +21,18 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 | Layout | `(notasi layout)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
 | Analysis | `(notasi analysis)` | [06-analysis.md](06-analysis.md) |
-| Testing and workflow | `tests/`, CI | [07-testing-and-workflow.md](07-testing-and-workflow.md) |
+
+## Build order
+
+Each milestone is one feature branch with tests (see CLAUDE.md for the
+workflow).
+
+1. `feat/piece`: records and derived functions
+2. `feat/reader`: notation → piece, all error cases
+3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests
+4. `feat/typst-backend`: template matching the prototype
+5. `feat/analysis`: v1 analyses
+6. v2 features: repeats, looping parts, sections, syllables
 
 ## Core decisions
 
