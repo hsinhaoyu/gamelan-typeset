@@ -116,13 +116,20 @@ irritants include the bad value for: an unknown scheme name (anything
 that is neither `by-degree` nor a procedure), an unknown palette name,
 an empty colour list, a colour that is not a string `#rrggbb` (hex
 digits in either case), or a `degree-colors` entry that is not
-`(SYMBOL . COLOUR)`. A degree name that no scale has is allowed; it is
-just never used. The accessors return resolved values: `style-scheme`
+`(SYMBOL . COLOUR)`, and for a `palette` or `degree-colors` of the
+wrong type (`#:palette 42`, `#:degree-colors 'x`). For a malformed
+entry, the irritants include the entry or its bad part. A degree name
+that no scale has is allowed; it is just never used. Keys are degree
+names, not aliases: `(i . "#000000")` overrides nothing, even where
+`i` is an alias of `ding`. Overrides apply to pitched notes only;
+strokes are always drawn as a character. The accessors return resolved values: `style-scheme`
 a procedure (`by-degree` for the name), `style-palette` the list of
 colours, all colours in lowercase. `by-degree` is exported, so a
 custom scheme can fall back on it.
 
-Colours are always lowercase `#rrggbb` strings in looks.
+The colours notasi makes (palettes, overrides, text colours) are
+lowercase `#rrggbb` strings, and a stroke's `fill` is `#f`. A custom
+scheme's look is used as it is.
 
 **Palettes.** The eight qualitative palettes of ColorBrewer (Cynthia
 Brewer, colorbrewer2.org), at their largest size. `(palette-names)`
