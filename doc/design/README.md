@@ -28,6 +28,7 @@ book.typ + book.notasi.json ──typst compile──▶ PDF
 | Layout | `(notasi layout)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
 | Scores in Typst documents | `scripts/notasi`, `typst/` package | [06-documents.md](06-documents.md) |
+| Environment, installation, testing (open questions) | — | [07-environment.md](07-environment.md) |
 
 ## Build order
 
