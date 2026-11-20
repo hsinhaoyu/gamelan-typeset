@@ -9,6 +9,30 @@ Status: planned, not implemented yet (draft v1)
 - Fixed time grid: one token = one step.
 - Instruments are lists of symbolic notes; octaves are distinguished.
 
+## Scope: no playback yet
+
+This package is a visualisation tool. It does not play pieces back:
+there is no MIDI or audio output. Playback may be added later, so the
+notation and the `piece` records must not throw away anything a player
+would need. In particular:
+
+- **Every token has a musical meaning, and display is kept separate.**
+  Tokens say what sounds and when. How it looks (display forms,
+  colours, `/` separators, system breaks) never changes what sounds,
+  and nothing that matters for sound is expressed only through display.
+- **Notes stay symbolic.** Playback would turn notes into pitches with
+  a tuning table looked up by note name (ADR 0003; see the tuning
+  tables planned in 06-analysis.md), not by storing frequencies on notes.
+- **Durations are exact.** A note's length is its start step plus its
+  `_` holds, so a player can tell when each note starts and stops.
+- **The open questions affect sound, not just the picture.** Whether a
+  rest damps the previous note (open question 2) and whether octave
+  numbers are shared across instruments (open question 3) must be
+  answered by what the music does, not by what is easiest to draw.
+- **Time is in steps, not seconds.** Playback would also need a tempo
+  (and tempo changes, which gamelan uses a lot). That would be added as
+  new options or forms, without changing what a step is.
+
 ## File structure
 
 A file (extension `.gml`) is a sequence of top-level forms. Order matters
