@@ -5,6 +5,7 @@
              (notasi reader)
              (notasi layout)
              (notasi json)
+             (notasi style)
              (notasi typst))
 
 (test-begin "smoke")

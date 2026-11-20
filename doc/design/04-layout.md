@@ -1,6 +1,8 @@
 # 04 — Layout
 
-Status: planned, not implemented yet (draft v1); of its milestone, slice 1 (the JSON writer, in 05) is implemented (see "Slices"). Module: `(notasi layout)`
+Status: partly implemented (draft v1): slices 1–2 of 4 (the JSON
+writer in 05, and "Note style"); layout itself is planned (see
+"Slices"). Modules: `(notasi style)`, `(notasi layout)`
 
 ## Responsibility
 
@@ -52,7 +54,7 @@ Lane labels show the display form followed by the octave number
 
 ### Note style
 
-**Planned** (slice 2, `feat/layout-style`). Module `(notasi style)`,
+**Implemented** (slice 2, `feat/layout-style`). Module `(notasi style)`,
 which depends only on `(notasi piece)`; tests in `tests/style.scm`.
 Layout (slice 3) imports it.
 
@@ -166,7 +168,7 @@ in four slices, each its own branch and PR into `dev`, started with
 
 1. **Implemented.** `feat/json`: the JSON writer `(notasi json)`, as specified under
    "JSON writing" in 05.
-2. `feat/layout-style`: "Note style": the ColorBrewer palettes,
+2. **Implemented.** `feat/layout-style`: "Note style": the ColorBrewer palettes,
    `make-style` and `default-style`, the `by-degree` scheme and the
    text-colour contrast rule.
 3. `feat/layout`: `layout-piece` → figure: systems and cut events,

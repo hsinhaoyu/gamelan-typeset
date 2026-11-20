@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(notasi piece)`, `(notasi reader)` and `(notasi json)` are implemented; the other modules are empty stubs, built in the order given under "Build order" in `doc/design/README.md`.
+GNU Guile 3.0 project for notating and visualizing Balinese gamelan music. `(notasi piece)`, `(notasi reader)`, `(notasi json)` and `(notasi style)` are implemented; the other modules are empty stubs, built in the order given under "Build order" in `doc/design/README.md`.
 
 ## Commands
 
@@ -27,7 +27,7 @@ The notation that `reader` parses is specified in `doc/design/01-notation.md`.
 Repository layout (entries marked *planned* don't exist yet):
 
 ```
-notasi/             Guile modules: piece, reader, layout, json, typst
+notasi/             Guile modules: piece, reader, style, layout, json, typst
 typst/              Typst template and package: notasi.typ, typst.toml (planned)
 scripts/            command-line entry point: notasi render | typst | update | watch (planned)
 examples/           real pieces (.gml), used as test fixtures
