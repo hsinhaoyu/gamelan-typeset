@@ -9,7 +9,7 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `notasi/layout.scm`: lays out scores
 - `notasi/json.scm`: writes JSON (the figure files Typst reads)
 - `notasi/style.scm`: how notes look: palettes and colour schemes
-- `notasi/typst.scm`: renders to Typst
+- `notasi/typst.scm`: the Guile side of the Typst backend (so far: writes figure files)
 - `tests/`: SRFI-64 test suites
 - `examples/`: example pieces
 - `templates/`: shared scales, stroke sets and instruments, loaded with `(use NAME)`

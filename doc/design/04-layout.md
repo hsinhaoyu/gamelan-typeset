@@ -7,7 +7,10 @@ Modules: `(notasi style)`, `(notasi layout)`; tests in
 ## Responsibility
 
 Make every *musical* layout decision and produce a figure description
-(the JSON contract in 05-typst-backend.md). Layout knows music, not
+(the JSON contract in 05-typst-backend.md). `(notasi style)` is part of
+layout, split out only to keep modules small, so layout still depends
+only on `(notasi piece)` in the sense of ADRs 0004 and 0008: it never
+looks at the reader or at Typst. Layout knows music, not
 Typst; the Typst template knows drawing, not music.
 
 ## Public interface

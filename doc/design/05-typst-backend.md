@@ -17,6 +17,9 @@ must work in both places; see "Typst template design", points 6 and 7.
 
 ## JSON contract (version 1)
 
+An excerpt of `tests/golden/kotekan.json`, the figure for
+`examples/kotekan.gml` (one event of the first system shown):
+
 ```json
 {
   "version": 1,
@@ -27,7 +30,7 @@ must work in both places; see "Typst template design", points 6 and 7.
   "systems": [
     {
       "start": 0,
-      "steps": 12,
+      "steps": 8,
       "groups": [
         {
           "label": "Reyong",
@@ -37,8 +40,8 @@ must work in both places; see "Typst template design", points 6 and 7.
             {
               "name": "polos",
               "events": [
-                { "start": 0, "dur": 2, "lane": 3, "text": "a",
-                  "fill": "#66a61e", "text_color": "#ffffff",
+                { "start": 0, "dur": 2, "lane": 3, "text": "nang",
+                  "fill": "#1b9e77", "text_color": "#ffffff",
                   "continued": false }
               ]
             }
@@ -47,7 +50,7 @@ must work in both places; see "Typst template design", points 6 and 7.
       ]
     }
   ],
-  "caption": "Reyong kotekan with gong."
+  "caption": null
 }
 ```
 
