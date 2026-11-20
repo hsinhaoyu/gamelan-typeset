@@ -85,7 +85,8 @@ ambiguity between objects and arrays:
 | the symbol `null` | `null` |
 
 - Keys are symbols or strings, written as strings. A key given twice
-  in one alist is an error.
+  in one alist is an error; the symbol `a` and the string `"a"` are
+  the same key.
 - Strings are written as UTF-8. Only `"`, `\` and control characters
   (below U+0020) are escaped: `\n`, `\r`, `\t`, `\b`, `\f` by their
   short forms, others as `\u00XX` with lowercase hex.
@@ -97,11 +98,14 @@ Pretty output (the default, used for figure files and golden files):
 
 - 2-space indent; each object member on its own line as `"key": value`.
 - An array whose elements are all strings, numbers, booleans or `null`
-  goes on one line: `["neng1", "nong1"]`. Any other array has one
+  goes on one line, elements separated by `", "`: `["neng1", "nong1"]`.
+  Any other array, including one that holds `{}` or `[]`, has one
   element per line.
 - `{}` and `[]` for an empty object or array.
 - `write-json` ends pretty output with a newline; `json-string` does
-  not.
+  not, and compact output never does.
+- The caller chooses the port's encoding; `write-json` writes
+  characters, not bytes.
 
 Compact output (`#:pretty? #f`) has no spaces or newlines at all:
 `{"a":1,"b":[1,2]}`.
