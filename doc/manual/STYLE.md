@@ -32,7 +32,11 @@ show it, then show what comes out.
   into a page by hand. `tests/manual.scm` checks that every example reads
   without errors and that every example is used by a page.
 - **Errors in musician terms.** When showing a mistake, show the error
-  message notasi gives and how to fix it.
+  message notasi gives and how to fix it. A mistake is a real file too:
+  `src/mistakes/NAME.gml`, with the exact message notasi gives for it in
+  `src/mistakes/NAME.txt`. Show both with `{{#include ...}}`.
+  `tests/manual.scm` checks that each mistake fails with that message, so
+  when a message changes, update its `.txt` file.
 - **No internals.** Don't mention Guile, modules, records or the JSON
   file, except on pages about installing or running notasi.
 - **Link to the full rules** in the notation reference

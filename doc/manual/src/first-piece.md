@@ -1,0 +1,32 @@
+# Your first piece
+
+A notasi piece is a plain text file whose name ends in `.gml`, such as
+`gilak.gml`. You can write it in any text editor.
+
+Every piece starts with a title. Here is a whole file:
+
+```scheme
+{{#include examples/first-piece.gml}}
+```
+
+- `(piece "Gilak for practice")` names the piece. The title goes in
+  double quotes, and the whole line is wrapped in round brackets.
+- A semicolon `;` starts a comment. Everything after it on that line is
+  for you, not for notasi, so use comments to note where a piece comes
+  from or what a line means.
+
+## The rules
+
+- The `piece` line comes first, before anything else except comments
+  and blank lines.
+- A file has exactly one `piece` line.
+- Spaces and line breaks don't matter, so you can spread the line over
+  several lines when it gets long (see [Steps and pulses](steps-and-pulses.md)).
+
+## What you get
+
+notasi reads this file as a piece called *Gilak for practice*, with no
+music in it yet. Writing the parts each instrument plays is the next
+thing notasi will learn. Until then, a file with anything other than
+the `piece` line gets the message
+[*not supported yet*](errors.md#not-supported-yet).

@@ -1,0 +1,102 @@
+# Error messages
+
+When notasi can't read a file, it stops at the first problem and tells
+you where it is and what is wrong:
+
+```text
+{{#include mistakes/not-a-number.txt}}
+```
+
+This says: in the file `not-a-number.gml`, on line 2, the number of
+steps per pulse is the word `four`, not a number.
+
+Fix that one problem and try again. If there is another, notasi will
+tell you about it next.
+
+## The piece needs a title
+
+```scheme
+{{#include mistakes/no-title.gml}}
+```
+
+```text
+{{#include mistakes/no-title.txt}}
+```
+
+The title must be in double quotes: `(piece "Gilak")`.
+
+## Unknown form
+
+```scheme
+{{#include mistakes/misspelt-form.gml}}
+```
+
+```text
+{{#include mistakes/misspelt-form.txt}}
+```
+
+The first word inside each pair of brackets says what the line is.
+notasi doesn't know `pice`; check the spelling.
+
+## Unknown piece option
+
+```scheme
+{{#include mistakes/unknown-option.gml}}
+```
+
+```text
+{{#include mistakes/unknown-option.txt}}
+```
+
+The `piece` line accepts only `steps-per-pulse` and `steps-per-system`
+(see [Steps and pulses](steps-and-pulses.md)).
+
+## Not a whole number
+
+```scheme
+{{#include mistakes/not-a-number.gml}}
+```
+
+```text
+{{#include mistakes/not-a-number.txt}}
+```
+
+Write the number in digits, with no decimal point: `(steps-per-pulse 4)`.
+
+## Missing bracket
+
+```scheme
+{{#include mistakes/missing-bracket.gml}}
+```
+
+```text
+{{#include mistakes/missing-bracket.txt}}
+```
+
+Every `(` needs a matching `)`. Here the `piece` line is never closed,
+so notasi reaches the end of the file still looking for the `)`. The
+line number points to where it gave up, at the end of the file. The
+missing bracket is somewhere before that.
+
+## Not supported yet
+
+```scheme
+{{#include mistakes/not-yet.gml}}
+```
+
+```text
+{{#include mistakes/not-yet.txt}}
+```
+
+notasi is still learning to read music. For now a file holds only its
+`piece` line; this manual will show the rest as soon as it works.
+
+## Other messages
+
+- **no (piece TITLE ...) form**: the file has no `piece` line. Add one
+  at the top.
+- **the (piece ...) form must come first**: move the `piece` line above
+  everything else.
+- **a second (piece ...) form**: a file holds one piece. Remove the
+  extra `piece` line, or put the second piece in its own file.
+- **option … given twice**: remove one of the two settings.
