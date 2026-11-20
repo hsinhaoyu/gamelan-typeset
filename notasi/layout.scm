@@ -162,8 +162,8 @@ start relative to FROM, or #f if it doesn't sound there."
                                  prepared)))
     `((label_width . ,(em (+ (* 3/5 (longest labels)) 3/2)))
       (lane_width . ,(em (+ (* 13/25 (longest lane-labels)) 1)))
-      (step_width . "2.6em")
-      (row_height . "1.5em"))))
+      (step_width . "2.0em")
+      (row_height . "2.0em"))))
 
 ;;; ------------------------------------------------------------------
 ;;; Entry point

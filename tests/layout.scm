@@ -190,8 +190,8 @@ and every array a vector?"
     (steps_per_pulse . 2)
     (sizes . ((label_width . "10.5em")   ; "polos + sangsih": 15 chars
               (lane_width . "2.0em")     ; "i2": 2 chars
-              (step_width . "2.6em")
-              (row_height . "1.5em")))
+              (step_width . "2.0em")
+              (row_height . "2.0em")))
     (systems
      . ,(vector
          (sys 0 3
@@ -323,7 +323,7 @@ and every array a vector?"
 (test-group "sizes"
   (test-equal "the prototype: \"polos + sangsih\" → 10.5em, \"neng1\" → 3.6em"
     '((label_width . "10.5em") (lane_width . "3.6em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of
      "(piece \"Reyong kotekan\")"
      "(scale reyong-4 nang ning nong neng)"
@@ -334,12 +334,12 @@ and every array a vector?"
 
   (test-equal "no groups: 1.5em and 1.0em"
     '((label_width . "1.5em") (lane_width . "1.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"Empty\")"))
 
   (test-equal "one-letter label and stroke: 2.1em, 1.5em"
     '((label_width . "2.1em") (lane_width . "1.5em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"P\")"
               "(strokes k-strokes K)"
               "(instrument kempli k-strokes K)"
@@ -417,7 +417,7 @@ and every array a vector?"
 
   (test-equal "a group of rests adds no lane label"
     '((label_width . "2.7em") (lane_width . "1.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (sizes-of "(piece \"P\")"
               "(scale s a)"
               "(instrument u s a1)"
@@ -425,7 +425,7 @@ and every array a vector?"
 
   (test-equal "tenzer1: \"Gong & kempur\" → 9.3em, \"e2\" → 2.0em"
     '((label_width . "9.3em") (lane_width . "2.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (field (layout-piece tenzer) 'sizes))
 
   (test-equal "sizes are the same with and without systems breaks"
@@ -434,7 +434,7 @@ and every array a vector?"
 
   (test-equal "groups piece: \"sangsih + polos\" → 10.5em, \"e2\" → 2.0em"
     '((label_width . "10.5em") (lane_width . "2.0em")
-      (step_width . "2.6em") (row_height . "1.5em"))
+      (step_width . "2.0em") (row_height . "2.0em"))
     (field (layout-piece (groups-piece)) 'sizes)))
 
 ;;; ------------------------------------------------------------------

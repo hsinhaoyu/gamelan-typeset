@@ -115,9 +115,9 @@ prints no warning.  Typst's output is shown when either fails."
   \"steps_per_pulse\": 4,
   \"sizes\": {
     \"label_width\": \"5em\",
-    \"lane_width\": \"2em\",
-    \"step_width\": \"2.6em\",
-    \"row_height\": \"1.5em\"
+    \"lane_width\": \"2.0em\",
+    \"step_width\": \"2.0em\",
+    \"row_height\": \"2.0em\"
   },
   \"systems\": [],
   \"caption\": null
@@ -135,8 +135,8 @@ prints no warning.  Typst's output is shown when either fails."
   \"sizes\": {
     \"label_width\": \"6em\",
     \"lane_width\": \"2.5em\",
-    \"step_width\": \"2.6em\",
-    \"row_height\": \"1.5em\"
+    \"step_width\": \"2.0em\",
+    \"row_height\": \"2.0em\"
   },
   \"systems\": [
     {

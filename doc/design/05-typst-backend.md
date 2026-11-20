@@ -27,7 +27,7 @@ An excerpt of `tests/golden/kotekan.json`, the figure for
   "title": "Reyong kotekan",
   "steps_per_pulse": 4,
   "sizes": { "label_width": "10.5em", "lane_width": "3.6em",
-             "step_width": "2.6em", "row_height": "1.5em" },
+             "step_width": "2.0em", "row_height": "2.0em" },
   "systems": [
     {
       "start": 0,

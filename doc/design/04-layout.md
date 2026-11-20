@@ -203,15 +203,16 @@ colours that mostly take white text (all but its green and yellow).
   - `label_width` (group labels and subtitles): 0.6em × the longest
     group label or subtitle + 1.5em.
   - `lane_width` (lane labels): 0.52em × the longest lane label + 1em.
-  - `step_width` `"2.6em"` and `row_height` `"1.5em"`, fixed.
+  - `step_width` and `row_height` both `"2.0em"`, fixed, so a one-step
+    note is a square; short stroke names such as `dug` fit in it.
   - Lengths are strings in `em` with one decimal, even when whole,
     rounded to the nearest, ties upward: `"10.5em"`, `"3.6em"`,
     `"2.0em"`. With no groups the longest label counts as 0.
   - Sizes come from the piece's groups and their lanes, whether or not
     there are systems (a piece of length 0 still has its groups).
-  These match the prototype (`polos + sangsih` → 10.5em, `neng1` →
-  3.6em) and will be tuned against real Typst output in the backend
-  milestone.
+  The label widths match the prototype (`polos + sangsih` → 10.5em,
+  `neng1` → 3.6em); the square steps replaced the prototype's 2.6em ×
+  1.5em cells after reviewing the first drawings.
 
 ## Slices
 
