@@ -6,6 +6,7 @@
              (notasi layout)
              (notasi json)
              (notasi style)
+             (notasi command)
              (notasi typst))
 
 (test-begin "smoke")

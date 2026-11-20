@@ -22,6 +22,10 @@
 
 - [Using templates](templates.md)
 
+# Drawing
+
+- [Drawing a score](drawing.md)
+
 # When something goes wrong
 
 - [Error messages](errors.md)

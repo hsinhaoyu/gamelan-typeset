@@ -28,4 +28,5 @@ Every piece starts with a title. Here is a whole file:
 notasi reads this file as a piece called *Gilak for practice*, with no
 music in it yet. Next, tell notasi about your
 [scales and stroke sets](scales-and-strokes.md) and
-[instruments](instruments.md).
+[instruments](instruments.md). Once it has parts, you can
+[draw it as a score](drawing.md).

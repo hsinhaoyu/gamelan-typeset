@@ -1,9 +1,9 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-and `(notasi typst)` (figure files, the entry file, running Typst,
-`render-piece`) are implemented, and the template `typst/notasi.typ`:
-slices 1–2 of 3. The `notasi render` command is planned (see "Slices"). Modules: `(notasi json)`,
+`(notasi typst)` (figure files, the entry file, running Typst,
+`render-piece`), the template `typst/notasi.typ` and the `notasi
+render` command are implemented: all three slices (see "Slices"). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -268,7 +268,7 @@ project's absolute path on `%load-path`, never `.`.
 
 ## The `notasi` command
 
-**Planned** (slice 3, `feat/notasi-command`). One command (ADR 0018);
+**Implemented** (slice 3, `feat/notasi-command`). One command (ADR 0018);
 this slice adds its `render` subcommand. The others (`typst`, `update`,
 `watch`) are for documents (06).
 
@@ -342,6 +342,6 @@ slices, each its own branch and PR into `dev`, started with
 2. **Implemented.** `feat/typst-render`: the rest of "Running Typst" on the Guile side:
    writing the entry file, `compile-typst`, and one procedure from a
    `.gml` file to a PDF.
-3. `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
+3. **Implemented.** `feat/notasi-command`: `scripts/notasi render PIECE.gml` (ADR 0018)
    and the manual page "Drawing a score", as "The `notasi` command"
    describes.

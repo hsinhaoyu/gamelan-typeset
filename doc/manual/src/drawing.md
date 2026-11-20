@@ -1,0 +1,72 @@
+# Drawing a score
+
+Once your piece reads without errors, notasi can draw it as a score: a
+grid with one row for each note an instrument plays and one column for
+each step.
+
+## What you need
+
+- **Guile 3.0**, which runs notasi.
+- **Typst 0.15.1**, which notasi uses to draw. Download it from
+  <https://github.com/typst/typst/releases> and make sure the `typst`
+  program is on your PATH.
+
+## Draw a piece
+
+Here is a short piece. Save it as `gilak.gml`:
+
+```scheme
+{{#include examples/drawing.gml}}
+```
+
+From the notasi folder, run:
+
+```text
+scripts/notasi render gilak.gml
+```
+
+notasi writes `gilak.pdf` next to `gilak.gml` and prints its name. If
+you put the `scripts` folder on your PATH, you can type just
+`notasi render gilak.gml` from any folder.
+
+This is what you get:
+
+![The piece above, drawn as a score](figures/drawing.svg)
+
+## Reading the drawing
+
+- The **title** is at the top.
+- Each **group** is a block of rows, with its name on the left. Each
+  row is one note of the instrument, highest at the top, labelled with
+  the note's name.
+- Each **column** is one step. The numbers along the top count pulses,
+  and a thin line marks where each pulse begins (see
+  [Steps and pulses](steps-and-pulses.md)).
+- A **note** is a coloured square in its row. A held note (`_`) is a
+  longer block. Each pitch has its own colour, the same in every
+  octave and on every instrument, so you can follow a melody by colour.
+- **Gongs and drums** are grey squares. They show their letters because
+  the `gong-kebyar` template asks for it (see
+  [Showing note names](instruments.md#showing-note-names)).
+- A long piece is split into **systems** (rows of the score) by
+  `steps-per-system`.
+
+## PNG and SVG
+
+To get a picture instead of a PDF, choose the file name with `-o`:
+
+```text
+scripts/notasi render gilak.gml -o gilak.png
+scripts/notasi render gilak.gml -o gilak.svg
+```
+
+The ending of the name (`.pdf`, `.png` or `.svg`) chooses the kind of
+file.
+
+## When something goes wrong
+
+If the piece has a mistake, notasi prints the same messages as in
+[Error messages](errors.md) and draws nothing. Fix the mistake and run
+it again.
+
+If Typst isn't installed, notasi says so and tells you where to get it.

@@ -5,3 +5,4 @@
 .DS_Store
 .claude/settings.local.json
 /doc/manual/book/
+/doc/manual/src/figures/

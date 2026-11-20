@@ -150,7 +150,8 @@ preview with neither running.
 0018):
 
 - `notasi render PIECE.gml [-o OUT]`: a standalone figure (05, "The
-  `notasi` command"; built before the rest).
+  `notasi` command"). **Implemented**; the subcommands below are
+  planned.
 - `notasi typst DOC.typ [typst options]`: update the manifest, then run
   `typst compile` with the remaining options.
 - `notasi update DOC.typ`: update the manifest only.
