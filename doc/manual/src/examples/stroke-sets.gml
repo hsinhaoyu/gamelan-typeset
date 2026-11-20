@@ -1,0 +1,11 @@
+(piece "Gong and kendang strokes")
+
+(strokes gong-strokes
+  G             ; gong
+  P)            ; kempur
+
+;; Kendang strokes, shown in the score as D, d and du.
+(strokes kendang-strokes
+  (dag (display "D"))
+  (dug (display "d"))
+  du)

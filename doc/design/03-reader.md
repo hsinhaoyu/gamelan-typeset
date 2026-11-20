@@ -1,6 +1,6 @@
 # 03 — Reader and validation
 
-Status: partly implemented: slice 1 of 4 (see "Slices"). Module:
+Status: partly implemented: slices 1–2 of 4 (see "Slices"). Module:
 `(notasi reader)`, tests in `tests/reader.scm`.
 
 ## Responsibility
@@ -30,8 +30,9 @@ Finding templates:
 
 ## Steps
 
-Steps 1 and 2 and the `piece` form are **Implemented**; steps 3 to 9
-are **Planned** (slices 2 to 4).
+Steps 1, 2 and 4, the `piece` form, and the scale and instrument parts
+of steps 5 and 6 are **Implemented**. Step 3, the part and group parts of
+steps 5 and 6, and steps 7 to 9 are **Planned** (slices 3 and 4).
 
 1. **Read forms.** Call `read` repeatedly until EOF. Guile does the
    tokenising: numbers, symbols (`_`, `-`, `·`, `/`, `ding2`) and lists
@@ -79,7 +80,7 @@ are **Planned** (slices 2 to 4).
 
 ## Error reporting
 
-**Implemented** for slice 1's error cases.
+**Implemented** for the error cases of slices 1 and 2.
 
 Errors must say where and what, in musician terms:
 
@@ -175,7 +176,8 @@ chosen when those slices start.
   `undefined-scale` (instrument's line)
 - [2] A `scale`, `strokes` or `instrument` form of the wrong shape: no
   name, a name that is not a symbol, no degrees or strokes, or an
-  instrument with no notes: `bad-form` (the form's line). Later slices
+  instrument with no notes, or an instrument whose scale or notes are
+  not names (a string, a number): `bad-form` (the form's line). Later slices
   use the same kind for malformed `part` and `group` forms.
 - [3] Undefined instrument or part name
 - [2] Duplicate scale, stroke set or instrument definitions within one
@@ -194,7 +196,8 @@ chosen when those slices start.
   in strictly ascending order (so a repeated note too):
   `notes-not-ascending`; a stroke listed twice: `duplicate-note`. All at
   the instrument's line. Octave numbers are whole numbers of 0 or more,
-  so `ding0` is a note below `ding1`.
+  so `ding0` is a note below `ding1`. An octave number may not start
+  with 0 unless it is 0 itself, so `ding02` is `unknown-note`.
 - [2] Duplicate degree or stroke name or alias within a scale or stroke
   set, including an alias equal to its own degree's name:
   `duplicate-degree`
@@ -204,10 +207,13 @@ chosen when those slices start.
   `degree-ends-in-digit`
 - [2] A degree or stroke that is not `NAME` or `(NAME OPTION ...)`, an
   unknown degree option, `display` that is not a string, `(alias)` with
-  no names, or an option given twice: `bad-degree`
+  no names or with a name that is not a symbol (`(alias "i")`), or an
+  option given twice: `bad-degree`
 
 For a degree error, the line is the degree's own line when it is written
-as a list, otherwise the line of its scale or stroke set.
+as a list (even if the option at fault is on a later line), otherwise
+the line of its scale or stroke set.
+
 - [3] Note index out of range; unknown note name
 - [3] `_` at the start of a part or after a rest (`-` or `·`)
 - [3] Unknown token (e.g. a string or `#t` inside a part)
@@ -225,7 +231,7 @@ into `dev`, started with `/start-milestone <branch>`. After each one,
 `make check` passes and the reader handles a larger subset of the
 notation. Each slice covers the steps below and the error cases tagged
 with its number.
-Slice 1 is implemented; slices 2 to 4 are **Planned**.
+Slices 1 and 2 are implemented; slices 3 and 4 are **Planned**.
 
 1. **Implemented.** `feat/reader-forms`: the public interface; the condition type (decide
    its name, fields and accessors and record them under "Error
@@ -236,7 +242,7 @@ Slice 1 is implemented; slices 2 to 4 are **Planned**.
    default options (`steps-per-pulse` 4, `steps-per-system` `#f`). Every
    other known form raises `not-implemented`. The `directory` keyword is
    accepted but unused until slice 4.
-2. `feat/reader-scales`: step 4 and the scale and instrument parts of
+2. **Implemented.** `feat/reader-scales`: step 4 and the scale and instrument parts of
    steps 5 and 6, for definitions in a single file. A file with only
    `piece`, `scale`, `strokes` and `instrument` forms reads into a piece
    whose scales (scales and stroke sets together) and instruments are in

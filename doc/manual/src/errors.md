@@ -88,8 +88,62 @@ missing bracket is somewhere before that.
 {{#include mistakes/not-yet.txt}}
 ```
 
-notasi is still learning to read music. For now a file holds only its
-`piece` line; this manual will show the rest as soon as it works.
+notasi is still learning to read music. For now a file holds its
+`piece` line, scales, stroke sets and instruments, but not yet the
+parts they play. This manual will show parts as soon as they work.
+
+## Mistakes in scales and instruments
+
+### No scale with that name
+
+```scheme
+{{#include mistakes/undefined-scale.gml}}
+```
+
+```text
+{{#include mistakes/undefined-scale.txt}}
+```
+
+The instrument names a scale that isn't defined. Here `selisir` is
+misspelt.
+
+### Not a note of the scale
+
+```scheme
+{{#include mistakes/wrong-note-name.gml}}
+```
+
+```text
+{{#include mistakes/wrong-note-name.txt}}
+```
+
+Each note must be a degree (or alias) of the instrument's scale. Here
+`dang1` is misspelt.
+
+### No octave number
+
+```scheme
+{{#include mistakes/missing-octave.gml}}
+```
+
+```text
+{{#include mistakes/missing-octave.txt}}
+```
+
+Notes on a pitched instrument need an octave: write `dong1`, not `dong`.
+
+### Notes out of order
+
+```scheme
+{{#include mistakes/notes-out-of-order.gml}}
+```
+
+```text
+{{#include mistakes/notes-out-of-order.txt}}
+```
+
+List an instrument's notes from lowest to highest, in the order of the
+scale: `ding1 dong1 deng1`.
 
 ## Other messages
 
@@ -100,3 +154,10 @@ notasi is still learning to read music. For now a file holds only its
 - **a second (piece ...) form**: a file holds one piece. Remove the
   extra `piece` line, or put the second piece in its own file.
 - **option … given twice**: remove one of the two settings.
+- **… is already defined in this file**: two scales, stroke sets or
+  instruments have the same name. Rename or remove one.
+- **… ends in a digit, which would be read as an octave**: rename the
+  scale degree or alias so it doesn't end in a number.
+- **… is used twice in …**: a scale or stroke set uses the same name or
+  alias twice.
+- **… is listed twice**: a drum or gong lists the same stroke twice.

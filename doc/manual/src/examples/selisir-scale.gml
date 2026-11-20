@@ -1,0 +1,10 @@
+(piece "Selisir")
+
+;; The five degrees of selisir, lowest first.
+;; Each one can also be written by its vowel.
+(scale selisir
+  (ding (alias i))
+  (dong (alias o))
+  (deng (alias e))
+  (dung (alias u))
+  (dang (alias a)))

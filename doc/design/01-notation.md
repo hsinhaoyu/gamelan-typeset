@@ -1,6 +1,6 @@
 # 01 — Notation language
 
-Status: planned, not implemented yet (draft v1)
+Status: partly implemented (draft v1): the `piece`, `scale`, `strokes` and `instrument` forms are read (reader slices 1–2); `use`, `part`, `group` and `text` are planned.
 
 ## Goals
 
