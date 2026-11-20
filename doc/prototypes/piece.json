@@ -1,6 +1,6 @@
 {
   "steps": 12,
-  "steps_per_beat": 4,
+  "steps_per_pulse": 4,
   "groups": [
     { "label": "Reyong", "sub": "polos + sangsih",
       "lanes": ["sol", "fa", "mi", "do"],
