@@ -203,23 +203,62 @@ always installs it. `make preview` renders each golden figure to
 `build/preview/NAME.png` (not committed) for a person to compare with
 the prototype; every PR touching the template is checked that way.
 
-Entry point produced by Guile for a standalone figure:
+## The entry file and running Typst
+
+**Planned** (slice 2, `feat/typst-render`), in `(notasi typst)`, tests
+added to `tests/typst.scm`.
+
+A standalone figure is drawn from three files in one folder: the figure
+JSON, the template `notasi.typ`, and an **entry file** that Typst
+compiles. `(write-entry-file path json-name)` writes the entry file to
+PATH, reading the figure from JSON-NAME (relative to the entry file's
+folder), exactly:
 
 ```typst
 #import "notasi.typ": score
-#set page(width: auto, height: auto, margin: 14pt)
-#let data = json("piece.json")
-#figure(score(data), caption: data.caption)
+#set page(width: auto, height: auto, margin: 14pt, fill: white)
+#set text(font: "Libertinus Serif", size: 8pt)
+#let data = json("JSON-NAME")
+#if data.title != "" {
+  block(below: 1em, text(weight: "bold", size: 1.2em, data.title))
+}
+#score(data)
 ```
 
-## Running Typst
+- The title is shown in bold above the score, without "Figure 1:"
+  numbering: a piece on its own page isn't a numbered figure. An empty
+  title shows nothing. (`caption`, `null` for now, is not used.)
+- The font is Libertinus Serif, which is built into Typst, so a figure
+  looks the same on every machine; 8pt keeps labels small next to the
+  2em squares.
 
-- `(compile-typst typ-path #:format 'pdf)` calls `typst compile` with
-  `system*` and raises a clear error if `typst` is not installed or fails.
-- The command-line script `scripts/notasi` (ADR 0018), as
-  `notasi render`, does:
-  read → layout → write JSON + .typ → compile. Its other subcommands
-  (`typst`, `update`, `watch`) are for documents (06).
+`(compile-typst typ-path out-path)` runs `typst compile` on TYP-PATH,
+writing OUT-PATH, and returns OUT-PATH. The format comes from
+OUT-PATH's extension: `.pdf`, `.png` (at 144 ppi) or `.svg`; any other
+raises an `&error`. It runs with `--root` set to TYP-PATH's folder, so
+everything the entry file reads must be in that folder. Errors are
+plain `&error`s with a readable message:
+
+- `typst` not on the PATH: the message says Typst 0.15.1 is needed and
+  where to get it (https://github.com/typst/typst/releases).
+- Typst fails: the message includes Typst's own output; the irritants
+  include TYP-PATH.
+
+`(render-piece gml-path out-path #:key (style (default-style)) keep-in)`
+goes from a `.gml` file to a picture in one step: read the piece
+(reader errors pass through unchanged), lay it out with STYLE, write
+`piece.json` (`write-figure`), copy the template, write `piece.typ`,
+and compile to OUT-PATH. The three files go in a fresh temporary
+folder that is deleted afterwards, even on failure; with
+`#:keep-in DIR` they are written to DIR instead and kept, for
+debugging. OUT-PATH is relative to the current directory. Returns
+OUT-PATH. The template is found as `typst/notasi.typ` along Guile's
+`%load-path`, like the `.gml` templates (03), so running with `-L .`
+finds the repo's; if it can't be found, that is an `&error`.
+
+The command-line script `scripts/notasi` (ADR 0018), as `notasi
+render`, calls `render-piece` (slice 3). Its other subcommands
+(`typst`, `update`, `watch`) are for documents (06).
 
 ## Version pinning
 
