@@ -206,6 +206,14 @@ interlocking parts (polos + sangsih) and for the two kendang. Parts that
 are not in any group are each drawn as their own group, labelled with the
 part name.
 
+Rules:
+- A part may be in at most one group.
+- Different pitched instruments must not be grouped together: all the
+  pitched parts in a group play the same instrument. Parts on different
+  stroke instruments may share a group (e.g. kempli and gong). To compare
+  two pitched instruments, e.g. ugal and reyong, put them in separate
+  groups.
+
 Optional settings inside a group, after the part names:
 
 ```scheme

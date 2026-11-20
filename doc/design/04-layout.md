@@ -37,6 +37,8 @@ data makes layout easy to test with `equal?`.
   which keeps figures compact.
 - Option for later: `#:all-lanes #t` to draw the instrument's full range.
 - Stroke instruments: one lane per stroke type, in instrument order.
+- A group's pitched parts all play one instrument (02-piece.md,
+  invariant 6), so its pitched lanes never mix two instruments' ranges.
 
 ### Text in cells
 

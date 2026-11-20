@@ -46,6 +46,7 @@ Each decision's context and consequences are in its record in
 5. Guile decides, Typst draws: [0005](../decisions/0005-guile-decides-typst-draws.md)
 6. The JSON file is the contract with Typst: [0006](../decisions/0006-json-is-the-contract-with-typst.md)
 7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
+8. One pitched instrument per group: [0011](../decisions/0011-one-pitched-instrument-per-group.md)
 
 ## Maintaining these documents
 
