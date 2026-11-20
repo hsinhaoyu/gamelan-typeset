@@ -29,7 +29,7 @@ inside it.
 
 lilypond-book does this by rewriting the source into a second file that
 is then compiled. notasi does not rewrite anything. It reads the
-document's scores with `typst query`, lays them out, and writes their
+document's scores by asking Typst to query it (`typst eval --in`), lays them out, and writes their
 figures to a side file (the **manifest**) that the document loads with
 `json()`. The user's file is the file that gets compiled. ADR 0016
 records this choice.
@@ -70,8 +70,8 @@ As @fig:kotekan shows, …
   the folder of the main `.typ` file.
 - `notasi.figure` is `figure` with `kind: image`. A plain `figure` around
   a code block would be numbered as a listing, because Typst works out a
-  figure's kind from the raw block inside it before the show rule runs.
-  (To be checked against Typst in slice 2.)
+  figure's kind from the raw block inside it before the show rule runs
+  (checked with Typst 0.15.1).
 - Labels and `@` references are ordinary Typst.
 
 ### Snippets and the `piece` form
@@ -99,9 +99,10 @@ numbers in error messages are shifted back by one.
 ```json
 {
   "version": 1,
+  "setup": { "use": ["gong-kebyar"], "steps-per-pulse": 4 },
   "snippets": {
     "(part polos reyong i2 _ ...)\n...": { "figure": { ...05 contract... } },
-    "(part ugal ugal a1 o2 ...)":         { "error": "book.typ, gml block 2, line 1: wrong note name o9" }
+    "(part melody ugal a1 o9 ...)":       { "error": "book.typ, gml block 2, line 1: part `melody', step 2: `o9' is not a note of instrument `ugal'" }
   },
   "files": {
     "examples/tenzer1.gml": { "figure": { ... } }
@@ -117,6 +118,11 @@ numbers in error messages are shifted back by one.
   or an `error` (the reader's message, with the location rewritten to
   name the document and the block number).
 - Entries for snippets no longer in the document are dropped.
+- `setup` records the options the snippets were completed with. A
+  snippet's text doesn't change when `setup` does, so the package
+  compares this with its own options and, if they differ, treats every
+  snippet as not rendered yet rather than drawing figures made for
+  other options.
 - The manifest has its own `version`. A change to the figure contract
   increments both.
 
@@ -128,9 +134,15 @@ numbers in error messages are shifted back by one.
 |---|---|
 | a figure | the score, using the document's font and text size |
 | an error | the snippet's source with the error message in red, in a box |
-| nothing (not run yet, or edited since) | the snippet's source in a grey box marked "not rendered yet" |
+| nothing (not run yet, edited since, or `setup` changed since) | the snippet's source in a grey box marked "not rendered yet" |
 
 The document always compiles, so previews never stop at a score.
+
+A known limit: an edited `.gml` file named by `notasi.file` keeps its
+path, and the package can't read the file to compare, so until notasi
+runs again the old figure is drawn without a warning. `notasi typst`
+and `notasi watch` always update first, so this only shows in a
+preview with neither running.
 
 ## Commands
 
@@ -148,11 +160,13 @@ Updating the manifest:
 
 1. If the manifest doesn't exist, write an empty one, so that the
    document compiles.
-2. `typst query DOC.typ 'raw.where(lang: "gml")' --field text` lists
-   every snippet, in document order, including from `#include`d files.
-   `typst query DOC.typ '<notasi-file>'` and `'<notasi-setup>'` list
-   the `notasi.file` paths and the `setup` options, which the package
-   records as labelled `metadata`. notasi never parses Typst itself.
+2. `typst eval 'query(raw.where(lang: "gml")).map(it => it.text)' --in DOC.typ`
+   lists every snippet, in document order, including from `#include`d
+   files. The same with `query(<notasi-file>)` and
+   `query(<notasi-setup>)` lists the `notasi.file` paths and the
+   `setup` options, which the package records as labelled `metadata`.
+   notasi never parses Typst itself. (`typst query` does the same but
+   is deprecated as of Typst 0.15; checked with 0.15.1.)
 3. Read and lay out each snippet and file; collect errors instead of
    stopping at the first.
 4. Write the manifest only if it changed, so a watching Typst doesn't
@@ -164,13 +178,6 @@ there is no second pass.
 Without Guile (e.g. on typst.app), a user can run `notasi update`
 locally and upload the manifest with the document.
 
-## Changes elsewhere
-
-- **05:** the template returns content (no `figure`, no `page` or `text`
-  settings). Only the entry file written by `notasi render` sets the
-  page and wraps the score in a figure.
-- **Build order:** this is milestone 5, after the Typst backend.
-
 ## Slices
 
 **Planned.** Each its own branch and PR, started with `/start-milestone`.
@@ -178,7 +185,7 @@ locally and upload the manifest with the document.
 1. `feat/documents-update`: `notasi update` and `notasi typst`: the
    query, completing snippets from `setup`, collecting errors with
    rewritten locations, writing the manifest only when it changes.
-   Tested with `typst query` output saved as fixtures, so `make check`
+   Tested with query output saved as fixtures, so `make check`
    doesn't need Typst.
 2. `feat/documents-package`: the Typst side: `setup`, the show rule,
    `notasi.figure`, `notasi.file`, the three cases in "What the

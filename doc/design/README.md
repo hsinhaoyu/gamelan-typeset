@@ -12,11 +12,11 @@ piece.gml ──reader──▶ piece ──layout──▶ figure.json ──Ty
 ```
 
 Scores can also live inside a Typst document (06). `notasi` finds them
-with `typst query`, runs the same pipeline on each, and writes the
+with a Typst query (`typst eval --in`), runs the same pipeline on each, and writes the
 figures to a side file that the document loads:
 
 ```
-book.typ ──typst query──▶ snippets ──reader, layout──▶ book.notasi.json
+book.typ ──typst eval──▶ snippets ──reader, layout──▶ book.notasi.json
 book.typ + book.notasi.json ──typst compile──▶ PDF
 ```
 
