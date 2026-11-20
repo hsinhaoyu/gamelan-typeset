@@ -61,6 +61,7 @@ Each decision's context and consequences are in its record in
 8. One pitched instrument per group: [0011](../decisions/0011-one-pitched-instrument-per-group.md)
 9. No analysis: [0015](../decisions/0015-no-analysis.md)
 10. Typst documents load scores from a side file: [0016](../decisions/0016-documents-load-scores-from-a-side-file.md) (proposed)
+11. Notes are coloured by pitch: [0017](../decisions/0017-notes-are-coloured-by-pitch.md)
 
 ## Maintaining these documents
 
@@ -100,4 +101,6 @@ Each decision's context and consequences are in its record in
 `../prototypes/score.typ` and `../prototypes/piece.json` are a hand-made mockup of
 the target output, transcribed from a textbook excerpt (reyong kotekan, ugal,
 calung, kempli, gong, kendang). The Typst backend should produce visually
-equivalent output for the same music.
+equivalent output for the same music, except for colour: the mockup
+colours each part, while notasi colours each pitch and draws strokes as
+characters (04, "Note style"; ADR 0017).

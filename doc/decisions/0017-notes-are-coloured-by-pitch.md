@@ -1,0 +1,9 @@
+# 0017 Notes are coloured by pitch
+
+Status: accepted (2026-11-20)
+
+Context: The planned layout (04) gave each part a colour by its role: contrasting colours for interlocking parts, blues for melody, browns for colotomic instruments, purples for drums. The prototype mockup was coloured this way. But a reader of a gamelan score mostly wants to follow pitches: which degree sounds, across instruments and octaves. Colour by part also leaves the colour of a note unrelated to what it sounds like. Unpitched strokes have no pitch to colour, and gamelan notation traditionally writes them as letters.
+
+Decision: Colour is decided by a colour scheme, a procedure in layout from an instrument and a note to the note's fill, text and text colour, chosen through the `style` given to `layout-piece`. The v1 scheme, `by-degree`, colours each pitched note by its scale degree (the same colour in every octave and on every instrument), from a ColorBrewer qualitative palette (`dark2` by default; eight are available). The text colour is white or near-black, by contrast with the fill. Strokes are drawn as their display character only, with no box. Parts in one group are not told apart. The JSON carries `fill`, `text` and `text_color` on each event instead of a colour per voice.
+
+Consequences: A pitch looks the same everywhere in a figure, and the reyong group shows the composite of polos and sangsih rather than the two parts. Telling interlocking parts apart now needs another scheme (e.g. by part), which the design leaves room for without changing the JSON or the template. The Typst template stays free of musical logic (ADR 0005). The prototype no longer matches in colour. ColorBrewer's palettes are copied into the code with its attribution (Apache 2.0). The style is set from Guile in v1; a `style` form in the notation is an open question.
