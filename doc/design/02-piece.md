@@ -116,7 +116,7 @@ layout and analysis simple: they only ever iterate over sounding events.
   or 0 for a part with no events. The reader uses it to check invariant 1
   (`part-steps` ≤ `piece-length`). It is not a part's written length:
   trailing rests are not events, so the reader checks that parts have
-  equal length from their token counts instead.
+  equal length from their token counts instead (ADR 0012).
 - `(events-at piece step)`: everything sounding at a step, for analysis:
   a list of `(part . event)` pairs, one for each event with
   `start ≤ step < start + duration`, in the piece's part order. An event
