@@ -1,0 +1,100 @@
+# 07 — Environment, installation and testing
+
+Status: open questions only; nothing decided yet. Each question, once
+decided, gets an ADR and this document is updated to describe the
+choice.
+
+## Responsibility
+
+How the tools notasi needs get onto a machine, for the people who work
+on notasi and for the people who use it, and how we check that a fresh
+machine really works. This covers tools, not code: the pipeline is in
+01–06.
+
+## What is needed
+
+ADR 0007 (standard library first) means notasi has no Guile library
+dependencies, so there is nothing to resolve, only programs to install
+at the right versions:
+
+| Tool | Needed by | Why |
+|---|---|---|
+| Guile 3.0 | everyone | runs notasi and its tests |
+| Typst | everyone, once the backend exists | draws the figures (05, 06) |
+| mdBook | contributors | builds the user manual (ADR 0014) |
+
+Typst is pre-1.0 and has breaking changes in most releases, usually
+small (05, "Version pinning"). Whatever is decided below has to pin
+its version.
+
+## Current state
+
+**Implemented.**
+
+- Contributors install the tools by hand. The README says Guile 3.0 is
+  required, with no version or install method.
+- CI (`.github/workflows/ci.yml`) runs `make check` on every PR to
+  `dev` and `main`, on a fresh `ubuntu-latest` machine, with Guile from
+  apt. The Guile version is whatever Ubuntu ships, and it changes when
+  `ubuntu-latest` moves to a newer Ubuntu.
+- The manual workflow pins mdBook (`MDBOOK_VERSION`).
+- The developer's machine runs macOS; CI runs only Linux.
+- Nothing installs notasi for users yet.
+
+## Open questions
+
+### 1. A reproducible environment for developers
+
+How does a contributor (or the same person on a new laptop) get the
+right tools at the right versions after a fresh clone, as `uv` does for
+a Python project?
+
+| Option | For | Against |
+|---|---|---|
+| **Nix flake** (`nix develop`, `flake.lock`) | Works on macOS and Linux; packages Guile, Typst and mdBook; a lock file pins exact versions; CI can use the same definition | Nix is hard to learn; one more tool to install |
+| **Guix** (`guix shell`, `channels.scm`) | The natural choice for a Guile project; a channels file pins everything | Linux only, so on macOS only inside a VM or container |
+| **Version manager + system packages** (e.g. mise for Typst and mdBook, Homebrew or apt for Guile) | Easy, familiar | Guile's version still depends on the package manager; less exact |
+| **Documented versions + a check** (README lists versions; a check reports missing or wrong tools) | Smallest change | Not reproducible; only explains failures |
+
+Depends on: nothing. Affects question 3.
+
+### 2. A user-friendly installer
+
+How does a musician who is not a programmer install notasi?
+
+| Option | For | Against |
+|---|---|---|
+| **Homebrew tap** | Familiar on macOS; Homebrew has Guile and Typst | macOS (and Linux Homebrew) only; a tap to maintain |
+| **Guix package** | Natural for Guile; exact dependencies | Few musicians use Guix; Linux only |
+| **Container image** | Same everywhere; nothing to install but Docker | Docker is heavy and unfamiliar to most musicians; awkward for files on their machine |
+| **autotools install** (`./configure && make install`, scaffolded with guile-hall) | The traditional way to install Guile modules | Users must install Guile and Typst themselves first |
+| **Typst Universe** (for the Typst package in 06) | Typst downloads it from the import line | Covers only the Typst side; the `notasi` command still needs installing |
+
+Depends on: how much of 06 goes ahead. Standalone figures need Guile and
+Typst; documents also need the Typst package. Can wait until there is
+something worth installing.
+
+### 3. Testing in a fresh environment
+
+How do we know notasi works on a machine other than the developer's
+laptop?
+
+| Option | Catches |
+|---|---|
+| **CI as today** (fresh Ubuntu per PR) | Missing files, forgotten steps, Linux problems |
+| **Pinned tool versions in CI** (Guile, Typst, as mdBook already is) | Laptop and CI drifting apart; surprise upgrades |
+| **CI uses the developer environment of question 1** (e.g. the Nix flake) | Laptop and CI disagreeing at all: "passes CI" means "works on a fresh clone" |
+| **macOS runner in the CI matrix** | macOS-only problems |
+| **Scheduled run** (e.g. weekly) | Breakage from outside (new Ubuntu, new Typst) in weeks with no PRs |
+| **README test**: a bare container, clone, follow only the README | Instructions that are wrong or incomplete; best before each release to `main` |
+| **Several Typst versions** (pinned, latest, nightly allowed to fail) | Typst releases that break the template, before users hit them |
+| **Visual regression tests** (render PNGs, compare with stored images) | Small layout changes a Typst release makes that still compile |
+
+These are not exclusive; the question is which to adopt and when.
+Locally, the same checks can run in a throwaway container, a dev
+container or Codespaces, or with `act` (which runs GitHub workflows
+locally, not exactly as GitHub does).
+
+Depends on: question 1 (whether CI and laptop share one environment
+definition) and on when Typst enters the build (milestone 4), after
+which the Typst-related rows matter.
