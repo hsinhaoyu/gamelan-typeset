@@ -11,7 +11,7 @@ anything until the user says so.
 
 ## Steps
 
-1. Read `doc/design/README.md`, every `doc/design/0*.md`, every ADR in
+1. Read `doc/design/README.md`, every `doc/design/0*.md`, `doc/manual/`, every ADR in
    `doc/decisions/` whose status is `accepted`, and the repository layout
    in CLAUDE.md.
 
@@ -29,10 +29,16 @@ anything until the user says so.
      Open questions sections. Something marked planned that now exists,
      or marked implemented that doesn't, is drift.
 
-4. Check that the code doesn't contradict an accepted ADR. A contradiction
+4. Compare the user manual (`doc/manual/src/`) with the code: a page
+   describing behaviour the code doesn't have (or no longer has), error
+   messages quoted differently from what the reader raises, or
+   user-visible behaviour with no page yet. Use "manual" as the doc side
+   in the report.
+
+5. Check that the code doesn't contradict an accepted ADR. A contradiction
    means either the code is wrong or a superseding ADR is missing.
 
-5. Report a table with one row per discrepancy:
+6. Report a table with one row per discrepancy:
    - where in the docs (`file:line`)
    - where in the code (`file:line`), or "missing"
    - what differs, in one sentence
@@ -42,7 +48,7 @@ anything until the user says so.
    Then list any open questions in the docs that the code has already
    answered. If nothing differs, say so plainly.
 
-6. Offer to fix the doc-side items on a `doc/sync` branch from `dev`. Code
+7. Offer to fix the doc-side items on a `doc/sync` branch from `dev`. Code
    fixes and unclear items need the user's decision first. Any fix that
    reverses a documented decision needs a new ADR (see
    `doc/decisions/README.md`).

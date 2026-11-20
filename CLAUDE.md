@@ -35,6 +35,7 @@ templates/          shared definitions (.gml) loaded with (use NAME)
 tests/              SRFI-64 test files, one per module
 tests/golden/       expected outputs: JSON, analysis reports (planned)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
+doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
 doc/decisions/      decision log (ADRs)
 ```
@@ -46,7 +47,16 @@ doc/decisions/      decision log (ADRs)
 - Any change to behaviour, notation, the piece records or the JSON contract updates `doc/design/` in the same PR. Keep each doc's `Status:` line and its Implemented / Planned / Open questions labels accurate.
 - Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
 - Never edit an accepted ADR except its `Status:` line.
-- `gh pr create --body` replaces `.github/pull_request_template.md`, so copy its docs checkbox into every PR description and tick it only if docs were updated or aren't needed.
+- `gh pr create --body` replaces `.github/pull_request_template.md`, so copy its docs checkboxes into every PR description and tick each only if those docs were updated or aren't needed.
+
+## User manual
+
+`doc/manual/` is the user manual for musicians, built with mdBook (ADR 0014). Claude writes it, as part of the work rather than at the end:
+
+- Any change a user can see (notation, error messages, commands, output) updates the manual in the same PR. Behaviour that isn't implemented yet is never documented there.
+- Read `doc/manual/STYLE.md` before writing a page. It sets the reader, the tone and the outline.
+- Examples are files in `doc/manual/src/examples/`, shown with `{{#include ...}}`. `tests/manual.scm` (under `make check`) checks that each one reads and is used by a page.
+- `make manual` builds it (needs `mdbook`); CI builds it on every PR and deploys it to GitHub Pages when `main` changes.
 
 ## Git workflow
 

@@ -27,6 +27,10 @@ description: Open a pull request from the current branch into dev - run the test
      `doc/decisions/`: stop and say so.
    - A design doc's `Status:` line or Implemented / Planned labels no
      longer match the code: stop and say which.
+   - Something a user can see changed (notation, error messages,
+     commands, output) but `doc/manual/` didn't: stop and say which page
+     needs writing or updating. If `mdbook` is installed, run
+     `make manual` and stop if it fails.
 
 5. **Push and open the PR.**
    - `git push -u origin <branch>`. If the branch was rebased after an
@@ -34,7 +38,8 @@ description: Open a pull request from the current branch into dev - run the test
    - `gh pr create --base dev`. `--body` replaces
      `.github/pull_request_template.md`, so write the body with the
      template's sections: Summary, Test plan (with `make check` ticked),
-     and Docs, with the docs checkbox ticked only if step 4 passed.
+     and Docs, with each docs checkbox (design docs, user manual) ticked
+     only if step 4 passed for it.
    - If an earlier PR from the same branch was closed, open a new one and
      mention the old number.
 

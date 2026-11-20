@@ -1,0 +1,14 @@
+[book]
+title = "notasi user manual"
+authors = ["Hsin-Hao Yu"]
+language = "en"
+src = "src"
+
+[build]
+# Fail the build if SUMMARY.md links to a page that doesn't exist,
+# instead of silently creating an empty one.
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/hsinhaoyu/notasi"
+edit-url-template = "https://github.com/hsinhaoyu/notasi/edit/dev/doc/manual/{path}"
