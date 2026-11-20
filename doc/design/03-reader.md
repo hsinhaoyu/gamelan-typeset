@@ -1,6 +1,6 @@
 # 03 — Reader and validation
 
-Status: draft v1. Module: `(gamelan reader)`
+Status: planned, not implemented yet (draft v1). Module: `(gamelan reader)`
 
 ## Responsibility
 

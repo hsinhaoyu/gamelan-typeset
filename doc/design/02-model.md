@@ -1,6 +1,6 @@
 # 02 — Internal model
 
-Status: draft v1. Module: `(gamelan model)`
+Status: planned, not implemented yet (draft v1). Module: `(gamelan model)`
 
 The model is the single source of truth after reading. Layout and
 analysis consume it; nothing downstream looks at the source text.

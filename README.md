@@ -12,6 +12,8 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `tests/`: SRFI-64 test suites
 - `examples/`: example pieces
 - `doc/notation.md`: notation reference
+- `doc/design/`: design documents (the current design)
+- `doc/decisions/`: decision log (why the design is the way it is)
 
 ## Running tests
 

@@ -1,6 +1,6 @@
 # 05 — Typst backend and JSON contract
 
-Status: draft v1. Modules: `(gamelan typst)` (Guile), `typst/gamelan.typ`
+Status: planned, not implemented yet (draft v1). Modules: `(gamelan typst)` (Guile), `typst/gamelan.typ`
 (Typst template)
 
 ## Responsibility

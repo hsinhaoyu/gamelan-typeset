@@ -24,6 +24,15 @@ Modules live in `gamelan/` under the `(gamelan <name>)` namespace. The intended 
 
 `doc/notation.md` is the place to define the input notation that `reader` parses; `examples/` is for example pieces.
 
+## Design documents
+
+`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module.
+
+- Any change to behaviour, notation, the model or the JSON contract updates `doc/design/` in the same PR. Keep each doc's `Status:` line and its Implemented / Planned / Open questions labels accurate.
+- Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
+- Never edit an accepted ADR except its `Status:` line.
+- `gh pr create --body` replaces `.github/pull_request_template.md`, so copy its docs checkbox into every PR description and tick it only if docs were updated or aren't needed.
+
 ## Scheme style
 
 Write idiomatic Guile 3, not another language translated into Scheme:

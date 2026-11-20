@@ -1,6 +1,6 @@
 # 06 — Analysis
 
-Status: draft v1. Module: `(gamelan analysis)`
+Status: planned, not implemented yet (draft v1). Module: `(gamelan analysis)`
 
 ## Responsibility
 

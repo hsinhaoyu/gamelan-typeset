@@ -25,23 +25,33 @@ piece.gml ──reader──▶ model ──layout──▶ figure.json ──Ty
 
 ## Core decisions
 
-1. **The notation is s-expressions.** Guile's `read` does the tokenising. A
-   friendlier surface syntax can be added later as a second front end that
-   produces the same model.
-2. **Time is a grid of equal steps**, like a step sequencer. Every token in a
-   part is exactly one step.
-3. **Notes are symbolic.** A note is a name (`ding2`), not a frequency.
-   Tuning, if ever needed, lives in separate tuning tables and is never
-   stored on notes.
-4. **The model is the centre.** The reader, layout and analysis depend only
-   on the model, never on each other.
-5. **Guile decides, Typst draws.** All musical decisions (system breaks,
-   lanes, colours, grouping) are made in Guile. The Typst template only
-   draws what the JSON says.
-6. **The JSON file is a contract** between Guile and Typst, documented in
-   05-typst-backend.md and covered by tests.
-7. **Guile 3.0, standard library first.** SRFI-9 records, SRFI-64 tests,
-   no external Guile dependencies in the first version.
+Each decision's context and consequences are in its record in
+[`../decisions/`](../decisions/README.md).
+
+1. The notation is s-expressions: [0001](../decisions/0001-notation-is-s-expressions.md)
+2. Time is a grid of equal steps: [0002](../decisions/0002-time-is-a-grid-of-equal-steps.md)
+3. Notes are symbolic: [0003](../decisions/0003-notes-are-symbolic.md)
+4. The model is the centre: [0004](../decisions/0004-the-model-is-the-centre.md)
+5. Guile decides, Typst draws: [0005](../decisions/0005-guile-decides-typst-draws.md)
+6. The JSON file is the contract with Typst: [0006](../decisions/0006-json-is-the-contract-with-typst.md)
+7. Guile 3.0, standard library first: [0007](../decisions/0007-guile-3-standard-library-first.md)
+
+## Maintaining these documents
+
+- These documents always describe the current design. When it changes,
+  edit the text in place; git history keeps the old versions.
+- Each document has a `Status:` line under its title, and content is
+  labelled **Implemented** (what the code does now), **Planned** (agreed,
+  not built) or **Open questions** (undecided). Move items between these
+  as they happen.
+- Any change to behaviour, notation, the model or the JSON contract
+  updates these documents in the same PR.
+- Reversing or narrowing a core decision, or anything else documented
+  here, needs a new record in `../decisions/` (see its README).
+- Exact behaviour (e.g. every reader error case) belongs in tests and
+  examples; documents can point to them instead of repeating them.
+- Run `/doc-audit` in Claude Code at each milestone to find drift
+  between these documents and the code.
 
 ## Glossary
 
