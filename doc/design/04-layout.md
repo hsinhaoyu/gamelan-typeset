@@ -1,6 +1,6 @@
 # 04 — Layout
 
-Status: planned, not implemented yet (draft v1). Module: `(gamelan layout)`
+Status: planned, not implemented yet (draft v1). Module: `(notasi layout)`
 
 ## Responsibility
 
@@ -14,7 +14,7 @@ Typst; the Typst template knows drawing, not music.
 (layout-piece piece #:style style) → figure   ; plain Scheme data (alists/vectors)
 ```
 
-`figure` is converted to JSON by `(gamelan typst)`. Keeping it plain
+`figure` is converted to JSON by `(notasi typst)`. Keeping it plain
 data makes layout easy to test with `equal?`.
 
 ## Decisions layout makes
@@ -33,7 +33,7 @@ data makes layout easy to test with `equal?`.
 
 - One block of rows per group, in source order.
 - Lanes are the notes the group actually uses, highest pitch at the top
-  (`group-lanes` from `(gamelan piece)`). Unused instrument notes are not drawn,
+  (`group-lanes` from `(notasi piece)`). Unused instrument notes are not drawn,
   which keeps figures compact.
 - Option for later: `#:all-lanes #t` to draw the instrument's full range.
 - Stroke instruments: one lane per stroke type, in instrument order.

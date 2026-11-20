@@ -1,6 +1,6 @@
 ;;; Guards against README.md drifting from the code.
-;;; - Every module file in gamelan/ must be mentioned in README.md.
-;;; - Every gamelan/*.scm path README.md mentions must exist.
+;;; - Every module file in notasi/ must be mentioned in README.md.
+;;; - Every notasi/*.scm path README.md mentions must exist.
 ;;; - Every `make <target>` README.md mentions must be a Makefile target.
 
 (use-modules (srfi srfi-1)
@@ -21,11 +21,11 @@
 (define makefile (slurp "Makefile"))
 
 (define module-files
-  (map (lambda (f) (string-append "gamelan/" f))
-       (scandir "gamelan" (lambda (f) (string-suffix? ".scm" f)))))
+  (map (lambda (f) (string-append "notasi/" f))
+       (scandir "notasi" (lambda (f) (string-suffix? ".scm" f)))))
 
 (define readme-modules
-  (delete-duplicates (matches "gamelan/[a-z0-9-]+\\.scm" readme 0)))
+  (delete-duplicates (matches "notasi/[a-z0-9-]+\\.scm" readme 0)))
 
 (define readme-targets
   (delete-duplicates (matches "make ([a-z0-9-]+)" readme 1)))

@@ -1,11 +1,11 @@
 ;;; Smoke test: all modules load, and the test harness works.
 
 (use-modules (srfi srfi-64)
-             (gamelan piece)
-             (gamelan reader)
-             (gamelan layout)
-             (gamelan typst)
-             (gamelan analysis))
+             (notasi piece)
+             (notasi reader)
+             (notasi layout)
+             (notasi typst)
+             (notasi analysis))
 
 (test-begin "smoke")
 (test-assert "modules load" #t)

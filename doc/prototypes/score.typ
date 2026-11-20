@@ -1,7 +1,7 @@
 #set page(width: auto, height: auto, margin: 14pt, fill: white)
 #set text(font: "DejaVu Sans", size: 8pt)
 
-#let gamelan-grid(data) = {
+#let notasi-grid(data) = {
   let n = data.steps
   let spp = data.steps_per_pulse
   let first = 2            // column 0: group label, column 1: lane name
@@ -50,6 +50,6 @@
 }
 
 #figure(
-  gamelan-grid(json("piece.json")),
+  notasi-grid(json("piece.json")),
   caption: [Reyong kotekan (polos #box(fill: rgb("#2a9d8f"), width: 6pt, height: 6pt, radius: 1pt) and sangsih #box(fill: rgb("#e76f51"), width: 6pt, height: 6pt, radius: 1pt)) with ugal, calung, kempli, gong and kendang.],
 )

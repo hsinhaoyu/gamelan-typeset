@@ -1,6 +1,6 @@
 # 03 — Reader and validation
 
-Status: planned, not implemented yet (draft v1). Module: `(gamelan reader)`
+Status: planned, not implemented yet (draft v1). Module: `(notasi reader)`
 
 ## Responsibility
 
@@ -47,7 +47,7 @@ example.gml:14: part `sangsih`, step 7: note 13 does not exist on
   part don't carry positions, so token errors are reported as part name
   plus step number (and pulse number), which is more meaningful to a
   musician anyway.
-- Use a dedicated condition type, e.g. `&gamelan-syntax-error`, with
+- Use a dedicated condition type, e.g. `&notasi-syntax-error`, with
   fields for file, line, part and step, so tests can check the error kind
   rather than string-matching messages.
 - Report the first error and stop (v1). Collecting several errors is a

@@ -14,7 +14,7 @@ anything until the user says so.
 1. Read `doc/design/README.md`, every `doc/design/0*.md`, and every ADR in
    `doc/decisions/` whose status is `accepted`.
 
-2. Read the code and its executable spec: `gamelan/*.scm`, `tests/*.scm`,
+2. Read the code and its executable spec: `notasi/*.scm`, `tests/*.scm`,
    `examples/`, `tests/golden/` (if present), `typst/` (if present) and the
    Makefile.
 
@@ -23,7 +23,7 @@ anything until the user says so.
    - Behaviour: notation tokens and rules, reader error cases, layout
      decisions, the JSON contract and its `version`, analyses.
    - Structure: the repository layout and module dependencies (ADR 0004:
-     reader, layout and analysis depend only on `(gamelan piece)`; see ADR 0008).
+     reader, layout and analysis depend only on `(notasi piece)`; see ADR 0008).
    - Status labels: the `Status:` line and any Implemented / Planned /
      Open questions sections. Something marked planned that now exists,
      or marked implemented that doesn't, is drift.
