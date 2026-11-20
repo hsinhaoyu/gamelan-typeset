@@ -1,7 +1,8 @@
 # 05 — Typst backend and JSON contract
 
 Status: partly implemented (draft v1): the JSON writer `(notasi json)`
-is implemented; the rest is planned. Modules: `(notasi json)`,
+and `write-figure` in `(notasi typst)` are implemented; the template,
+the entry file and running Typst are planned (milestone 4). Modules: `(notasi json)`,
 `(notasi typst)` (Guile), `typst/notasi.typ` (Typst template)
 
 ## Responsibility
@@ -63,7 +64,7 @@ Rules:
 
 ## Writing the figure file
 
-**Planned** (layout slice 4, `feat/layout-golden`), in `(notasi typst)`,
+**Implemented** (layout slice 4, `feat/layout-golden`), in `(notasi typst)`,
 tests in `tests/typst.scm`:
 
 ```

@@ -1,9 +1,8 @@
 # 04 — Layout
 
-Status: partly implemented (draft v1): slices 1–3 of 4 (the JSON
-writer in 05, "Note style", and `layout-piece`); writing figure files
-and golden tests (slice 4) are planned (see "Slices"). Modules:
-`(notasi style)`, `(notasi layout)`
+Status: implemented (draft v1): all four slices (see "Slices").
+Modules: `(notasi style)`, `(notasi layout)`; tests in
+`tests/style.scm`, `tests/layout.scm` and `tests/golden.scm`.
 
 ## Responsibility
 
@@ -218,7 +217,7 @@ in four slices, each its own branch and PR into `dev`, started with
    text-colour contrast rule.
 3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
    groups and lanes, events with their look, sizes.
-4. `feat/layout-golden`: writing the figure as JSON (05's contract),
+4. **Implemented.** `feat/layout-golden`: writing the figure as JSON (05's contract),
    `make golden`, and golden tests for every file in `examples/`:
    - `write-figure` in `(notasi typst)` (05, "Writing the figure file").
    - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.gml`
