@@ -631,7 +631,7 @@ so a test using it fails rather than passing on #f."
       (instrument-note-fields (instrument-named pc 'x))))
 
   (let ((pc (try-read-string "(piece \"P\")"
-                             "(instrument ugal selisir a1 i2)"
+                             "(instrument ugal selisir a1 ding2)"
                              "(instrument gong gong G)"
                              "(strokes gong G)"
                              "(scale selisir ding (dang (alias a)))")))
@@ -1163,6 +1163,23 @@ so a test using it fails rather than passing on #f."
           '(not-implemented 2)
           (lines "(piece \"P\")" "(text \"x\")" "(strokes g G)"
                  "(instrument x g G)")))))
+
+(test-group "slice 2: cases decided at review"
+  (test-equal "instrument's scale is a string: bad-form" '(bad-form 3)
+    (string-error (lines "(piece \"P\")" "(strokes g G)"
+                         "(instrument gong \"g\" G)")))
+  (test-equal "instrument note is a number: bad-form" '(bad-form 3)
+    (string-error (lines "(piece \"P\")" "(strokes g G)"
+                         "(instrument gong g 1)")))
+  (test-equal "alias is a string: bad-degree" '(bad-degree 2)
+    (string-error (lines "(piece \"P\")" "(scale s (ding (alias \"i\")))")))
+  (test-equal "leading-zero octave: unknown-note" '(unknown-note 3)
+    (string-error (lines "(piece \"P\")" "(scale s ding)"
+                         "(instrument x s ding02)")))
+  (test-equal "degree option on its own line: the degree's line" '(bad-degree 3)
+    (string-error (lines "(piece \"P\")" "(scale s"
+                         "  (ding"
+                         "    (colour \"red\")))"))))
 
 (define runner (test-runner-current))
 (test-end "reader")
