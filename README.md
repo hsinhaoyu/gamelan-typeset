@@ -14,10 +14,16 @@ Tools for notating and visualizing Balinese gamelan music, written in GNU Guile 
 - `tests/`: SRFI-64 test suites
 - `examples/`: example pieces
 - `templates/`: shared scales, stroke sets and instruments, loaded with `(use NAME)`
-- `doc/design/01-notation.md`: the notation language
 - `doc/manual/`: the user manual (mdBook)
-- `doc/design/`: design documents (the current design)
-- `doc/decisions/`: decision log (why the design is the way it is)
+
+Design documents, decisions and iteration notes are on the `dev` branch:
+[the design](https://github.com/hsinhaoyu/notasi/tree/dev/doc/design)
+(the notation language is
+[01-notation.md](https://github.com/hsinhaoyu/notasi/blob/dev/doc/design/01-notation.md)),
+[the decision log](https://github.com/hsinhaoyu/notasi/tree/dev/doc/decisions),
+[iterations](https://github.com/hsinhaoyu/notasi/tree/dev/doc/iterations)
+(goals, acceptance tests, notes and the backlog) and
+[references](https://github.com/hsinhaoyu/notasi/tree/dev/doc/references).
 
 ## Drawing a score
 

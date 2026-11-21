@@ -32,22 +32,31 @@ book.typ + book.notasi.json ──typst compile──▶ PDF
 
 ## Build order
 
-Each milestone is one feature branch with tests, or, when its design
-doc has a "Slices" section, one branch per slice (see CLAUDE.md for the
-workflow).
+Work is organised in iterations (ADR 0023): each has a folder in
+[`../iterations/`](../iterations/) with its goal, acceptance test,
+status and milestones. Each milestone is one feature branch with tests,
+or, when its design doc has a "Slices" section, one branch per slice
+(see CLAUDE.md for the workflow).
+
+### Iteration 1: first drawings (done, v0.1.x)
+
+See [its README](../iterations/01-first-drawings/README.md).
 
 1. `feat/piece`: records and derived functions
-2. `feat/reader`: notation → piece, all error cases; built in four
-   slices (`feat/reader-forms` … `feat/reader-templates`), see
-   [03-reader.md](03-reader.md#slices)
-3. `feat/json` + `feat/layout`: piece → figure JSON, golden tests;
-   built in four slices, see [04-layout.md](04-layout.md#slices)
-4. `feat/typst-backend`: the Typst template, entry file and `notasi
-   render`; built in three slices, see
+2. `feat/reader`: four slices, see [03-reader.md](03-reader.md#slices)
+3. `feat/json` + `feat/layout`: four slices, see [04-layout.md](04-layout.md#slices)
+4. `feat/typst-backend`: three slices, see
    [05-typst-backend.md](05-typst-backend.md#slices)
-5. `feat/documents`: scores in Typst documents; built in three slices,
-   see [06-documents.md](06-documents.md#slices)
-6. v2 features: repeats, looping parts, sections, syllables
+
+### Iteration 2: Gold's Jaya Semara and Tenzer's Baris (deciding)
+
+Milestones to come, once the design is promoted; see
+[its README](../iterations/02-gold-and-tenzer/README.md).
+
+### Deferred
+
+Scores in Typst documents (06) and the old "v2 features" are in the
+[backlog](../iterations/backlog.md).
 
 ## Core decisions
 
@@ -73,7 +82,7 @@ Each decision's context and consequences are in its record in
 Proposed, not yet agreed:
 
 - Typst documents load scores from a side file: [0016](../decisions/0016-documents-load-scores-from-a-side-file.md)
-  (06 and the "Scores in Typst documents" milestone depend on it)
+  (06 and the deferred "Scores in Typst documents" work depend on it; see the backlog)
 
 ## Maintaining these documents
 
@@ -91,6 +100,9 @@ Proposed, not yet agreed:
   examples; documents can point to them instead of repeating them.
 - Run `/doc-audit` in Claude Code at each milestone to find drift
   between these documents and the code.
+- These documents change only by promoting an iteration's notes
+  (`/promote-design`) or by building a milestone. Notes under
+  `../iterations/` are never the design.
 
 ## Glossary
 

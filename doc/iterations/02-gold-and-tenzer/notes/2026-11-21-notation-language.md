@@ -1,51 +1,50 @@
 # Design note: the notation language, revised after Gold (2005)
 
-Status: discussion (2026-11-21). A description of the notation as it
-stands after the duration and colotomy notes, checked against Gold,
-*Music in Bali* (2005). Nothing here is implemented. When it is agreed,
-it replaces `doc/design/01-notation.md`, with ADRs for the decisions it
-changes.
+Status: agreed for iteration 2 (2026-11-21). The notation of the music,
+checked against Gold, *Music in Bali* (2005). Nothing here is
+implemented. It will replace `doc/design/01-notation.md`, with ADRs for
+the decisions it changes. The goal of the iteration and every decision
+are in `2026-11-21-iteration-2.md`, which wins where the two disagree.
 
 Related: `2026-11-21-note-durations.md`, `2026-11-21-colotomy.md`,
-`2026-11-21-reference-gold-2005.md`. A complete example:
-`2026-11-21-jaya-semara-pangecet.nts`.
+`../../../references/2026-11-21-reference-gold-2005.md`, `2026-11-21-score.md` (how the
+music is printed), `2026-11-21-internal-representation.md`. The
+targets: `../targets/2026-11-21-jaya-semara-pangecet.nts` and
+`../targets/2026-11-21-baris.nts`.
 
-Marked **(proposed)** are choices made here that the earlier notes left
-open. They are listed again at the end.
-
-## Scope: enough to notate Jaya Semara
+## Scope: enough to typeset Jaya Semara and Baris
 
 Balinese music has much more than this notation can express (see "Not
-covered"). For now the goal is a notation powerful enough for one
-non-trivial piece: the pangecet of "Jaya Semara" as Gold notates it
-(one 16-pulse gong cycle with jegogan, jublag, panyacah, ugal, gangsa
-norot kotekan, gongs and kempli). The rest of the piece appears in the
-book only as a listening guide, and its kebyar sections are not
-metrically regular, so they are out of scope.
+covered"). The goal of this iteration is a notation powerful enough for
+two published examples (`2026-11-21-iteration-2.md`):
 
-The acceptance test: `2026-11-21-jaya-semara-pangecet.nts` reads
-without errors and `notasi render` draws it.
+- the pangecet of "Jaya Semara" as Gold notates it: one 16-pulse gong
+  cycle with jegogan, jublag, panyacah, ugal, gangsa norot kotekan,
+  gongs and kempli;
+- Baris (gilak) as Tenzer notates it: one 8-pulse cycle with reyong
+  polos and sangsih, ugal, calung, kempli, gongs and both hands of the
+  two kendang, written as syllables.
 
 Every feature below is marked:
 
-- **[Jaya Semara]**: needed for the target piece; build it.
+- **[iteration 2]**: needed by one of the targets; build it.
 - **[later]**: designed so it fits, but not built until a piece needs
   it.
 
 | Feature | Scope |
 |---|---|
-| Durations in pulses, carried over (`e2:2`, `o3:1/4`) | Jaya Semara |
-| Hold `_` and rest `-` | Jaya Semara |
-| Step derived by the reader (no `steps-per-pulse`) | Jaya Semara |
-| Pulse check `\|`, cycle check `\|\|` | Jaya Semara |
-| Repeats `(rep N ...)` | Jaya Semara |
-| `(part INSTRUMENT ...)` with optional `:name NAME` | Jaya Semara |
-| Options written `:key value` (Common Lisp style) | Jaya Semara |
-| Colotomy with generated gong part; `:colotomy NAME`, `:pickup P` | Jaya Semara |
-| Implied kempli, one stroke per pulse | Jaya Semara |
-| Positions as cycle and pulse in error messages | Jaya Semara |
-| Strokes G (gong), P (kempur), T (klentong) | Jaya Semara |
-| Strokes GL (gong lanang), n (kelenang) | later |
+| Durations in pulses, carried over (`e2:2`, `o3:1/4`) | iteration 2 |
+| Hold `_` and rest `-` | iteration 2 |
+| Times as exact rationals; the step derived by layout (no `steps-per-pulse`) | iteration 2 |
+| Pulse check `\|`, cycle check `\|\|` | iteration 2 |
+| Repeats `(rep N ...)` | iteration 2 |
+| `(part INSTRUMENT ...)` with optional `:name NAME` | iteration 2 |
+| Options written `:key value` (Common Lisp style) | iteration 2 |
+| Colotomy with generated gong part; `:colotomy NAME`, `:pickup P` | iteration 2 |
+| Implied kempli, one stroke per pulse | iteration 2 |
+| Positions as cycle and pulse in error messages | iteration 2 |
+| Strokes G (gong), GL (gong lanang), P (kempur), T (klentong) | iteration 2 |
+| Stroke n (kelenang) | later |
 | `:timekeeper INSTRUMENT`, e.g. the kajar | later |
 | `:lines N`: lines inside long cycles | later |
 | `(relative ...)` octaves | later |
@@ -53,8 +52,10 @@ Every feature below is marked:
 | Gongs never damped (`:damped no`) | later (matters for playback, not drawing) |
 | Departing from the colotomy, changing colotomies, sections | later |
 | Longgor forms, other meters from figure 5.11 | later |
-| Patterns: `pattern`, `@NAME`, `(@ NAME ...)` with `:step`, `:octave`, `:drop-first`, `:drop-last` | Jaya Semara |
-| Display forms (full and short names) | later, with the display issue |
+| Patterns: `pattern`, `@NAME`, `(@ NAME ...)` with `:step` and names at the use | iteration 2 |
+| Pattern operators `:octave`, `:drop-first`, `:drop-last` | later |
+| Scores: `score` with groups and printing options (`2026-11-21-score.md`) | iteration 2 |
+| `:damped` forms of degrees and strokes; the score options for Tenzer's layout | iteration 2 |
 
 ## What the notation describes
 
@@ -79,13 +80,15 @@ elsewhere (display is a separate design issue).
 |---|---|
 | pulse | One kempli stroke. The unit of time. Gold's "beat". |
 | duration | A length of time in pulses: a whole number or a fraction (`2`, `1/4`). |
-| step | The smallest unit of time the piece uses, derived by the reader. The piece is a grid of steps inside the program. |
+| step | The smallest unit of time a score prints: one column of its grid, derived by layout. |
 | part | One line of music on one instrument. |
 | pace | A part's current duration: the duration a note gets when none is written. |
 | colotomy | A named cycle: a length in pulses and the gong patterns that mark it (Gold's colotomic meter). |
 | cycle | One repetition of the colotomy. Cycle 1 is the first complete one. |
 | position | A place in time: cycle and pulse ("cycle 2, pulse 4"), or a pulse number without a colotomy. |
 | pickup | Pulses before the first complete cycle, when a piece opens on the gong. |
+| pattern | A named list of tokens that parts can play, join, repeat and transform. |
+| score | How the music is printed: which parts, in which groups, with which options. A file may have several. |
 
 ## Files
 
@@ -99,12 +102,15 @@ that `|` and `||` are ordinary symbols. Comments start with `;`.
 (scale ...) (strokes ...) (instrument ...) (colotomy ...)   ; definitions
 (pattern ...) ...                      ; named patterns
 (part ...) ...                         ; the music
-(group ...) ...                        ; how parts are grouped
+(score ...) ...                        ; how it is printed
 ```
 
 Scales, stroke sets, instruments and colotomies usually come from a
-template, so a piece often contains only `piece`, `use`, parts and
-groups.
+template, so a piece often contains only `piece`, `use`, patterns,
+parts and scores.
+
+Everything except `score` describes the music. `score` describes how
+it is printed; it is specified in `2026-11-21-score.md`.
 
 ## Options
 
@@ -145,9 +151,18 @@ order, with input aliases:
   (dung :alias u) (dang :alias a))
 ```
 
-A degree or stroke may also have `:display STRING`, the short form
-drawn in the grid, as in `01-notation.md`. Full and short forms are left
-to the display issue.
+A degree or stroke may also have `:display STRING`, the form drawn in
+the grid, as in `01-notation.md`, and `:damped STRING`, the form for a
+note that is cut short. Tenzer writes Baris with syllables, `nang` for
+a ringing note and `na'` for a damped one:
+
+```scheme
+(dang :alias (a nang) :display "nang" :damped "na'")
+```
+
+Which form a note shows is decided by the score (see
+`2026-11-21-score.md`, "Which name a note shows"). Without `:damped`
+the display form is used for both.
 
 A stroke set names the strokes of unpitched instruments. Following
 Gold's symbols (p. 110):
@@ -186,8 +201,9 @@ instrument has no options for now.
 
 Octave numbers are shared by all instruments, so `o2` on the ugal and
 `o2` on the jublag are the same pitch (open question 3 of
-`01-notation.md`, assumed yes). Note that `templates/gong-kebyar.nts`
-has the reyong at e1 … u3, an octave below figure 2.7.
+`01-notation.md`: decided yes). `templates/gong-kebyar.nts` has the
+reyong at e1 … u3, an octave below figure 2.7; it is corrected to
+e2 … u4 in this iteration.
 
 ### `colotomy`
 
@@ -205,7 +221,7 @@ has the reyong at e1 … u3, an octave below figure 2.7.
   pulse. Default `kempli`.
 - `:lines N` **[later]**: the cycle is written in lines of N pulses.
 
-The Jaya Semara meter (activity 2.4, p. 43) **[Jaya Semara]**:
+The Jaya Semara meter (activity 2.4, p. 43) **[iteration 2]**:
 
 ```scheme
 (colotomy pangecet-16 16
@@ -232,9 +248,10 @@ Other examples from Gold's figure 5.11 (p. 110) **[later]**:
 |---|---|---|
 | `:colotomy NAME` | none | The piece's colotomy. Its parts are generated for the whole piece. |
 | `:pickup P` | 0 | The piece starts P pulses before the end of a cycle. An error without a colotomy. |
-| `:steps-per-system N` | whole piece | Where the figure breaks into systems, as in `01-notation.md`. |
 
-`(steps-per-pulse N)` is gone: the reader derives the step.
+`(steps-per-pulse N)` is gone: layout derives the step.
+`(steps-per-system N)` is gone too: it is a printing option, now
+`:system-length` on a score.
 
 Without a colotomy, positions are pulse numbers only, and `||` and
 `pickup` are errors. With or without one, the timekeeper is implied:
@@ -283,9 +300,9 @@ Rejected alternatives:
 | `5` | Strike key 5 of the instrument (1-based). |
 | `e2:2`, `5:1/4` | Strike with a duration in pulses. The duration stays in force for the following tokens until another is written. |
 | `_` | Hold: the previous note keeps sounding for one more duration. Gold's cipher dot. |
-| `-`, `-:3` | Nothing is struck for one duration; the previous note is damped (proposed: see "Rests" below). |
+| `-`, `-:3` | Nothing is struck for one duration; the previous note is damped (see "Rests" below). |
 | `(2 5)` | Chord: notes struck together. Takes the current duration. |
-| `(rep N TOKEN ...)` | Repeat the tokens N times. Durations carry over between repetitions. |
+| `(rep N TOKEN ...)` | Repeat the tokens N times. Every repetition is identical: the body is read once, with the duration in force before the `rep`. After it, the duration is the body's last. |
 | `\|` | Pulse check: must fall on a pulse boundary. Takes no time. |
 | `\|\|` | Cycle check: must fall on a cycle boundary. Takes no time. |
 | `@NAME` | Play the pattern NAME (see "Patterns"). |
@@ -293,13 +310,13 @@ Rejected alternatives:
 | `(* M TOKEN ...)` **[later]** | Multiply the durations inside by M (like a tuplet). Gives a chord a duration: `(* 2 (2 5))`. |
 | `(relative START TOKEN ...)` **[later]** | Bare degree names go to the octave nearest the previous note. |
 
-Everything in the table is **[Jaya Semara]** except the two rows marked
+Everything in the table is **[iteration 2]** except the two rows marked
 **[later]**.
 
 A part starts with a duration of 1 pulse, so its first note sets its
 pace: `a1:2 o1 e1 i1` is four notes of two pulses.
 
-### Rests (proposed)
+### Rests
 
 Gold's cipher dot means a beat on which nothing new is struck and the
 previous note keeps sounding (pp. 36, 57). That is our `_`, not a rest.
@@ -314,8 +331,8 @@ So:
   nothing new is struck. This needs an instrument option, e.g.
   `:damped no`, rather than a second rest token. **[later]**: it
   changes what sounds, not what is drawn.
-- `·` (middle dot), now a synonym of `-`, would mislead anyone copying
-  Gold's cipher. Either drop it or make it a synonym of `_`.
+- `·` (middle dot), a synonym of `-` in `01-notation.md`, is dropped: it
+  would mislead anyone copying Gold's cipher, where the dot is a hold.
 
 ### Rules
 
@@ -327,10 +344,11 @@ So:
 
 ### The step
 
-The reader finds the largest duration that divides every start, every
-duration and the pulse. That is the step; the piece is stored as a grid
-of steps (ADR 0002, narrowed). In the Jaya Semara example the kotekan
-moves in quarter pulses, so the step is 1/4 pulse.
+The piece stores times as exact rationals in pulses. Layout finds, for
+each score, the largest duration that divides every start, every
+duration and the pulse it prints: that is the step, one column of the
+grid (`2026-11-21-internal-representation.md`). In both targets the
+fastest notes are quarter pulses, so the step is 1/4 pulse.
 
 ## Patterns
 
@@ -380,19 +398,20 @@ with Guile 3.0.9).
 The list form applies operators, written as options:
 
 ```scheme
-(@ pokok :octave -1)                ; an octave lower
 (@ polos-1 :step 1)                 ; one scale degree higher
-(@ pokok :drop-first 1)             ; without its first note
-(@ pokok :drop-last 1)              ; without its last note
-(@ pokok :octave -1 :drop-last 1)   ; both
+(@ polos-1 :step 1 :short "2")      ; ... named "2" at this use
+(@ pokok :octave -1)                ; an octave lower          [later]
+(@ pokok :drop-first 1)             ; without its first note   [later]
+(@ pokok :drop-last 1)              ; without its last note    [later]
 ```
 
 | Operator | Meaning |
 |---|---|
 | `:step N` | Move every note N degrees along the scale (i o e u a, then i in the next octave); key numbers move N keys. Gamelan transposition: the figure keeps its shape on the keys. |
-| `:octave N` | The same as `:step 5N` on a five-tone scale. |
-| `:drop-first N` | Remove the first N notes. The pattern gets shorter by their time. |
-| `:drop-last N` | Remove the last N notes. The pattern gets shorter by their time. |
+| `:short S`, `:long L` | Names for this use, replacing the pattern's. A moved figure can be named after what it now plays. |
+| `:octave N` **[later]** | The same as `:step 5N` on a five-tone scale. |
+| `:drop-first N` **[later]** | Remove the first N notes, and everything before the next note kept. The pattern gets shorter by their time. |
+| `:drop-last N` **[later]** | Remove the last N notes, from the first of them to the end. The pattern gets shorter by their time. |
 
 - A note, for dropping, is a struck note or chord together with the `_`
   holds that follow it: dropping a note held for two pulses removes
@@ -403,16 +422,21 @@ The list form applies operators, written as options:
 
 In Jaya Semara, the polos figures on pokok tones 6 and 2 are the figure
 on tone 1 moved one degree down and up, and the sangsih figure on 3 is
-its figure on 1 moved two degrees up:
+its figure on 1 moved two degrees up. Each moved figure is named after
+its pokok tone:
 
 ```scheme
-(pattern polos   @polos-1  (@ polos-1 :step -1)  @polos-3  (@ polos-1 :step 1))
-(pattern sangsih @sangsih-1  (@ sangsih-1 :step -1)
-                 (@ sangsih-1 :step 2)  (@ sangsih-1 :step 1))
+(pattern polos   @polos-1
+                 (@ polos-1 :step -1 :short "6")  @polos-3
+                 (@ polos-1 :step 1  :short "2"))
+(pattern sangsih @sangsih-1
+                 (@ sangsih-1 :step -1 :short "6")
+                 (@ sangsih-1 :step 2  :short "3")
+                 (@ sangsih-1 :step 1  :short "2"))
 ```
 
 The whole example is built from patterns: see
-`2026-11-21-jaya-semara-pangecet.nts`.
+`../targets/2026-11-21-jaya-semara-pangecet.nts`.
 
 ### Rules
 
@@ -431,20 +455,24 @@ The whole example is built from patterns: see
   start or end on a pulse or a cycle. A `|` or `||` inside a pattern is
   checked where the pattern is used, against the piece's time, so it
   says where the pattern has to fall.
-- **The piece records each use**: pattern, part, start and end, so that
-  a score can mark the span with the pattern's short or long name.
+- **The piece records each use**: part, start, end, nesting level and
+  the names in force at that use, so that a score can mark the span
+  with its short or long name.
 
 Errors, reported where the pattern is used:
 - an unknown pattern; a pattern that contains itself
 - a transposed note outside the instrument's range
 - dropping more notes than the pattern has
 
-## Groups
+## Scores
 
-As in `01-notation.md`, with options in the new style:
-`(group LABEL :subtitle STRING PART ...)`. One pitched instrument per
-group (ADR 0011). Generated parts (timekeeper, colotomy) get default
-groups.
+The top-level `group` form of `01-notation.md` is gone. Groups now live
+inside a `score`, which says which parts are printed, in which groups,
+with which labels and options. See `2026-11-21-score.md`.
+
+The parts generated by the reader can be printed like any other: the
+timekeeper is the part `kempli`, and each colotomy part has the name
+its colotomy gives it (`gong`).
 
 ## Reading Gold's cipher in this notation
 
@@ -473,48 +501,30 @@ From Gold, music this notation cannot express yet:
 
 ## Open questions
 
-### To decide for Jaya Semara
-
-1. **Carry-over durations**: proposed yes.
-2. **`·`**: drop it, or make it a synonym of `_` (Gold's dot). Today it
-   is a synonym of `-`.
-3. **The name of the meter**: Gold calls it bapang (p. 140), but its
-   16-pulse layout is the one figure 5.11 gives for gegaboran. The
-   example uses `pangecet-16` for now.
-4. **Gong strokes**: Jaya Semara needs G (gong), P (kempur) and T
-   (klentong). Are they strokes of one `gong` instrument (proposed), or
-   separate instruments?
-5. **Generated parts**: what are the generated colotomy and kempli
-   parts called, and can a `group` name them (to place the gongs and
-   the kempli in one group, for example)?
-6. **Reserved list heads**: `rep` starts a repeat and `@` a pattern
-   with operators, so no degree or stroke may be called `rep` or `@`, or
-   a chord `(rep ...)` would be read as a repeat.
-7. **Length**: proposed that a piece is its pickup plus whole cycles;
-   an incomplete last cycle is an error for now.
-8. **Error positions**: the format, e.g. "cycle 2, pulse 4 1/2".
-9. **Dropping and rests**: when notes are dropped, what happens to the
-   rests among and around them? Dropping the first 3 notes of
-   `e3 o3 o3 - | o3 - o3 -` could keep the rest after them
-   (`- o3 - o3 -`, 5/4 pulses) or cut up to the next note kept
-   (`o3 - o3 -`, 1 pulse). Proposed: `:drop-first N` cuts everything
-   before the next note kept, and `:drop-last N` cuts from the first
-   dropped note to the end.
+Every question that was open here is settled for this iteration in
+`2026-11-21-iteration-2.md` ("Decisions"), or marked later. In short:
+durations carry over; `_` holds and `-` damps; `·` is dropped; every
+repetition of a `rep` is identical; gong strokes are `G GL P T` on one
+instrument; the timekeeper is the part `kempli`; `rep` and `@` are
+reserved; a piece is a pickup (at most one cycle, in whole pulses) plus
+whole cycles; positions read `cycle C, pulse P`; a pattern's use may
+carry its own names.
 
 ### Later
 
-10. Rests in gong parts (`:damped no`): matters for playback only.
-11. `relative` mode: syntax for octave jumps; key numbers inside it.
-12. Chord durations: `(* M (chord))` or inside the chord; reserving
-    `*` and `relative` as list heads.
-13. Lines in long cycles (`:lines 8`): a third level of position, and
-    a check for it.
-14. Departing from the colotomy (an extra kempur stroke, a kempli that
-    stops), changing colotomies, sections.
-15. A pickup longer than a cycle.
-16. Longgor forms; checking omang and gabor longgor against a source.
-17. A timekeeper other than the kempli, or with its own pattern.
-18. Patterns with parameters (a generic norot figure taking the pokok
-    tones): left out; it would make patterns into functions.
-19. Patterns written in degrees only and placed in an octave where they
-    are used, like `relative`.
+- Rests in gong parts (`:damped no`): matters for playback only.
+- `relative` mode: syntax for octave jumps; key numbers inside it.
+- Chord durations: `(* M (chord))` or inside the chord; reserving `*`
+  and `relative` as list heads.
+- Lines in long cycles (`:lines 8`): a third level of position, and a
+  check for it.
+- Departing from the colotomy (an extra kempur stroke, a kempli that
+  stops), changing colotomies, sections.
+- A pickup longer than a cycle.
+- Longgor forms; checking omang and gabor longgor against a source.
+- A timekeeper other than the kempli, or with its own pattern.
+- Pattern operators `:octave`, `:drop-first`, `:drop-last`.
+- Patterns with parameters (a generic norot figure taking the pokok
+  tones): left out; it would make patterns into functions.
+- Patterns written in degrees only and placed in an octave where they
+  are used, like `relative`.
