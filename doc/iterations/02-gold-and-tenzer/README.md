@@ -1,0 +1,52 @@
+# Iteration 2: Gold's Jaya Semara and Tenzer's Baris
+
+Status: deciding
+
+## Goal
+
+Typeset two published examples, faithfully in content and close in
+layout:
+
+| Target | Source | File |
+|---|---|---|
+| Jaya Semara, pangecet: one gong cycle | Lisa Gold, *Music in Bali* (2005), activities 2.4, 3.1, 3.2, figure 3.1 | [`targets/2026-11-21-jaya-semara-pangecet.nts`](targets/2026-11-21-jaya-semara-pangecet.nts) |
+| Baris (gilak): one gong cycle, with sung lines | Michael Tenzer's notation of reyong and kendang parts | [`targets/2026-11-21-baris.nts`](targets/2026-11-21-baris.nts) |
+
+The two stress different things. Jaya Semara tests the music: many
+layers at different densities, quarter-pulse kotekan built from
+patterns, a 16-pulse colotomy with a pickup, our coloured grid.
+Baris tests the score: syllables instead of colours, one row per part,
+the drums by hand, beats numbered with the gong as 1, sung lines and a
+composite line.
+
+## Acceptance test
+
+Both files read without errors, every score in them is drawn by
+`notasi render FILE --score NAME`, and the drawings show what the
+sources show (checked by eye against the books, and by golden tests
+from then on).
+
+## Notes
+
+The notes in [`notes/`](notes/) are thinking, not the design. Start with
+[`notes/2026-11-21-iteration-2.md`](notes/2026-11-21-iteration-2.md): it
+sets the scope, settles the questions the other notes leave open, and
+wins where they disagree. The reference material is in
+[Gold 2005](../../references/2026-11-21-reference-gold-2005.md).
+Anything neither target needs is in the [backlog](../backlog.md).
+
+## Promotion
+
+The notes become the design one design doc at a time, one PR each, in
+this order (ADR 0023):
+
+1. `01-notation.md`
+2. `02-piece.md` and `03-reader.md`
+3. `04-layout.md` and `05-typst-backend.md`
+4. `06-documents.md` and the build order in `doc/design/README.md`
+
+Promoted so far: none.
+
+## Milestones
+
+To be filled in when promotion is complete.

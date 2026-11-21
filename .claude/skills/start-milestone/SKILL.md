@@ -1,20 +1,32 @@
 ---
 name: start-milestone
-description: Start a milestone or one slice of a milestone from the build order in doc/design/README.md - create the feature branch, write tests from the design doc before any code, pause for the user to review them, and plan the implementation. Use when the user wants to start or work on a milestone or slice such as feat/piece or feat/reader-forms.
+description: Start a milestone or one slice of a milestone of the current iteration (doc/iterations/, status building) - create the feature branch, write tests from the design doc before any code, pause for the user to review them, and plan the implementation. Use when the user wants to start or work on a milestone or slice such as feat/piece or feat/reader-forms.
 argument-hint: "[branch, e.g. feat/piece or feat/reader-forms]"
 ---
 
 # Start a milestone or slice
 
-Argument: the branch name. It is either a whole milestone from "Build
-order" in `doc/design/README.md` (e.g. `feat/piece`) or one slice of a
-milestone, as listed under "Slices" in that milestone's design doc (e.g.
-`feat/reader-forms` in `03-reader.md`).
+**Current iteration.** Milestones come only from the current iteration
+(ADR 0023). Find it first: the `doc/iterations/NN-*/README.md` whose
+`Status:` is `building`.
 
-If no argument is given, take the first milestone in "Build order" whose
-design doc's `Status:` line doesn't say it's implemented. If its doc has a
-"Slices" section, take the first slice not marked implemented. Confirm the
-choice with the user.
+- If the latest iteration's status is `deciding`, stop: no milestone may
+  start until its design is promoted. Say which design docs its
+  "Promotion" section still lists as not promoted, and that the user runs
+  `/promote-design` for each.
+- If no iteration is `building`, say so and stop.
+
+Argument: the branch name. It is either a whole milestone from the
+"Milestones" section of the current iteration's README (e.g.
+`feat/piece`) or one slice of a milestone, as listed under "Slices" in
+that milestone's design doc (e.g. `feat/reader-forms` in
+`03-reader.md`). A branch that isn't a milestone or slice of the current
+iteration is refused: say so and list the iteration's milestones.
+
+If no argument is given, take the first milestone in the current
+iteration's "Milestones" whose design doc's `Status:` line doesn't say
+it's implemented. If its doc has a "Slices" section, take the first
+slice not marked implemented. Confirm the choice with the user.
 
 A milestone whose design doc lists slices is never started whole: one
 slice per branch and per PR. If the user names such a milestone, say so
@@ -84,4 +96,6 @@ and ask.
    user the slice is
    ready for `/ship`. Don't push or open a PR until they ask. After the
    last slice of a milestone (or a milestone without slices), also
-   remind the user to run `/doc-audit`.
+   remind the user to run `/doc-audit`. After the last milestone of the
+   iteration, say that the iteration moves to Verify: run its acceptance
+   test (in its README) and `/doc-audit`, then `/release`.

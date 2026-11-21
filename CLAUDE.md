@@ -40,18 +40,36 @@ tests/golden/       expected JSON figures, one per example (make golden)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
 doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
-doc/design_notes/   ideas for new features, not decided and not part of the design
+doc/iterations/     one folder per iteration: README (goal, acceptance test,
+                    status, milestones), notes/ (thinking), targets/; backlog.md
+doc/references/     reference material useful beyond one iteration
 doc/decisions/      decision log (ADRs)
 ```
 
 ## Design documents
 
-`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module. `doc/design_notes/` holds dated notes on ideas for new features: thinking, not decisions. Never treat them as the design or build from them; an idea becomes part of the design only when the user decides it and it is written into `doc/design/` (with an ADR where one is needed).
+`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module. Notes under `doc/iterations/*/notes/` are thinking, never the design: never treat them as a spec or build from them. The one exception is the promotion step (`/promote-design`), which reads them when the user asks for it.
 
 - Any change to behaviour, notation, the piece records or the JSON contract updates `doc/design/` in the same PR. Keep each doc's `Status:` line and its Implemented / Planned / Open questions labels accurate.
 - Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
 - Never edit an accepted ADR except its `Status:` line.
 - `gh pr create --body` replaces `.github/pull_request_template.md`, so copy its docs checkboxes into every PR description and tick each only if those docs were updated or aren't needed.
+
+## Iterations
+
+Work is organised in iterations (ADR 0023). An iteration is a goal plus an acceptance test, in `doc/iterations/NN-name/README.md`, worked through in five phases:
+
+1. **Explore**: discussion, written as dated notes in the iteration's `notes/`.
+2. **Decide**: the notes are promoted into `doc/design/` and ADRs with `/promote-design`, one PR per design doc, in dependency order (01; 02 and 03; 04 and 05; 06 and the build order). Each ADR lands with the first design doc it changes.
+3. **Build**: milestones and slices, with `/start-milestone`.
+4. **Verify**: the acceptance test, and `/doc-audit`.
+5. **Close**: `/release`, and a version tag.
+
+An iteration's `Status:` is `deciding` (phases 1–2), `building` (3–4) or `done` (released). `tests/iterations.scm` checks it. While it is `deciding`, no milestone starts: promotion must be complete first, so no one builds from a half-updated design. Promotion is the only step that reads notes. `/promote-design` has `disable-model-invocation`, so the user runs it.
+
+Versions: one minor version per iteration (iteration N is v0.N.0), with v0.N.x for fixes. Iteration 1 was released as v0.1.x.
+
+Deferred work is in `doc/iterations/backlog.md`.
 
 ## User manual
 
@@ -66,8 +84,9 @@ doc/decisions/      decision log (ADRs)
 
 ## Git workflow
 
-- `main` is stable. It only receives merge-commit PRs from `dev` at milestones (`/release`).
-- `dev` is the integration branch. Feature branches are squash-merged into it.
+- `main` holds only what users need. It only receives release commits made by `/release`: `dev`'s files minus the dev-only paths listed in `.claude/skills/release/SKILL.md` (Claude Code files, design docs, ADRs, iterations, references, prototypes), one squash-merged commit per release, tagged there (ADR 0023).
+- `dev` is the integration branch and holds everything. Feature branches are squash-merged into it.
+- Never merge `dev` into `main` or `main` into `dev`: they don't share history.
 - Never commit directly to `main` or `dev`. Work on a branch from an up-to-date `dev`, named `feat/…`, `fix/…`, `chore/…` or `doc/…`.
 - Commit when the user asks; push and open a PR only when the user asks. Use `/ship` to open a PR.
 - Every PR targets `dev` and needs green CI before merging.
@@ -75,7 +94,7 @@ doc/decisions/      decision log (ADRs)
 
 ## Working on a milestone
 
-The build order is in `doc/design/README.md` under "Build order". A large milestone is split into slices, listed under "Slices" in its design doc; each slice is its own branch and PR. Start each milestone or slice with `/start-milestone <branch>`, which creates the branch, has a subagent write tests from the design doc before any code exists (so tests aren't shaped by the implementation), pauses for the user to review the tests, and plans the implementation for approval. It never builds beyond the slice's scope. The user runs `/doc-audit` at the end of each milestone to find drift between the docs and the code; it has `disable-model-invocation`, so Claude can't call it and should remind the user instead.
+Milestones come from the current iteration: the one whose README's status is `building`, listed under "Milestones" there. A large milestone is split into slices, listed under "Slices" in its design doc; each slice is its own branch and PR. Start each milestone or slice with `/start-milestone <branch>`, which creates the branch, has a subagent write tests from the design doc before any code exists (so tests aren't shaped by the implementation), pauses for the user to review the tests, and plans the implementation for approval. It never builds beyond the slice's scope. The user runs `/doc-audit` at the end of each milestone to find drift between the docs and the code; it has `disable-model-invocation`, so Claude can't call it and should remind the user instead.
 
 A PostToolUse hook (`.claude/hooks/guild-compile.sh`) compiles every edited `.scm` file with `guild`, catching unbalanced parentheses and unbound variables immediately.
 

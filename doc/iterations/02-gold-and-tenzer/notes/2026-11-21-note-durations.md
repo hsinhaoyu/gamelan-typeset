@@ -1,10 +1,12 @@
 # Design note: note durations
 
-Status: discussion (2026-11-21). Nothing here is implemented or decided.
-When it is settled it becomes an ADR (narrowing 0002 and changing the
-`steps-per-pulse` option of 0009) and changes to `doc/design/`.
+Status: discussion (2026-11-21), superseded. This note records how the
+design was reached. The current notation is in
+`2026-11-21-notation-language.md` and `2026-11-21-score.md`, and its
+open questions are settled or marked later in
+`2026-11-21-iteration-2.md`.
 
-Related: `2026-11-21-colotomy.md`, `2026-11-21-reference-gold-2005.md`.
+Related: `2026-11-21-colotomy.md`, `../../../references/2026-11-21-reference-gold-2005.md`.
 
 The examples below use the syntax as it was when this note was written
 (`(part NAME INSTRUMENT ...)`, options as lists). The current syntax,
