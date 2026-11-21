@@ -88,6 +88,7 @@ Each decision's context and consequences are in its record in
 23. Pitched and stroke instruments are grouped apart: [0034](../decisions/0034-pitched-and-stroke-instruments-are-grouped-apart.md) (planned)
 24. Expansion is its own module: [0035](../decisions/0035-expansion-is-its-own-module.md) (planned)
 25. The JSON contract is version 2: [0036](../decisions/0036-json-contract-version-2.md) (planned)
+26. Cycle lines are heavier than pulse lines: [0037](../decisions/0037-cycle-lines-are-heavier.md) (planned)
 
 Proposed, not yet agreed:
 

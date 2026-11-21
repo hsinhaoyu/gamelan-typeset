@@ -1,10 +1,13 @@
 # 05 — Typst backend and JSON contract
 
-Status: implemented (draft v1): all three slices (see "Slices"): the
-JSON writer, figure files, the entry file, running Typst,
-`render-piece`, the template and the `notasi render` command. Modules:
-`(notasi json)`, `(notasi typst)`, `(notasi command)` (Guile),
-`typst/notasi.typ` (Typst template), `scripts/notasi` (the command).
+Status: partly planned (iteration 2). Implemented (v1, all three
+slices, see "Slices"): the JSON writer, figure files, the entry file,
+running Typst, `render-piece`, the template and the `notasi render`
+command, for contract version 1. Planned: contract version 2 (ADR
+0036), the template's header rows, lines and overlays, sizes from the
+score, and choosing a score (`--score`). Modules: `(notasi json)`,
+`(notasi typst)`, `(notasi command)` (Guile), `typst/notasi.typ` (Typst
+template), `scripts/notasi` (the command).
 
 ## Responsibility
 
@@ -16,9 +19,66 @@ The same template draws scores inside Typst documents, where the figure
 JSON arrives inside a side file instead (06, ADR 0016, proposed). So the template
 must work in both places; see "Typst template design", points 6 and 7.
 
+## JSON contract (version 2)
+
+**Planned** (ADR 0036). Layout writes it (04, where the keys are listed
+in order). An excerpt, for Jaya Semara's full score (arrays shortened):
+
+```json
+{
+  "version": 2,
+  "title": "Jaya Semara: pangecet",
+  "subtitle": null,
+  "steps_per_pulse": 4,
+  "sizes": { "font_size": "8pt", "label_width": "9.3em",
+             "lane_width": "2.0em", "cell_width": "2em",
+             "cell_height": "2em" },
+  "systems": [
+    {
+      "start": 0,
+      "steps": 68,
+      "header": {
+        "label": null,
+        "cycles": [{ "column": 4, "text": "1" }],
+        "pulses": ["16", null, null, null, "1", null, null, null, "2"]
+      },
+      "lines": ["none", "none", "none", "none", "cycle", "none", "none",
+                "none", "pulse"],
+      "groups": [
+        {
+          "label": "Gangsa pemade",
+          "subtitle": "norot",
+          "lanes": ["u3", "e3", "o3", "i3", "a2"],
+          "voices": [ { "name": "polos", "events": [ ... ] } ],
+          "overlays": [
+            { "start": 4, "dur": 32, "row": 0, "rows": 5,
+              "text": "norot", "continued": false }
+          ]
+        }
+      ]
+    }
+  ],
+  "caption": null
+}
+```
+
+Rules, besides those of version 1 below, which still hold:
+- `header.pulses` and `lines` have one entry per column of the system.
+  `header.pulses` (or `header.cycles`) is `null` when the score doesn't
+  show that row. The numbers are already in the score's numbering; the
+  template prints them as they are.
+- A line is at the left edge of its column.
+- `lanes` holds the row labels, whatever the rows are (notes, parts, or
+  `""` for a single row).
+- An overlay covers columns `start` to `start + dur` (relative to the
+  system) and rows `row` to `row + rows` of its group.
+- `font_size` is `null` in a document, where the document sets the size.
+- `step_width` and `row_height` are gone: `cell_width` and
+  `cell_height` replace them.
+
 ## JSON contract (version 1)
 
-An excerpt of `tests/golden/tenzer1.json`, the figure for
+**Implemented.** An excerpt of `tests/golden/tenzer1.json`, the figure for
 `examples/tenzer1.nts` (the first group, with its first event shown):
 
 ```json
@@ -76,7 +136,7 @@ tests in `tests/typst.scm`:
 (write-figure figure path)
 ```
 
-writes FIGURE (from `layout-piece`) to the file PATH as pretty JSON
+writes FIGURE (from `layout-piece`; planned: `layout-score`) to the file PATH as pretty JSON
 (`write-json`), in UTF-8, ending with a newline, replacing any file
 already there. The JSON is built before the file is opened, so a figure
 that can't be written raises the writer's `&error` and leaves no file
@@ -195,6 +255,29 @@ Lessons from the prototype (`doc/prototypes/score.typ`):
 - Sizes relative to the text (`em`, `luma` greys), never absolute font
   sizes or fonts: the surrounding document or entry file sets those.
 
+**Planned** for version 2 (ADRs 0036, 0037):
+
+- **Columns and rows** use `cell_width` and `cell_height` for the grid
+  cells, and the label columns as before.
+- **Header rows**, from `header`, top to bottom: a cycle row when
+  `cycles` isn't `null`, with each cycle's number in bold at its column;
+  then a pulse row when `pulses` isn't `null`, with each number in bold
+  and a grey `·` in columns whose entry is `null`. `header.label`, when
+  not `null`, is printed at the left of the pulse row, in the label
+  column. The template does no counting.
+- **Lines**, from `lines`, in the background layer: `pulse` as now
+  (`0.5pt`, `luma(170)`), `cycle` heavier (`1pt`, `luma(90)`), down the
+  left of the column, through the header and the groups.
+- **Overlays**, in the foreground layer, drawn after the notes so they
+  sit on top: one cell spanning the overlay's columns and rows, with
+  its text centred, near-black (`#222222`), on a small white box at 80%
+  opacity with a little padding, so it can be read over notes of any
+  colour. A continued overlay is drawn the same way: its text is
+  written again.
+- Notes, labels, rules and the white background as in version 1. An
+  event whose `fill` is `null` (`:fill none`) is its text alone, which
+  also draws the `"-"` of `:holds dash`.
+
 Tests (slice 1): `tests/template.scm` compiles every
 `tests/golden/*.json` with `score` (from an entry file made in a
 temporary folder) and fails if `typst compile` fails or prints a
@@ -205,6 +288,11 @@ person to check by eye; every PR that changes how figures look is
 checked that way.
 
 ## The entry file and running Typst
+
+**Planned** for version 2: the entry file sets the text size from
+`data.sizes.font_size` (it is always set for a standalone figure),
+prints the `subtitle` under the title when not `null`, and the `caption`
+under the score when not `null`, in italics. The rest is as below.
 
 **Implemented** (slice 2, `feat/typst-render`), in `(notasi typst)`,
 tests in `tests/typst.scm`. `(notasi typst)` comes after the reader and
@@ -249,7 +337,14 @@ plain `&error`s with a readable message:
   musician sees what went wrong, not only a program reading the
   irritants); the irritants include TYP-PATH.
 
-`(render-piece nts-path out-path #:key (style (default-style)) keep-in)`
+**Planned**: `(render-piece nts-path out-path #:key score keep-in)`
+draws the score named SCORE (a symbol), or the piece's first score
+without it, with `layout-score`; there is no `#:style`, since colours
+come from the score (ADR 0032). A SCORE the piece doesn't have is an
+`&error` whose message names the score and the file. Otherwise as
+below.
+
+**Implemented**: `(render-piece nts-path out-path #:key (style (default-style)) keep-in)`
 goes from a `.nts` file to a picture in one step: read the piece
 (reader errors pass through unchanged), lay it out with STYLE, write
 `piece.json` (`write-figure`), copy the template, write `piece.typ`,
@@ -304,6 +399,15 @@ notasi render --help
 - `--help` prints the usage and a short description to standard output
   and exits with status 0.
 
+**Planned**: `notasi render PIECE.nts [--score NAME] [-o OUT]` (ADR
+0031). `--score NAME` chooses the score; without it, the first score in
+the file (or the default score) is drawn. `--score` without a value is a
+usage error (status 2); a score the piece doesn't have prints `notasi: `
+and the message, and exits with status 1. OUT defaults to
+`PIECE.pdf` for the first score and `PIECE.NAME.pdf` with `--score`,
+so drawing several scores of one file doesn't overwrite one picture
+with another.
+
 The logic is in the module `(notasi command)`:
 `(run-notasi args)` takes the arguments after the program name (a list
 of strings), writes to the current output and error ports, and returns
@@ -319,7 +423,9 @@ The user manual shows drawn scores: `make manual` first draws each
 `doc/manual/src/examples/NAME.nts` that a page shows as an image
 (`![…](figures/NAME.svg)`) to `doc/manual/src/figures/NAME.svg` with
 `notasi render`, then builds the book. `figures/` is generated, not
-committed, so pictures never go stale. The manual's CI job installs
+committed, so pictures never go stale. **Planned**: a page can show
+another score of the example as `figures/NAME.SCORE.svg`, drawn with
+`--score SCORE`. The manual's CI job installs
 Guile and Typst 0.15.1 for this; `tests/manual.scm` checks that every
 image a page shows has an example to draw it from.
 
@@ -330,6 +436,10 @@ the template needs positioned grid cells (Typst ≥ 0.11). The tested
 version is **0.15.1**. CI installs exactly that version, so every PR
 compiles the examples with it; upgrading Typst is a deliberate change
 to the pin, with the golden figures and template checked again.
+
+`make preview` (**Planned** for scores) draws each example's every score
+to `build/preview/NAME.png`, or `NAME.SCORE.png` for a file with scores,
+matching the golden files (04).
 
 ## Slices
 
