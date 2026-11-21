@@ -40,12 +40,13 @@ tests/golden/       expected JSON figures, one per example (make golden)
 doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json)
 doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
+doc/design_notes/   ideas for new features, not decided and not part of the design
 doc/decisions/      decision log (ADRs)
 ```
 
 ## Design documents
 
-`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module.
+`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module. `doc/design_notes/` holds dated notes on ideas for new features: thinking, not decisions. Never treat them as the design or build from them; an idea becomes part of the design only when the user decides it and it is written into `doc/design/` (with an ADR where one is needed).
 
 - Any change to behaviour, notation, the piece records or the JSON contract updates `doc/design/` in the same PR. Keep each doc's `Status:` line and its Implemented / Planned / Open questions labels accurate.
 - Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
