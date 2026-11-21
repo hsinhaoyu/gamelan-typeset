@@ -1,8 +1,9 @@
 # 01 — Notation language
 
-Status: planned (iteration 2). The notation below is agreed and not yet
-read: the reader still reads the v1 notation, summarised under "What the
-reader reads today", until iteration 2's milestones are built.
+Status: partly implemented (iteration 2). The reader reads the syntax
+below (`:key value` options, `part`, degrees and strokes, instruments)
+since `feat/music-syntax`; the rest is planned, and "What the reader
+reads today" says what it reads in the meantime.
 
 Everything in this document is **Planned** unless it says otherwise.
 
@@ -531,21 +532,20 @@ rest.
 
 ## What the reader reads today
 
-**Implemented** (v1): the reader reads an earlier form of this notation.
-It differs as follows, and this section goes when iteration 2 is built:
+**Implemented**: the reader reads this notation's `:key value` options,
+`(part INSTRUMENT :name NAME ...)`, degrees and strokes with `:alias`,
+`:display` and `:damped`, and instruments without options (iteration 2,
+milestone 1, slice 1). It differs from the rest as follows, and this
+section goes when iteration 2 is built:
 
-- Options are lists: `(steps-per-pulse 4)`, `(alias i)`, `(display "i")`.
-- Every token is one step, and `(steps-per-pulse N)` on `piece` (default
-  4) gives the pulse; `(steps-per-system N)` breaks the figure into
-  systems. Notes have no duration suffix.
-- Parts are `(part NAME INSTRUMENT TOKEN ...)`.
-- `·` (middle dot) is a rest, like `-`; there are no `|`, `||`, `rep`,
-  patterns or colotomies.
-- Groups are top-level forms, `(group LABEL PART ... (subtitle STRING))`;
-  there are no scores. A part in no group is drawn as its own group.
-- An instrument may have `(show-names yes)`, which shows its notes'
-  names (ADR 0019).
-- A template contains only `scale`, `strokes`, `instrument` and `use`.
+- Every token is one step, and two transitional `piece` options,
+  `:steps-per-pulse N` (default 4) and `:steps-per-system N`, give the
+  pulse and break the figure into systems. Notes have no duration
+  suffix, and there are no `|`, `||`, `rep`, patterns or colotomies.
+- `colotomy`, `pattern` and `score` forms raise `not-implemented`.
+  There are no scores yet: every part is drawn in its own group, and no
+  note shows its name.
+- A template may use only `scale`, `strokes`, `instrument` and `use`.
 
 The manual describes this notation until then.
 

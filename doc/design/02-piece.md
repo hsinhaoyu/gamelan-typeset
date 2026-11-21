@@ -1,8 +1,10 @@
 # 02 — Piece
 
-Status: planned (iteration 2). The records below are agreed and not yet
-built: `(notasi piece)` still implements the v1 records, summarised
-under "What the code implements today". Tests in `tests/piece.scm`.
+Status: partly implemented (iteration 2). `degree` (with `damped`) and
+`instrument` (without `show-names?`) are as below since
+`feat/music-syntax`; the other records are agreed and not yet built:
+`(notasi piece)` still implements their v1 form, summarised under "What
+the code implements today". Tests in `tests/piece.scm`.
 
 Everything in this document is **Planned** unless it says otherwise.
 
@@ -245,12 +247,15 @@ is built:
 - `event-start` and `event-duration` are integers (`duration` ≥ 1).
 - `part` has no `origin` or `spans`; there are no `colotomy`, `pattern`,
   `pattern-span` or `score` records.
-- `degree` has no `damped`; `instrument` has `show-names?` (ADR 0019).
+- (`degree` has `damped` and `instrument` has no `show-names?` since
+  iteration 2, slice 1: those two records are **Implemented** as
+  above.)
 - `group` is `label`, `subtitle`, `parts`, `location`.
 - The derived values are `part-steps` and `(events-at piece step)`, and
   `note-display` has no `damped?`; there are no `time->position`,
   `position->time` or `piece-score`.
-- Invariant 4 is "every part belongs to exactly one group".
+- Invariant 4 is "every part belongs to exactly one group": the reader
+  makes one default group per part.
 
 ## Open questions
 
