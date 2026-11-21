@@ -87,6 +87,7 @@ Each decision's context and consequences are in its record in
 22. The palette is chosen in the score: [0032](../decisions/0032-the-palette-is-chosen-in-the-score.md) (planned)
 23. Pitched and stroke instruments are grouped apart: [0034](../decisions/0034-pitched-and-stroke-instruments-are-grouped-apart.md) (planned)
 24. Expansion is its own module: [0035](../decisions/0035-expansion-is-its-own-module.md) (planned)
+25. The JSON contract is version 2: [0036](../decisions/0036-json-contract-version-2.md) (planned)
 
 Proposed, not yet agreed:
 
