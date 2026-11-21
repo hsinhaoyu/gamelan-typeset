@@ -1,1 +1,1 @@
-(piece "Gilak" (beats 4))
+(piece "Gilak" :beats 4)

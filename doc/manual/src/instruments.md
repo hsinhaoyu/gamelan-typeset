@@ -29,23 +29,6 @@ Each note is one stroke from the stroke set, in the order you want its
 rows to appear in the score. The gong above plays `G` (gong) and `P`
 (kempur).
 
-## Showing note names
-
-In the score, each note is a coloured block in its lane. By default the
-block is empty: its lane and colour already say which note it is. To
-write each note's name inside its block, add `(show-names yes)` after
-the instrument's notes:
-
-```scheme
-{{#include examples/show-names.nts}}
-```
-
-This is most useful for gongs and drums, whose strokes are all drawn in
-the same grey: with names shown, the gong's notes read `G` and `P`. The
-`gong-kebyar` template does this for its kempli, gong and kendang (see
-[Templates](templates.md)). Leave it out, or write `(show-names no)`,
-to keep the blocks empty.
-
 ## Order in the file
 
 Scales, stroke sets and instruments can come in any order after the

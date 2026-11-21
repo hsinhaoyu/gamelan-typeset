@@ -349,8 +349,10 @@ follows, and this section goes when iteration 2 is built:
   template counts pulse numbers itself; `caption` is always `null`.
 - A step is a step of the piece (`steps_per_pulse` from the piece), and
   systems are `steps-per-system` steps long.
-- Every group of the piece is drawn, with `notes` rows only; an event's
-  `text` is `null` when its instrument doesn't show names (ADR 0019).
+- Every group of the piece is drawn, with `notes` rows only. Since
+  iteration 2, slice 1, every group is a default group of one part, and
+  an event's `text` is always `null`: no note shows its name until
+  scores.
 - Golden tests: each `examples/NAME.nts` has its one figure in
   `tests/golden/NAME.json`.
 

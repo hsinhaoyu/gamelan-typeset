@@ -1,11 +1,11 @@
 (piece "Ugal and gong")
 
 (scale selisir
-  (ding (alias i))
-  (dong (alias o))
-  (deng (alias e))
-  (dung (alias u))
-  (dang (alias a)))
+  (ding :alias i)
+  (dong :alias o)
+  (deng :alias e)
+  (dung :alias u)
+  (dang :alias a))
 (strokes gong-strokes  G P)
 
 ;; The ugal's ten keys, lowest first: dong1 up to ding3.

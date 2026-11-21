@@ -1,11 +1,15 @@
 # 03 — Reader and validation
 
-Status: planned (iteration 2). The reader below reads the notation of
-01 and is not yet built: `(notasi reader)` implements the v1 reader (all
-four v1 slices, see "What the reader reads today"). Tests in
-`tests/reader.scm`.
+Status: partly implemented (iteration 2): milestone 1, slice 1 of 5
+(`feat/music-syntax`, see "Slices (iteration 2)"); the rest is planned.
+"What the reader reads today" says what `(notasi reader)` does in the
+meantime. Tests in `tests/reader.scm`.
 
 Everything in this document is **Planned** unless it says otherwise.
+**Implemented** since slice 1: steps 1, 2 (with `colotomy`, `pattern`
+and `score` raising `not-implemented`), 3, 4, 5, 6 and 7 as far as
+scales, stroke sets, instruments and parts go, and every **[syntax]**
+case.
 
 ## Responsibility
 
@@ -221,7 +225,9 @@ jaya.nts:72: part `polos`, cycle 1, pulse 3 1/2, in pattern `polos-1`
      option kinds).
   7. Duplicate definitions, in file order (`duplicate-definition`).
      Scales and stroke sets share one set of names; instruments,
-     colotomies, patterns, parts and scores each have their own.
+     colotomies, patterns, parts and scores each have their own. Two
+     parts on one instrument where either has no `:name` are not a
+     duplicate here: check 13 reports them as `parts-need-names`.
   8. Each scale and stroke set, and each degree or stroke in order
      (`bad-degree`, `degree-ends-in-digit`, `duplicate-degree`,
      `reserved-name`).
@@ -277,8 +283,9 @@ degrees), **[durations]**, **[rep]**, **[colotomy]**, **[patterns]** and
 ### Options
 
 - [syntax] A key with no value (at the end, or followed by another key),
-  or a value of the wrong kind (`:pickup 1.5`, `:name "polos"`,
-  `:alias 3`): `bad-option`.
+  or a value of the wrong kind (`:pickup 1.5`, `:name "polos"`):
+  `bad-option`. A wrong value for a degree's `:alias`, `:display` or
+  `:damped` is `bad-degree` (see "Definitions").
 - [syntax] A key the form doesn't take: `unknown-option`; a key given
   twice: `duplicate-option`.
 - [syntax] A key after the body has started (e.g. after a part's first
@@ -443,12 +450,23 @@ files and manual pages it affects, so that after each one `make check`
 passes and the manual describes what the code does. Each covers the
 error cases tagged with its feature, and the steps above that they need.
 
-1. `feat/music-syntax` **[syntax]**: reading with `r7rs-symbols` and
+1. **Implemented.** `feat/music-syntax` **[syntax]**: reading with `r7rs-symbols` and
    `keywords` off; step 4 (`:key value` options) for every form;
    `(part INSTRUMENT :name NAME ...)`; degrees and strokes with
    `:alias`, `:display` and `:damped`; instruments without options;
    `·` and the top-level `group` gone. Until milestone 2, every part is
-   drawn in its own group, and no note shows its name.
+   drawn in its own group, and no note shows its name. Decided for this
+   slice:
+   - Time stays in integer steps until slice 2, so `piece` takes two
+     transitional options, `:steps-per-pulse N` (default 4) and
+     `:steps-per-system N` (default: one system), exact positive
+     integers (`bad-option` otherwise). Slice 2 removes them.
+   - `colotomy`, `pattern` and `score` forms are known heads that raise
+     `not-implemented` at the form's line, in a piece or a template,
+     until their slices build them.
+   - Tests written in the v1 syntax are translated to the new syntax,
+     keeping what they check; tests of what this slice removes are
+     deleted or turned into the new errors.
 2. `feat/music-durations` **[durations]**: `(notasi expand)` (ADR 0035)
    and step 9 for tokens: times as exact rationals in pulses (02),
    duration suffixes and the current duration, `_` and `-`, `|` checks,
@@ -470,28 +488,20 @@ The **[scores]** cases are built in milestone 2 (04, "Slices").
 
 ## What the reader reads today
 
-**Implemented** (v1, four slices, merged as `feat/reader-forms`,
-`feat/reader-scales`, `feat/reader-parts` and `feat/reader-templates`):
-the reader reads the v1 notation of 01 ("What the reader reads
-today" there). It differs from the above as follows, and this section
+**Implemented**: the v1 reader (four slices, merged as
+`feat/reader-forms`, `feat/reader-scales`, `feat/reader-parts` and
+`feat/reader-templates`), moved to the new syntax by slice 1 of
+iteration 2. It differs from the above as follows, and this section
 goes when iteration 2 is built:
 
-- It reads with Guile's default read options; `|` cannot be a token.
-- Options are lists: `(steps-per-pulse N)` and `(steps-per-system N)` on
-  `piece` (exact positive integers), `(show-names yes|no)` after an
-  instrument's notes, `(subtitle STRING)` in a group, `(alias ...)` and
-  `(display ...)` on degrees. Their errors (`bad-option`,
-  `unknown-option`, `duplicate-option`) are at the option's own line.
-- Every token is one step; `-` and `·` are rests; there are no duration
-  suffixes, `rep`, checks, patterns, colotomies or scores.
-  `/` takes no step.
-- Parts are `(part NAME INSTRUMENT TOKEN ...)`; groups are top-level
-  forms, and a part in no group gets a default group.
-- `text` raises `not-implemented`.
+- `piece` takes the transitional `:steps-per-pulse` and
+  `:steps-per-system` options, and no `:colotomy` or `:pickup`.
+- Every token is one step; `-` is the rest and `/` takes no step; there
+  are no duration suffixes, `rep`, checks, patterns, colotomies or
+  scores. Steps 8 to 12 are not built.
+- Every part is in its own default group (`piece-groups`).
 - The condition has a `step` field (0-based) instead of `time` and
   `uses`, and messages count steps from 1.
-- `mixed-pitched-group` allows a pitched instrument with stroke
-  instruments.
 
 ## Open questions
 

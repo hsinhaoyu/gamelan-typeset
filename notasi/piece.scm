@@ -24,11 +24,12 @@ make-source-location source-location?
             scale-name scale-degrees scale-pitched? scale-location
 
             make-degree degree?
-            degree-name degree-aliases degree-display degree-location
+            degree-name degree-aliases degree-display degree-damped
+            degree-location
 
             make-instrument instrument?
             instrument-name instrument-scale instrument-notes
-            instrument-show-names? instrument-location
+            instrument-location
 
             make-note note?
             note-name note-degree note-octave
@@ -75,25 +76,26 @@ make-source-location source-location?
   (location scale-location))
 
 ;;; A scale degree or a stroke.  DISPLAY is always a string; the reader
-;;; fills in the name when the source gives none.
+;;; fills in the name when the source gives none.  DAMPED is the form
+;;; for a note cut short, or #f to use DISPLAY.
 (define-record-type <degree>
-  (make-degree name aliases display location)
+  (make-degree name aliases display damped location)
   degree?
   (name     degree-name)
   (aliases  degree-aliases)
   (display  degree-display)
+  (damped   degree-damped)
   (location degree-location))
 
 ;;; NOTES is a vector: ascending pitch for a pitched instrument, the
 ;;; listed order for a stroke instrument.
 (define-record-type <instrument>
-  (make-instrument name scale notes show-names? location)
+  (make-instrument name scale notes location)
   instrument?
-  (name        instrument-name)
-  (scale       instrument-scale)
-  (notes       instrument-notes)
-  (show-names? instrument-show-names?)  ; draw note names (ADR 0019)
-  (location    instrument-location))
+  (name     instrument-name)
+  (scale    instrument-scale)
+  (notes    instrument-notes)
+  (location instrument-location))
 
 ;;; DEGREE indexes the scale's degrees; OCTAVE is #f for a stroke.
 (define-record-type <note>

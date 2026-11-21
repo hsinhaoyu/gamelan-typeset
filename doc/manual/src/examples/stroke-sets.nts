@@ -6,6 +6,6 @@
 
 ;; Kendang strokes, shown in the score as D, d and du.
 (strokes kendang-strokes
-  (dag (display "D"))
-  (dug (display "d"))
+  (dag :display "D")
+  (dug :display "d")
   du)

@@ -16,7 +16,7 @@
 - [Steps and pulses](steps-and-pulses.md)
 - [Notes, rests and holds](notes-rests-and-holds.md)
 - [Chords](chords.md)
-- [Groups](groups.md)
+- [Several parts on one instrument](parts.md)
 
 # Templates
 

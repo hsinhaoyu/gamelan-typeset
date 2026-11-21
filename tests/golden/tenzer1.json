@@ -3,7 +3,7 @@
   "title": "Eight-pulse gong cycle",
   "steps_per_pulse": 1,
   "sizes": {
-    "label_width": "9.3em",
+    "label_width": "5.1em",
     "lane_width": "2.0em",
     "step_width": "2.0em",
     "row_height": "2.0em"
@@ -14,7 +14,7 @@
       "steps": 9,
       "groups": [
         {
-          "label": "Ugal",
+          "label": "ugal",
           "subtitle": null,
           "lanes": ["e2", "o2", "i2", "a1"],
           "voices": [
@@ -107,7 +107,7 @@
           ]
         },
         {
-          "label": "Kempli",
+          "label": "kempli",
           "subtitle": null,
           "lanes": ["K"],
           "voices": [
@@ -118,7 +118,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -127,7 +127,7 @@
                   "start": 1,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -136,7 +136,7 @@
                   "start": 2,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -145,7 +145,7 @@
                   "start": 3,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -154,7 +154,7 @@
                   "start": 4,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -163,7 +163,7 @@
                   "start": 5,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -172,7 +172,7 @@
                   "start": 6,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -181,7 +181,7 @@
                   "start": 7,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -190,7 +190,7 @@
                   "start": 8,
                   "dur": 1,
                   "lane": 0,
-                  "text": "K",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -200,7 +200,7 @@
           ]
         },
         {
-          "label": "Gong & kempur",
+          "label": "gong",
           "subtitle": null,
           "lanes": ["G", "P"],
           "voices": [
@@ -211,7 +211,7 @@
                   "start": 0,
                   "dur": 1,
                   "lane": 0,
-                  "text": "G",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -220,7 +220,7 @@
                   "start": 4,
                   "dur": 1,
                   "lane": 0,
-                  "text": "G",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -229,7 +229,7 @@
                   "start": 5,
                   "dur": 1,
                   "lane": 1,
-                  "text": "P",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -238,7 +238,7 @@
                   "start": 7,
                   "dur": 1,
                   "lane": 1,
-                  "text": "P",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false
@@ -247,7 +247,7 @@
                   "start": 8,
                   "dur": 1,
                   "lane": 0,
-                  "text": "G",
+                  "text": null,
                   "fill": "#cccccc",
                   "text_color": "#222222",
                   "continued": false

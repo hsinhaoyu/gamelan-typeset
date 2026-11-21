@@ -1,7 +1,9 @@
 # Notes, rests and holds
 
-A **part** is the line of music one player plays. It names the part,
-then the instrument, then the music, one step at a time:
+A **part** is the line of music one player plays. It names the
+instrument, then gives the music, one step at a time. Here two parts
+play the ugal, so each also has a name, given with `:name` (see
+[Several parts on one instrument](parts.md)):
 
 ```scheme
 {{#include examples/notes-by-name-and-number.nts}}
@@ -29,7 +31,7 @@ Not every step strikes a new note:
 |---|---|
 | a note | Strike that note. It takes one step. |
 | `_` | Hold: the note before keeps sounding for one more step. |
-| `-` or `·` | Rest: silence for one step. The note before is damped. The two mean the same; use whichever is easier to read. |
+| `-` | Rest: silence for one step. The note before is damped. |
 | `/` | Nothing: a separator to make the line easier to read. It takes no step. |
 
 So in the example, `a1` sounds for steps 1 to 3, step 4 is silent, `i2`
@@ -42,13 +44,9 @@ the line by eye. A note can be held across a `/`.
 
 - `_` must follow a note (or another `_`). A part can't start with `_`,
   and a rest can't be held.
-- **Every part has the same number of steps.** Count notes, `_`, `-`
-  and `·`; don't count `/`. If the gong only plays at the start, fill the
+- **Every part has the same number of steps.** Count notes, `_` and
+  `-`; don't count `/`. If the gong only plays at the start, fill the
   rest of its line with `-`.
-- Each part has its own name. A part may share its instrument's name,
-  as in `(part ugal ugal ...)`.
-
-The `·` is a middle dot (on a Mac: Option+Shift+9). A full stop `.`
-can't be used for a rest.
+- A full stop `.` can't be used for a rest; write `-`.
 
 Next: playing two notes at once, with [chords](chords.md).

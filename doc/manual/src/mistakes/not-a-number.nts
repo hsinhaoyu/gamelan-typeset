@@ -1,2 +1,2 @@
 (piece "Gilak"
-  (steps-per-pulse four))
+  :steps-per-pulse four)

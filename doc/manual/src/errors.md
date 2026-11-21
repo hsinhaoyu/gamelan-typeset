@@ -7,8 +7,9 @@ you where it is and what is wrong:
 {{#include mistakes/not-a-number.txt}}
 ```
 
-This says: in the file `not-a-number.nts`, on line 2, the number of
-steps per pulse is the word `four`, not a number.
+This says: in the file `not-a-number.nts`, in the form that starts on
+line 1, the number of steps per pulse is the word `four`, not a
+number.
 
 Fix that one problem and try again. If there is another, notasi will
 tell you about it next.
@@ -48,7 +49,7 @@ notasi doesn't know `pice`; check the spelling.
 {{#include mistakes/unknown-option.txt}}
 ```
 
-The `piece` line accepts only `steps-per-pulse` and `steps-per-system`
+The `piece` line accepts only `:steps-per-pulse` and `:steps-per-system`
 (see [Steps and pulses](steps-and-pulses.md)).
 
 ## Not a whole number
@@ -61,7 +62,7 @@ The `piece` line accepts only `steps-per-pulse` and `steps-per-system`
 {{#include mistakes/not-a-number.txt}}
 ```
 
-Write the number in digits, with no decimal point: `(steps-per-pulse 4)`.
+Write the number in digits, with no decimal point: `:steps-per-pulse 4`.
 
 ## Missing bracket
 
@@ -88,8 +89,8 @@ missing bracket is somewhere before that.
 {{#include mistakes/not-yet.txt}}
 ```
 
-A few forms in the notation reference, such as `text` for captions,
-aren't ready yet. Everything in this manual works.
+A few forms in the notation reference, such as `score`, aren't ready
+yet. Everything in this manual works.
 
 ## Mistakes in scales and instruments
 
@@ -196,20 +197,35 @@ instrument's range, or the octave.
 {{#include mistakes/unequal-length.txt}}
 ```
 
-Every part needs the same number of steps. Count the notes, `_`, `-`
-and `·` in each (not `/`), and add rests to the shorter part.
+Every part needs the same number of steps. Count the notes, `_` and
+`-` in each (not `/`), and add rests to the shorter part.
 
-### A part in two groups
+### Two parts on one instrument
 
 ```scheme
-{{#include mistakes/part-in-two-groups.nts}}
+{{#include mistakes/parts-need-names.nts}}
 ```
 
 ```text
-{{#include mistakes/part-in-two-groups.txt}}
+{{#include mistakes/parts-need-names.txt}}
 ```
 
-Each part can be in only one group. Remove it from one of them.
+When an instrument has two parts, give each a name with `:name`, as in
+`(part reyong :name sangsih 4 3 2 1)` (see
+[Several parts on one instrument](parts.md)).
+
+### A setting after the music
+
+```scheme
+{{#include mistakes/option-after-music.nts}}
+```
+
+```text
+{{#include mistakes/option-after-music.txt}}
+```
+
+Settings such as `:name` come right after the instrument, before the
+first note: `(part ugal :name melody 1 2 3 4)`.
 
 ## Mistakes with templates
 
@@ -286,20 +302,20 @@ Put the `part` in the piece.
 - **a second (piece ...) form**: a file holds one piece. Remove the
   extra `piece` line, or put the second piece in its own file.
 - **option … given twice**: remove one of the two settings.
-- **… is already defined in this file**: two scales, stroke sets or
-  instruments have the same name. Rename or remove one.
+- **… is already defined in this file**: two scales, stroke sets,
+  instruments or parts have the same name. Rename or remove one.
 - **… ends in a digit, which would be read as an octave**: rename the
   scale degree or alias so it doesn't end in a number.
 - **… is used twice in …**: a scale or stroke set uses the same name or
   alias twice.
 - **… is listed twice**: a drum or gong lists the same stroke twice.
-- **no instrument called …** / **no part with this name**: check the
-  spelling of the instrument in a `part`, or of a part in a `group`.
+- **no instrument called …**: check the spelling of the instrument in a
+  `part`.
 - **Typst 0.15.1 is needed to draw figures**: install Typst (see
   [Drawing a score](drawing.md#what-you-need)).
 - **template … uses itself, through a cycle of uses**: two templates
   load each other. Remove one of the `use` lines.
 - **a chord needs two or more notes …** / **a chord has the same note
   twice**: see [Chords](chords.md).
-- **a group can hold one pitched instrument …**: see
-  [Groups](groups.md).
+- **a group is written inside a score**: groups aren't ready yet; leave
+  the `group` line out, and each part is drawn on its own.

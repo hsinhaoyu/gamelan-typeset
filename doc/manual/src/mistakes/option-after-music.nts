@@ -1,7 +1,4 @@
 (piece "Gilak")
 (scale selisir ding dong deng dung dang)
 (instrument ugal selisir dong1 deng1 dung1 dang1 ding2)
-(part polos ugal 1 2 3 4)
-(part sangsih ugal 4 3 2 1)
-(group "Kotekan" polos sangsih)
-(group "Polos" polos)
+(part ugal 1 2 3 4 :name melody)

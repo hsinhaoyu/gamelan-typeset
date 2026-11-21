@@ -3,8 +3,8 @@
 ;; in the score by their vowel.
 
 (scale selisir
-  (ding (alias i) (display "i"))
-  (dong (alias o) (display "o"))
-  (deng (alias e) (display "e"))
-  (dung (alias u) (display "u"))
-  (dang (alias a) (display "a")))
+  (ding :alias i :display "i")
+  (dong :alias o :display "o")
+  (deng :alias e :display "e")
+  (dung :alias u :display "u")
+  (dang :alias a :display "a"))

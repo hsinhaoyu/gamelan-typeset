@@ -57,7 +57,7 @@ when it is written.
 2. Getting started: installing, your first piece
 3. Scales, strokes and instruments
 4. Writing music: steps and pulses, notes and octaves, rests and holds,
-   chords, groups
+   chords, several parts on one instrument
 5. Templates: using `(use gong-kebyar)`, writing your own
 6. Drawing a score (once rendering exists)
 7. When something goes wrong: common error messages
