@@ -64,7 +64,7 @@ Each decision's context and consequences are in its record in
 [`../decisions/`](../decisions/README.md).
 
 1. The notation is s-expressions: [0001](../decisions/0001-notation-is-s-expressions.md)
-2. Time is a grid of equal steps: [0002](../decisions/0002-time-is-a-grid-of-equal-steps.md)
+2. Time is measured in pulses, with durations: [0025](../decisions/0025-time-is-measured-in-pulses.md) (planned; replaces [0002](../decisions/0002-time-is-a-grid-of-equal-steps.md))
 3. Notes are symbolic: [0003](../decisions/0003-notes-are-symbolic.md)
 4. The piece is the centre: [0008](../decisions/0008-the-piece-is-the-centre.md)
 5. Guile decides, Typst draws: [0005](../decisions/0005-guile-decides-typst-draws.md)
@@ -78,6 +78,13 @@ Each decision's context and consequences are in its record in
 13. A plain white grid; notes fill their cells: [0020](../decisions/0020-plain-grid-notes-fill-cells.md)
 14. pastel1 is the default palette: [0021](../decisions/0021-pastel1-is-the-default-palette.md)
 15. Notation files end in `.nts`: [0022](../decisions/0022-notation-files-end-in-nts.md)
+16. Options are written `:key value`: [0026](../decisions/0026-options-are-key-value.md) (planned)
+17. A part names its instrument first: [0027](../decisions/0027-a-part-names-its-instrument-first.md) (planned)
+18. `_` holds, `-` damps: [0028](../decisions/0028-hold-sustains-rest-damps.md) (planned)
+19. Patterns belong to one instrument: [0029](../decisions/0029-patterns-belong-to-one-instrument.md) (planned)
+20. Colotomies generate the gong and kempli parts: [0030](../decisions/0030-colotomies-generate-gong-and-kempli-parts.md) (planned)
+21. Printing belongs to scores: [0031](../decisions/0031-printing-belongs-to-scores.md) (planned)
+22. The palette is chosen in the score: [0032](../decisions/0032-the-palette-is-chosen-in-the-score.md) (planned)
 
 Proposed, not yet agreed:
 
@@ -109,14 +116,18 @@ Proposed, not yet agreed:
 
 | Term | Meaning |
 |---|---|
-| step | The smallest time unit; one token in a part |
-| pulse | The steady stroke of the kempli/kajar; a fixed number of steps (`steps-per-pulse`) |
+| pulse | The steady stroke of the kempli/kajar; the unit of time. Durations are counted in pulses |
+| step | One column of a printed grid: the largest duration dividing every time a score prints, derived by layout. (v1: one token in a part, `steps-per-pulse` to a pulse) |
+| cycle | One repetition of a colotomy; positions are a cycle and a pulse |
+| colotomy | A named cycle of pulses and the gong parts that mark it |
+| pattern | A named figure for one instrument, played in parts with `@NAME` |
 | system | One horizontal block of the figure, e.g. one gong cycle |
 | scale | Ordered set of degree names, e.g. `ding dong deng dung dang` |
 | stroke set | Named set of unpitched strokes, e.g. kendang `dag dug du` |
 | instrument | Ordered list of the notes (keys/pots) an instrument has |
 | part | A line of music played on one instrument |
-| group | Parts drawn together in one block of rows, e.g. polos + sangsih |
+| score | How the music is printed: groups of parts and printing options; a file may have several |
+| group | Parts drawn together in one block of rows, e.g. polos + sangsih; part of a score (v1: a top-level form) |
 | lane | One row inside a group, one per note (pitch) or stroke type |
 | polos / sangsih | The two interlocking parts of a kotekan |
 | colotomic | Gong, kempur, kempli etc., which mark the structure of the cycle |

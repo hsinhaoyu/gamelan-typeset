@@ -34,6 +34,10 @@ Neither target needs them; the design leaves room for them.
 - Duration scaling `(* M ...)` and chord durations
 - Pattern operators `:octave`, `:drop-first`, `:drop-last`
 - Patterns with parameters; patterns written in degrees only
+- Patterns written for a scale (`:scale`) and shared between instruments,
+  with `:octave` to change register
+- A surface syntax: a line-based text format without parentheses, as a
+  second front end (ADR 0001; formerly a planned extension in 01)
 - Stroke `n` (kelenang)
 - Tagged versions of the music
 
@@ -41,6 +45,7 @@ Neither target needs them; the design leaves room for them.
 
 - `:lines N`: lines inside long cycles
 - Departing from the colotomy, changing colotomies, sections
+- A pickup longer than a cycle
 - Longgor forms and other meters
 - Another timekeeper (`:timekeeper`, e.g. the kajar) or its own pattern
 - Gongs never damped (`:damped no`)
