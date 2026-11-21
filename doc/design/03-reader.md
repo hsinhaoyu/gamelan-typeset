@@ -433,6 +433,41 @@ All errors at a use carry the part, the time and the chain of uses.
 - [scores] Different pattern names overlapping in one group at the
   chosen level: `pattern-names-overlap` (`part` and `time` set).
 
+## Slices (iteration 2)
+
+**Planned.** Milestone 1 of iteration 2 (`feat/music`) is built in five
+slices, each its own branch and PR into `dev`, started with
+`/start-milestone <branch>`. Each slice changes the records (02), the
+reader, and every layer it touches, and updates the examples, golden
+files and manual pages it affects, so that after each one `make check`
+passes and the manual describes what the code does. Each covers the
+error cases tagged with its feature, and the steps above that they need.
+
+1. `feat/music-syntax` **[syntax]**: reading with `r7rs-symbols` and
+   `keywords` off; step 4 (`:key value` options) for every form;
+   `(part INSTRUMENT :name NAME ...)`; degrees and strokes with
+   `:alias`, `:display` and `:damped`; instruments without options;
+   `·` and the top-level `group` gone. Until milestone 2, every part is
+   drawn in its own group, and no note shows its name.
+2. `feat/music-durations` **[durations]**: `(notasi expand)` (ADR 0035)
+   and step 9 for tokens: times as exact rationals in pulses (02),
+   duration suffixes and the current duration, `_` and `-`, `|` checks,
+   `/`; the condition's `time` and `uses` fields, with positions as
+   `pulse P`; `steps-per-pulse` and `steps-per-system` gone, and layout
+   deriving the step (04, "The step"), with systems one per piece until
+   scores.
+3. `feat/music-rep` **[rep]**: `rep`.
+4. `feat/music-colotomy` **[colotomy]**: `colotomy` forms, `:colotomy`
+   and `:pickup`, generated parts (step 11), `||` checks, lengths
+   (step 10), positions as `cycle C, pulse P`, `time->position` and
+   `position->time`. The open question about a piece without a `kempli`
+   instrument is decided before this slice starts.
+5. `feat/music-patterns` **[patterns]**: `pattern` forms, checked where
+   they are defined (step 8), `@NAME` and `(@ NAME :step :short :long)`,
+   spans, and errors that name the chain of uses.
+
+The **[scores]** cases are built in milestone 2 (04, "Slices").
+
 ## What the reader reads today
 
 **Implemented** (v1, four slices, merged as `feat/reader-forms`,

@@ -1,6 +1,6 @@
 # Iteration 2: Gold's Jaya Semara and Tenzer's Baris
 
-Status: deciding
+Status: building
 
 ## Goal
 
@@ -45,8 +45,32 @@ this order (ADRs 0023, 0024):
 3. `04-layout.md` and `05-typst-backend.md`
 4. `06-documents.md` and the build order in `doc/design/README.md`
 
-Promoted so far: `01-notation.md` (ADRs 0025–0032), `02-piece.md` (ADRs 0033–0034), `03-reader.md` (ADR 0035), `04-layout.md` (ADR 0036), `05-typst-backend.md` (ADR 0037).
+Promoted so far: `01-notation.md` (ADRs 0025–0032), `02-piece.md` (ADRs 0033–0034), `03-reader.md` (ADR 0035), `04-layout.md` (ADR 0036), `05-typst-backend.md` (ADR 0037), `06-documents.md` and the build order. Promotion is complete.
 
 ## Milestones
 
-To be filled in when promotion is complete.
+Each slice is its own branch and PR into `dev`, started with
+`/start-milestone <branch>`. After each one, `make check` passes and
+the manual describes what the code does.
+
+1. **`feat/music`**: the music (01, 02, 03), in five slices, see
+   [03-reader.md](../../design/03-reader.md#slices-iteration-2):
+   1. `feat/music-syntax`
+   2. `feat/music-durations`
+   3. `feat/music-rep`
+   4. `feat/music-colotomy`
+   5. `feat/music-patterns`
+2. **`feat/scores`**: scores (01, 02, 04, 05), in five slices, see
+   [04-layout.md](../../design/04-layout.md#slices-iteration-2):
+   1. `feat/scores-form`
+   2. `feat/scores-contract`
+   3. `feat/scores-rows`
+   4. `feat/scores-overlays`
+   5. `feat/scores-range`
+3. **`feat/targets`**: the acceptance test, with no slices. The
+   `gong-kebyar` template's reyong becomes e2 to u4 and its gongs one
+   instrument with strokes `G GL P T`; `examples/tenzer1.nts` is
+   rewritten; the two targets are added to `examples/` as
+   `jaya-semara.nts` and `baris.nts`, with golden files per score; the
+   manual is brought up to date. Done when both draw as the books show,
+   checked by eye.
