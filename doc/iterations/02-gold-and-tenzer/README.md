@@ -45,7 +45,7 @@ this order (ADRs 0023, 0024):
 3. `04-layout.md` and `05-typst-backend.md`
 4. `06-documents.md` and the build order in `doc/design/README.md`
 
-Promoted so far: `01-notation.md` (ADRs 0025–0032).
+Promoted so far: `01-notation.md` (ADRs 0025–0032), `02-piece.md` (ADRs 0033–0034).
 
 ## Milestones
 

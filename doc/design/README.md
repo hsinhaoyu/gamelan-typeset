@@ -85,6 +85,7 @@ Each decision's context and consequences are in its record in
 20. Colotomies generate the gong and kempli parts: [0030](../decisions/0030-colotomies-generate-gong-and-kempli-parts.md) (planned)
 21. Printing belongs to scores: [0031](../decisions/0031-printing-belongs-to-scores.md) (planned)
 22. The palette is chosen in the score: [0032](../decisions/0032-the-palette-is-chosen-in-the-score.md) (planned)
+23. Pitched and stroke instruments are grouped apart: [0034](../decisions/0034-pitched-and-stroke-instruments-are-grouped-apart.md) (planned)
 
 Proposed, not yet agreed:
 

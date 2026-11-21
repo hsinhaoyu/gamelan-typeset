@@ -491,9 +491,9 @@ otherwise. Without a damped form, the display form is used for both.
 
 - Score names are unique in a file. Group labels need not be.
 - Every part a group names must exist, written or generated.
-- Within one score a part is in at most one group, and all the pitched
-  parts in a group play the same instrument (ADR 0011). The same part
-  may appear in several scores.
+- Within one score a part is in at most one group. A group's parts are
+  either all pitched, on the same instrument (ADR 0011), or all on stroke
+  instruments (ADR 0034). The same part may appear in several scores.
 - A group with no parts, an unknown option, an option at the wrong
   level, or a bad value (an unknown palette, a colour that is not
   `"#rrggbb"`, a length without a unit) is an error.
