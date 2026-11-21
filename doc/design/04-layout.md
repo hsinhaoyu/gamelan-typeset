@@ -1,101 +1,194 @@
 # 04 — Layout
 
-Status: implemented (draft v1): all four slices (see "Slices").
-Modules: `(notasi style)`, `(notasi layout)`; tests in
-`tests/style.scm`, `tests/layout.scm` and `tests/golden.scm`.
+Status: planned (iteration 2). The layout below, `layout-score`, is
+agreed and not yet built: `(notasi layout)` implements v1's
+`layout-piece` (all four v1 slices, see "What layout does today").
+"Note style" is **Implemented** and stays, with the style now built from
+a score's options. Modules: `(notasi style)`, `(notasi layout)`; tests
+in `tests/style.scm`, `tests/layout.scm` and `tests/golden.scm`.
+
+Everything in this document is **Planned** unless it says otherwise.
 
 ## Responsibility
 
 Make every *musical* layout decision and produce a figure description
-(the JSON contract in 05-typst-backend.md). `(notasi style)` is part of
-layout, split out only to keep modules small, so layout still depends
-only on `(notasi piece)` in the sense of ADRs 0004 and 0008: it never
-looks at the reader or at Typst. Layout knows music, not
-Typst; the Typst template knows drawing, not music.
+(the JSON contract in 05-typst-backend.md), for one score of a piece.
+`(notasi style)` is part of layout, split out only to keep modules
+small, so layout depends only on `(notasi piece)` and `(notasi style)`
+(ADRs 0008, 0035): it never looks at the reader or at Typst. Layout
+knows music, not Typst; the Typst template knows drawing, not music
+(ADR 0005). The template does no counting: every number, line and
+label it draws is in the figure.
 
 ## Public interface
 
 ```
-(layout-piece piece #:key (style (default-style))) → figure
+(layout-score piece score) → figure
 ```
 
-**Implemented** (slice 3, `feat/layout`), in `(notasi layout)`, tests in
-`tests/layout.scm`. "Systems", "Groups and lanes", "Lane labels" and
-"Sizes" below are implemented too.
+`score` is one of `(piece-scores piece)`, e.g. `(piece-score piece
+'full)`. Its groups already carry their effective settings (ADR 0033),
+so layout reads plain values. `layout-score` replaces `layout-piece`.
 
-The figure is the JSON value of 05's contract itself, as `(notasi json)`
-writes it: alists with symbol keys for objects, vectors for arrays, the
-symbol `null` for null. Writing it out is then just `write-json`
-(slice 4), and layout is tested with `equal?`. Keys come in this order:
+The figure is the JSON value of 05's contract itself, version 2 (ADR
+0036), as `(notasi json)` writes it: alists with symbol keys for
+objects, vectors for arrays, the symbol `null` for null. Writing it out
+is then just `write-json`, and layout is tested with `equal?`. Keys come
+in this order:
 
 | Object | Keys |
 |---|---|
-| figure | `version` (1), `title`, `steps_per_pulse`, `sizes`, `systems`, `caption` |
-| sizes | `label_width`, `lane_width`, `step_width`, `row_height` |
-| system | `start`, `steps`, `groups` |
-| group | `label`, `subtitle`, `lanes`, `voices` |
+| figure | `version` (2), `title`, `subtitle`, `steps_per_pulse`, `sizes`, `systems`, `caption` |
+| sizes | `font_size`, `label_width`, `lane_width`, `cell_width`, `cell_height` |
+| system | `start`, `steps`, `header`, `lines`, `groups` |
+| header | `label`, `cycles`, `pulses` |
+| cycle mark | `column`, `text` |
+| group | `label`, `subtitle`, `lanes`, `voices`, `overlays` |
 | voice | `name`, `events` |
 | event | `start`, `dur`, `lane`, `text`, `fill`, `text_color`, `continued` |
+| overlay | `start`, `dur`, `row`, `rows`, `text`, `continued` |
 
-- `title` is the piece's title. `caption` is `null`: a piece has no
-  caption until `text` (v2) or a document (06) supplies one.
+- `title`, `subtitle` and `caption` are the score's (`null` when it has
+  none).
+- `steps_per_pulse` is the number of columns in a pulse (see "The
+  step").
+- `font_size` is the score's `:font-size`, or `null` to leave it to the
+  document; `cell_width` and `cell_height` are the score's lengths as
+  written.
 - A group's `subtitle` is `null` when it has none; a voice's `name` is
   its part's name as a string.
-- An event's `fill` is `null` when the look's fill is `#f` (only a
-  custom scheme does that), and its `text` is `null` when the
-  instrument doesn't show names.
-
-`style` says how notes look (see "Note style" below). It is optional;
-`(default-style)` is used when it is left out. In v1 it is set from
-Guile (and later from the command line); a `style` form in the notation
-is an open question.
+- An event's `text` is `null` unless its group has `note-names?`; its
+  `fill` is `null` when the group's `fill` is `none`, or when a custom
+  scheme's look has no fill.
 
 ## Decisions layout makes
 
-### Systems
+### The step
 
-- Split the piece into systems of `steps-per-system` steps (default: one
-  system for the whole piece). The last system may be shorter. A piece
-  of length 0 has no systems.
+The piece's times are rationals in pulses (ADR 0025); the figure counts
+in columns. For each score, layout takes the **step**: the largest
+duration that divides 1 pulse and every time the score prints, which is
+every start and end of an event in the range, every pattern-span edge
+at the chosen level, `from`, `to`, every break and the system length.
+Since it divides a pulse, the step is 1/k of a pulse, and
+`steps_per_pulse` is k. Every time is then converted to a whole number
+of columns. `(notasi json)` refuses rationals, so a time left
+unconverted fails loudly.
+
+When the fastest notes are quarter pulses, k is 4; an excerpt without
+them may get a coarser grid than the whole piece.
+
+### The range and systems
+
+- The score prints the piece from `from` to `to`. A note that started
+  before `from` arrives cut, with `continued: true`, as at a system
+  break; one that runs past `to` is cut there.
+- The range is split into systems at every break and every
+  `system-length` pulses from `from` (default: one system for the whole
+  range). The last system may be shorter. An empty range has no systems.
 - Events crossing a system boundary are cut at every boundary they
   cross. The first piece has `continued: false`; every later piece has
-  `continued: true`; the template draws it without its name
-  (05, ADR 0020).
-- Each system carries its absolute start step, so pulse numbers continue
-  across systems; an event's `start` is relative to its system.
+  `continued: true`; the template draws it without its name (05,
+  ADR 0020).
+- Each system carries its absolute start column (counted from the start
+  of the piece), so numbers continue across systems and excerpts keep
+  the piece's numbering; an event's `start` is relative to its system.
+- With a pickup, the first system starts with it.
 
-### Groups and lanes
+### Header and lines
 
-- One block of rows per group, in the piece's group order. Every group
-  appears in every system, with one voice per part in the group's part
-  order, even when it has no events in that system.
-- `lanes` is the group's lane labels (see "Lane labels"), top first,
-  from `group-lanes`; they are the same in every system. An event's
-  `lane` is the 0-based index of its note in that list.
+Layout works out every header number and every line, for every column:
+
+- `header.pulses`: one entry per column of the system, the pulse number
+  at the first column of each pulse and `null` elsewhere. The number is
+  the pulse within the cycle (within the piece, without a colotomy),
+  printed as the score's `numbering` says: with `gong-last` pulse k of
+  an N-pulse cycle is printed k, with `gong-first` (k mod N) + 1. The
+  pickup is numbered as the last pulses of a cycle. `null` when
+  `pulse-numbers?` is false.
+- `header.cycles`: a list of `{column, text}`, the cycle number at the
+  first column of each cycle in the system, once per cycle. `null` when
+  `cycle-numbers?` is false.
+- `header.label`: the score's `pulse-label`, or `null`.
+- `lines`: one entry per column, for the line at its left edge: `cycle`
+  where a cycle starts (just after the gong), `pulse` where another
+  pulse starts, `none` elsewhere. Without a colotomy there are no
+  `cycle` lines.
+
+### Groups and rows
+
+- One block of rows per group, in the score's order. Every group appears
+  in every system, with one voice per member part in the group's order,
+  even when it has no events in that system.
+- A group's label in each system is the long or short label, as its
+  `labels` says: `first-long` gives the long label in the first system
+  and the short one after.
+- **`rows` `notes`** (**Implemented** for v1 groups): `lanes` is the
+  group's lane labels, top first, from `group-lanes`, the same in every
+  system. An event's `lane` is the 0-based index of its note in that
+  list. Lanes are the notes the group actually uses, highest pitch at
+  the top; stroke instruments give one lane per stroke, in instrument
+  order. A group's parts are all pitched on one instrument or all on
+  stroke instruments (02-piece.md, invariant 6), so its lanes never mix
+  ranges or pitches with strokes.
+- **`rows` `parts`**: one row per member, labelled with its row label;
+  an event's `lane` is its part's row. Notes are told apart by their
+  names (`note-names?` is true, invariant 7).
+- **`rows` `single`**: one row for all the members, labelled `""`; every
+  event's `lane` is 0. The reader has checked that no two notes share a
+  cell.
 - A chord gives one event per note, with the same start and duration.
-  A voice's events are sorted by start, then by lane.
+  In `parts` and `single` rows its notes share the row. A voice's events
+  are sorted by start, then by lane.
+
+### Note text, fill and holds
+
 - Each event's `text`, `fill` and `text_color` come from
-  `(note-look style instrument note)` (see "Note style"), except that
-  `text` is `null` when the part's instrument doesn't show names
-  (`instrument-show-names?`, ADR 0019).
-- Lanes are the notes the group actually uses, highest pitch at the top
-  (`group-lanes` from `(notasi piece)`). Unused instrument notes are not drawn,
-  which keeps figures compact.
-- Option for later: `#:all-lanes #t` to draw the instrument's full range.
-- Stroke instruments: one lane per stroke type, in instrument order.
-- A group's pitched parts all play one instrument (02-piece.md,
-  invariant 6), so its pitched lanes never mix two instruments' ranges.
+  `(note-look style instrument note)` (see "Note style"), with the
+  group's style.
+- With `note-names?`, the text is the note's damped form when the event
+  lasts no longer than one column, and its display form otherwise
+  (`note-display` with `#:damped?`). Without it, `text` is `null`.
+- With `fill` `none`, `fill` is `null`: the template draws the name
+  alone.
+- With `holds` `dash`, every column a note is held after its first gets
+  an event of one column with text `"-"`, `fill` `null`, in the note's
+  row, so a sung line reads `nang - - ni'`.
+
+### Pattern names (overlays)
+
+With `pattern-names` `short` or `long`, layout names each pattern use at
+the group's `pattern-level`:
+
+- It takes the spans of that depth from the group's member parts, with
+  their short or long names, and merges identical ones (the same start,
+  end and text). The reader has checked that different names don't
+  overlap in one group.
+- Each becomes an overlay: its columns (`start`, `dur`), the rows it
+  covers (`row` 0, `rows` the group's row count) and its text.
+- An overlay cut by a system boundary, or by the range, is split like a
+  note: the later piece has `continued: true`, and its text is written
+  again.
 
 ### Lane labels
 
 Lane labels show the display form followed by the octave number
-(`i2`) in small grey text; a stroke's label is its display form.
+(`i2`) in small grey text; a stroke's label is its display form
+(**Implemented**, `note-label`). With `parts` rows the labels are the
+row labels.
 
 ### Note style
 
-**Implemented** (slice 2, `feat/layout-style`). Module `(notasi style)`,
-which depends only on `(notasi piece)`; tests in `tests/style.scm`.
-Layout (slice 3) imports it.
+**Implemented** (v1 slice 2, `feat/layout-style`). Module
+`(notasi style)`, which depends only on `(notasi piece)`; tests in
+`tests/style.scm`.
+
+**Planned**: layout builds one style per group, from the group's
+`scheme`, `palette` and `colors` (ADR 0032), with
+`(make-style #:scheme #:palette #:degree-colors)`. The reader has
+checked the names and colours, so `make-style` does not fail here.
+`(palette-names)` is what the reader checks palette names against
+(ADR 0035).
 
 How each note looks is decided by a **colour scheme**: a procedure
 `(scheme style instrument note) → look`. A **look** is an immutable
@@ -134,11 +227,10 @@ picks colours (ADR 0005).
   ((c + 0.055)/1.055)^2.4; L = 0.2126 R + 0.7152 G + 0.0722 B; and the
   ratio of two luminances is (L1 + 0.05)/(L2 + 0.05), lighter over
   darker. So strong colours get white text and light ones dark text.
-- **Strokes are grey boxes** (`fill` `#cccccc`, ADRs 0019 and 0021), with the
-  stroke's display form (or its name) as text, in the colour
-  `text-color-for` gives (near-black on this grey). `(dag (display
-  "D"))` in the stroke set sets the text, which is shown when the
-  instrument shows names (see "Groups and lanes").
+- **Strokes are grey boxes** (`fill` `#cccccc`, ADRs 0019 and 0021),
+  with the stroke's display form (or its name) as text, in the colour
+  `text-color-for` gives (near-black on this grey). The text is shown
+  when the group has `note-names?` (ADR 0031).
 - Parts are not told apart: polos and sangsih in one group are drawn in
   the same pitch colours, so the group shows the composite melody.
   The group's label and subtitle say which parts it holds.
@@ -165,10 +257,10 @@ entry, the irritants include the entry or its bad part. A degree name
 that no scale has is allowed; it is just never used. Keys are degree
 names, not aliases: `(i . "#000000")` overrides nothing, even where
 `i` is an alias of `ding`. Overrides apply to pitched notes only;
-strokes are always grey. The accessors return resolved values: `style-scheme`
-a procedure (`by-degree` for the name), `style-palette` the list of
-colours, all colours in lowercase. `by-degree` is exported, so a
-custom scheme can fall back on it.
+strokes are always grey. The accessors return resolved values:
+`style-scheme` a procedure (`by-degree` for the name), `style-palette`
+the list of colours, all colours in lowercase. `by-degree` is exported,
+so a custom scheme can fall back on it.
 
 The colours notasi makes (palettes, overrides, text colours) are
 lowercase `#rrggbb` strings; strokes are `#cccccc`. A custom
@@ -191,71 +283,69 @@ colours as a list (an `&error` for an unknown name).
 | `pastel2` | `#b3e2cd #fdcdac #cbd5e8 #f4cae4 #e6f5c9 #fff2ae #f1e2cc #cccccc` |
 
 The values are copied into the code with ColorBrewer's attribution, as
-its licence (Apache 2.0) requires. `pastel1` is the default (ADR 0021): soft
-colours that leave the score calm, all of which take near-black text.
-`dark2` gives strong colours with mostly white text.
+its licence (Apache 2.0) requires. `pastel1` is the default (ADR 0021):
+soft colours that leave the score calm, all of which take near-black
+text. `dark2` gives strong colours with mostly white text.
 
 ### Sizes
 
-- Step column width, row height and label column width are layout
-  outputs, because the background and note layers in Typst must use
-  identical fixed column widths (see 05). Widths are estimated from the
-  number of characters, for the whole figure (all systems):
+- Label column widths are layout outputs, because the background and
+  note layers in Typst must use identical fixed column widths (see 05).
+  They are estimated from the number of characters, for the whole
+  figure (all systems):
   - `label_width` (group labels and subtitles): 0.6em × the longest
-    group label or subtitle + 1.5em.
-  - `lane_width` (lane labels): 0.52em × the longest lane label + 1em.
-  - `step_width` and `row_height` both `"2.0em"`, fixed, so a one-step
-    note is a square; short stroke names such as `dug` fit in it.
+    label or subtitle printed (long or short, as each system prints
+    it) + 1.5em.
+  - `lane_width` (lane and row labels): 0.52em × the longest label +
+    1em.
   - Lengths are strings in `em` with one decimal, even when whole,
-    rounded to the nearest, ties upward: `"10.5em"`, `"3.6em"`,
-    `"2.0em"`. With no groups the longest label counts as 0.
-  - Sizes come from the piece's groups and their lanes, whether or not
-    there are systems (a piece of length 0 still has its groups).
-  The label widths match the prototype (`polos + sangsih` → 10.5em,
-  `neng1` → 3.6em); the square steps replaced the prototype's 2.6em ×
-  1.5em cells after reviewing the first drawings.
+    rounded to the nearest, ties upward: `"10.5em"`, `"3.6em"`. With no
+    groups the longest label counts as 0. Sizes come from the score's
+    groups, whether or not there are systems.
+- `cell_width` and `cell_height` are the score's `:cell-width` and
+  `:cell-height` (`"2em"` by default, so a one-column note is a square),
+  and `font_size` its `:font-size`.
 
-## Slices
+## What layout does today
 
-Milestone 3 (`feat/json` + `feat/layout` in the build order) is built
-in four slices, each its own branch and PR into `dev`, started with
-`/start-milestone <branch>`:
+**Implemented** (v1, four slices: `feat/json`, `feat/layout-style`,
+`feat/layout`, `feat/layout-golden`). It differs from the above as
+follows, and this section goes when iteration 2 is built:
 
-1. **Implemented.** `feat/json`: the JSON writer `(notasi json)`, as specified under
-   "JSON writing" in 05.
-2. **Implemented.** `feat/layout-style`: "Note style": the ColorBrewer palettes,
-   `make-style` and `default-style`, the `by-degree` scheme and the
-   text-colour contrast rule.
-3. **Implemented.** `feat/layout`: `layout-piece` → figure: systems and cut events,
-   groups and lanes, events with their look, sizes.
-4. **Implemented.** `feat/layout-golden`: writing the figure as JSON (05's contract),
-   `make golden`, and golden tests for every file in `examples/`:
-   - `write-figure` in `(notasi typst)` (05, "Writing the figure file").
-   - **Golden tests**, in `tests/golden.scm`: each `examples/NAME.nts`
-     has its figure, laid out with the default style, saved in
-     `tests/golden/NAME.json`, exactly as `write-figure` writes it.
-     `make check` runs the file, which compares each example's figure
-     with its saved copy as text and fails on any difference, on an
-     example with no saved copy, and on a saved copy with no example.
-   - `make golden` runs the same file with `--update`: it rewrites
-     every saved copy with `write-figure` and deletes saved copies
-     with no example. Review the diff in the PR.
+- The interface is `(layout-piece piece #:key (style (default-style)))`:
+  one figure per piece, with one style for the whole figure, set from
+  Guile.
+- The figure is contract version 1 (05): `sizes` has `label_width`,
+  `lane_width`, `step_width` and `row_height` (`"2.0em"` each); there
+  is no `subtitle`, `font_size`, `header`, `lines` or `overlays`; the
+  template counts pulse numbers itself; `caption` is always `null`.
+- A step is a step of the piece (`steps_per_pulse` from the piece), and
+  systems are `steps-per-system` steps long.
+- Every group of the piece is drawn, with `notes` rows only; an event's
+  `text` is `null` when its instrument doesn't show names (ADR 0019).
+- Golden tests: each `examples/NAME.nts` has its one figure in
+  `tests/golden/NAME.json`.
+
+### Golden tests
+
+Each example has one saved figure per score, in `tests/golden/`: a file
+with only the default score keeps its plain name (`NAME.json`); a file
+with scores has `NAME.SCORE.json` for each. `make golden` rewrites them
+(**Implemented** for one figure per example), and `make check` fails on
+any difference, on a figure with no saved copy, and on a saved copy with
+no figure.
 
 ## Not layout's job
 
 - Drawing, fonts, page size: Typst template.
-- Validation: reader.
+- Validation, including the checks that need the music
+  (`notes-collide`, `pattern-names-overlap`): reader.
 
 ## Open questions
 
-- A `style` form in the notation (e.g. `(style (palette set2))`), so a
-  piece or a template can carry its look. v1 sets the style from Guile
-  only.
 - A legend: one swatch per degree, beside the figure or in the caption.
-- More schemes: by part (the old design, useful for showing
-  interlocking), by octave (e.g. light and dark of one hue, which the
-  `paired` palette suits), or per instrument.
+- Drawing the full range of an instrument (all its keys as lanes),
+  rather than only the notes used.
 
-- Should colotomic strokes (gong) also be drawn as a full-height line
-  across the system? Layout would emit a `markers` list per system.
-- Automatic system breaks at gong strokes instead of a fixed length.
+More colour schemes and systems one cycle long are in the
+[backlog](../iterations/backlog.md).
