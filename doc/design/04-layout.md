@@ -306,6 +306,34 @@ text. `dark2` gives strong colours with mostly white text.
   `:cell-height` (`"2em"` by default, so a one-column note is a square),
   and `font_size` its `:font-size`.
 
+## Slices (iteration 2)
+
+**Planned.** Milestone 2 of iteration 2 (`feat/scores`) is built in five
+slices, each its own branch and PR into `dev`, started with
+`/start-milestone <branch>`, after milestone 1 (03, "Slices"). Each
+changes the reader's score checks (03, **[scores]**), the records (02),
+layout, and the template and commands (05) as far as it needs, with the
+examples, golden files and manual pages it affects.
+
+1. `feat/scores-form`: the `score` and `group` forms; the default
+   score; groups with their effective settings (ADR 0033);
+   `layout-score` with `notes` rows, `:note-names`, the colour options
+   (one style per group) and the size options; `:system-length`; ADR
+   0034's group check.
+2. `feat/scores-contract`: contract version 2 (ADR 0036): header rows,
+   `:cycle-numbers`, `:pulse-numbers`, `:numbering`, `:pulse-label`,
+   `lines` with heavier cycle lines (ADR 0037), `subtitle`, `caption`,
+   `sizes`; the template and the entry file to match.
+3. `feat/scores-rows`: `:rows parts` and `single`, row labels, `:fill
+   none`, `:holds dash`, the damped and open names, and
+   `needs-note-names` and `notes-collide`.
+4. `feat/scores-overlays`: `:pattern-names` and `:pattern-level`,
+   merged overlays, `pattern-names-overlap`, and the template's
+   overlays.
+5. `feat/scores-range`: `:from` and `:to`, `:breaks`, `:labels`;
+   `render-piece #:score` and `notasi render --score`; golden files,
+   previews and manual figures per score.
+
 ## What layout does today
 
 **Implemented** (v1, four slices: `feat/json`, `feat/layout-style`,

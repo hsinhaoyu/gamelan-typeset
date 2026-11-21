@@ -48,10 +48,16 @@ See [its README](../iterations/01-first-drawings/README.md).
 4. `feat/typst-backend`: three slices, see
    [05-typst-backend.md](05-typst-backend.md#slices)
 
-### Iteration 2: Gold's Jaya Semara and Tenzer's Baris (deciding)
+### Iteration 2: Gold's Jaya Semara and Tenzer's Baris (building)
 
-Milestones to come, once the design is promoted; see
-[its README](../iterations/02-gold-and-tenzer/README.md).
+See [its README](../iterations/02-gold-and-tenzer/README.md).
+
+1. `feat/music`: the music; five slices, see
+   [03-reader.md](03-reader.md#slices-iteration-2)
+2. `feat/scores`: scores; five slices, see
+   [04-layout.md](04-layout.md#slices-iteration-2)
+3. `feat/targets`: the acceptance test: Jaya Semara and Baris as
+   examples
 
 ### Deferred
 
