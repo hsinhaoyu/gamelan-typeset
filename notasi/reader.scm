@@ -1,10 +1,12 @@
 ;;; (notasi reader) -- Read notation (.nts) into a piece.
 ;;; See doc/design/03-reader.md.
 ;;;
-;;; Slice 1: the public interface, &notasi-syntax-error, reading forms,
-;;; dispatch, and the `piece` form.  Slice 2: scales, stroke sets and
-;;; instruments.  Slice 3: parts and groups.  Slice 4: templates (`use').
-;;; Only `text' (v2) raises `not-implemented'.
+;;; v1 (four slices): the public interface, &notasi-syntax-error, forms,
+;;; scales, stroke sets, instruments, parts and templates.  Iteration 2,
+;;; slice 1 (feat/music-syntax): `:key value' options, (part INSTRUMENT
+;;; :name NAME ...), degrees with :alias, :display and :damped, no
+;;; instrument options, no `·' and no top-level groups.  `colotomy',
+;;; `pattern' and `score' raise `not-implemented' until their slices.
 
 (define-module (notasi reader)
   #:use-module (notasi piece)
@@ -84,9 +86,24 @@ from FMT and ARGS."
   ;; exception-kind returns '%exception for conditions with no kind.
   (eq? (exception-kind e) 'read-error))
 
+(define (with-notation-read-options thunk)
+  "Call THUNK with Guile's `keywords' and `r7rs-symbols' read options
+off, so that `:key', `|' and `||' read as ordinary symbols, and restore
+the caller's read options afterwards, also when THUNK raises."
+  (let ((saved (read-options)))
+    (dynamic-wind
+      (lambda ()
+        (read-set! keywords #f)
+        (read-disable 'r7rs-symbols))
+      thunk
+      (lambda () (read-options saved)))))
+
 (define (read-forms port)
   "Read every datum from PORT.  Return a list of (DATUM . LINE), with
 1-based lines: a list's own line, or for an atom the line where it ends."
+  (with-notation-read-options (lambda () (read-all-forms port))))
+
+(define (read-all-forms port)
   (define (next)
     (guard (e ((read-error? e)
                (syntax-error 'read-error (1+ (port-line port))
@@ -123,7 +140,10 @@ relative to some %load-path entry."
 ;;; Step 2: dispatch
 
 (define known-heads
-  '(piece use scale strokes instrument part group text))
+  '(piece use scale strokes instrument colotomy pattern part score))
+
+;;; Known forms that later slices of iteration 2 build.
+(define not-yet-heads '(colotomy pattern score))
 
 (define (check-form form)
   "Raise an error unless FORM, a (DATUM . LINE) pair, is a proper list
@@ -132,7 +152,10 @@ with a known head symbol."
     (((? pair? datum) . line)
      (unless (list? datum)
        (syntax-error 'improper-form line
-                     "a form contains a lone `.'; use `-' or `·' for a rest"))
+                     "a form contains a lone `.'; use `-' for a rest"))
+     (when (eq? (car datum) 'group)
+       (syntax-error 'group-outside-score line
+                     "a group is written inside a score: (score NAME (group \"LABEL\" PART ...))"))
      (unless (memq (car datum) known-heads)
        (syntax-error 'unknown-form line "unknown form `~s'" (car datum))))
     ((datum . line)
@@ -159,21 +182,18 @@ first form."
         (syntax-error 'duplicate-piece line "a second (piece ...) form"))))))
 
 ;;; ------------------------------------------------------------------
-;;; Step 4: the piece form's title and options
+;;; Step 4: options, written `:key value' (ADR 0026)
 
-(define (positive-whole-number? x)
-  (and (exact-integer? x) (positive? x)))
+(define (key? x)
+  "Is X an option key: a symbol of `:' followed by a letter?"
+  (and (symbol? x)
+       (let ((s (symbol->string x)))
+         (and (> (string-length s) 1)
+              (char=? (string-ref s 0) #\:)
+              (char-alphabetic? (string-ref s 1))))))
 
-;;; The options a form accepts: (NAME VALID? . WHAT-IT-MUST-BE).
-(define piece-options
-  `((steps-per-pulse ,positive-whole-number? . "a positive whole number")
-    (steps-per-system ,positive-whole-number? . "a positive whole number")))
-
-(define group-options
-  `((subtitle ,string? . "a string")))
-
-(define instrument-options
-  `((show-names ,(lambda (v) (memq v '(yes no))) . "yes or no")))
+(define (key-name key)
+  (string->symbol (substring (symbol->string key) 1)))
 
 (define (list-line datum fallback)
   "The 1-based line of DATUM if it is a list read with a position, else
@@ -182,41 +202,79 @@ FALLBACK.  Atoms carry no position."
     ((? integer? line) (1+ line))
     (_ fallback)))
 
-(define (parse-option option spec form-word form-line seen)
-  "Check OPTION of a FORM-WORD form (\"piece\" or \"group\") against
-SPEC, and return SEEN, an alist of options so far, with it added."
-  (let ((line (list-line option form-line)))
-    (match option
-      (((? symbol? name) value)
-       (match (assq name spec)
-         (#f (syntax-error 'unknown-option line
-                           "unknown ~a option `~a'" form-word name))
-         ((_ valid? . what)
-          (when (assq name seen)
-            (syntax-error 'duplicate-option line
-                          "option `~a' given twice" name))
-          (unless (valid? value)
-            (syntax-error 'bad-option line "`~a' must be ~a, not ~s"
-                          name what value))
-          (acons name value seen))))
-      (_ (syntax-error 'bad-option line
-                       "a ~a option must be (NAME VALUE), not ~s"
-                       form-word option)))))
+(define (split-options items line)
+  "Split ITEMS into (OPTIONS . BODY): the leading `:key value' pairs, as
+a list of (KEY . VALUE) in order, and the rest.  A key with no value is
+a `bad-option' at LINE."
+  (let loop ((items items) (options '()))
+    (match items
+      (((? key? key))
+       (syntax-error 'bad-option line "option `~a' needs a value" key))
+      (((? key? key) (? key? next) . _)
+       (syntax-error 'bad-option line
+                     "option `~a' needs a value, but `~a' follows it" key next))
+      (((? key? key) value . rest)
+       (loop rest (cons (cons key value) options)))
+      (body (cons (reverse options) body)))))
 
-(define (parse-options options spec form-word form-line)
-  (fold (lambda (option seen)
-          (parse-option option spec form-word form-line seen))
-        '() options))
+(define (reject-keys body line)
+  "Raise `option-after-body' if a key appears in BODY: options come
+before the body."
+  (match (find key? body)
+    (#f #t)
+    (key (syntax-error 'option-after-body line
+                       "option `~a' comes after the music; options go first"
+                       key))))
+
+(define (check-options options spec form-word line)
+  "Check OPTIONS, a list of (KEY . VALUE), against SPEC, a list of
+(NAME VALID? . WHAT-IT-MUST-BE).  Return an alist from NAME to value.
+BAD, when given, is called instead of `bad-option' for a wrong value."
+  (reverse
+   (fold (match-lambda*
+           (((key . value) seen)
+            (let ((name (key-name key)))
+              (match (assq name spec)
+                (#f (syntax-error 'unknown-option line
+                                  "~a has no option `~a'" form-word key))
+                ((_ valid? . what)
+                 (when (assq name seen)
+                   (syntax-error 'duplicate-option line
+                                 "option `~a' given twice" key))
+                 (unless (valid? value)
+                   (syntax-error 'bad-option line "`~a' must be ~a, not ~s"
+                                 key what value))
+                 (acons name value seen))))))
+         '() options)))
+
+(define (positive-whole-number? x)
+  (and (exact-integer? x) (positive? x)))
+
+;;; The options a form accepts: (NAME VALID? . WHAT-IT-MUST-BE).
+;;; `steps-per-pulse' and `steps-per-system' are transitional: time is
+;;; in integer steps until slice 2 (feat/music-durations).
+(define piece-options
+  `((steps-per-pulse ,positive-whole-number? . "a positive whole number")
+    (steps-per-system ,positive-whole-number? . "a positive whole number")))
+
+(define part-options
+  `((name ,(lambda (v) (and (symbol? v) (not (key? v)))) . "a name")))
 
 (define (parse-piece-form form)
   "Build a piece with no parts from the `piece' form FORM, a (DATUM . LINE)."
   (match form
-    ((('piece (? string? title) . options) . line)
-     (let ((opts (parse-options options piece-options "piece" line)))
-       (make-piece title
-                   (or (assq-ref opts 'steps-per-pulse) 4)
-                   (assq-ref opts 'steps-per-system)
-                   0 '() '() '() '())))
+    ((('piece (? string? title) . items) . line)
+     (match (split-options items line)
+       ((options . ())
+        (let ((opts (check-options options piece-options "a piece" line)))
+          (make-piece title
+                      (or (assq-ref opts 'steps-per-pulse) 4)
+                      (assq-ref opts 'steps-per-system)
+                      0 '() '() '() '())))
+       ((_ . (item . _))
+        (syntax-error 'bad-option line
+                      "after the title, a piece takes only options such as :steps-per-pulse 4, not ~s"
+                      item))))
     ((_ . line)
      (syntax-error 'bad-title line
                    "the piece needs a title string: (piece \"Title\" ...)"))))
@@ -235,81 +293,130 @@ in file order."
 (define (location line)
   (make-source-location (current-source-file) line))
 
-(define (check-not-implemented forms heads)
-  "Raise `not-implemented' at the first form whose head is in HEADS."
-  (match (forms-with-heads forms heads)
+(define (check-not-implemented forms)
+  "Raise `not-implemented' at the first form that a later slice builds."
+  (match (forms-with-heads forms not-yet-heads)
     (() #t)
     ((((head . _) . line) . _)
      (syntax-error 'not-implemented line
                    "the `~a' form is not supported yet" head))))
 
 ;;; ------------------------------------------------------------------
-;;; Item 6: the shape of scale, strokes, instrument, part and group forms
+;;; Item 6: the shape and options of scale, strokes, instrument and part
+;;; forms
 
-(define definition-heads '(scale strokes instrument part group))
+(define definition-heads '(scale strokes instrument part))
 
-(define (split-names body)
-  "Split BODY into (NAMES . OPTIONS): the leading symbols (a group's part
-names, an instrument's notes), then the rest."
-  (call-with-values (lambda () (span symbol? body)) cons))
+(define (note-name? x)
+  (and (symbol? x) (not (key? x))))
 
-(define (names-then-options? body)
-  "Is BODY one or more symbols, then any number of option lists?  Options
-are lists, so a stray string or number among the names is a bad form,
-not a bad option."
-  (match (split-names body)
-    ((names . options) (and (pair? names) (every pair? options)))))
+(define (check-set-shape form)
+  "A `scale' or `strokes' FORM: a name, no options, then its degrees."
+  (match form
+    (((head (? note-name?) . items) . line)
+     (match (split-options items line)
+       ((() . ()) (bad-set-form head line))
+       ((() . degrees) (reject-keys degrees line))
+       ((options . _)
+        (check-options options '()
+                       (if (eq? head 'scale) "a scale" "a stroke set") line))))
+    (((head . _) . line) (bad-set-form head line))))
+
+(define (bad-set-form head line)
+  (if (eq? head 'scale)
+      (syntax-error 'bad-form line
+                    "a scale needs a name and its degrees: (scale NAME DEGREE ...)")
+      (syntax-error 'bad-form line
+                    "a stroke set needs a name and its strokes: (strokes NAME STROKE ...)")))
+
+(define (split-part form)
+  "The (INSTRUMENT OPTIONS . TOKENS) of a well-formed `part' FORM."
+  (match form
+    ((('part instrument . items) . line)
+     (match (split-options items line)
+       ((options . tokens)
+        (cons* instrument (check-options options part-options "a part" line)
+               tokens))))))
+
+(define (part-form-name form)
+  "The name of the `part' FORM: its :name, else its instrument's name."
+  (match (split-part form)
+    ((instrument options . _) (or (assq-ref options 'name) instrument))))
+
+(define (named-part-form? form)
+  (match (split-part form)
+    ((_ options . _) (and (assq 'name options) #t))))
 
 (define (check-definition-shape form)
   (match form
-    ((((or 'scale 'strokes) (? symbol?) _ ..1) . _) #t)
-    ((('instrument (? symbol?) (? symbol?) . (? names-then-options?)) . _) #t)
-    ((('part (? symbol?) (? symbol?) _ ..1) . _) #t)
-    ((('group (? string?) . (? names-then-options?)) . _) #t)
-    ((('scale . _) . line)
-     (syntax-error 'bad-form line
-                   "a scale needs a name and its degrees: (scale NAME DEGREE ...)"))
-    ((('strokes . _) . line)
-     (syntax-error 'bad-form line
-                   "a stroke set needs a name and its strokes: (strokes NAME STROKE ...)"))
+    ((((or 'scale 'strokes) . _) . _) (check-set-shape form))
+    ((('instrument (? note-name?) (? note-name?) (? note-name?) ..1) . _) #t)
+    ((('part (? note-name?) . items) . line)
+     (match (split-part form)
+       ((_ _ . ())
+        (syntax-error 'bad-form line
+                      "a part needs its music: (part INSTRUMENT TOKEN ...)"))
+       ((_ _ . tokens) (reject-keys tokens line))))
     ((('instrument . _) . line)
      (syntax-error 'bad-form line
-                   "an instrument needs a name, a scale or stroke set, and its notes: (instrument NAME SCALE NOTE ...)"))
+                   "an instrument needs a name, a scale or stroke set, and its notes, and takes no options: (instrument NAME SCALE NOTE ...)"))
     ((('part . _) . line)
      (syntax-error 'bad-form line
-                   "a part needs a name, an instrument and its music: (part NAME INSTRUMENT TOKEN ...)"))
-    ((('group . _) . line)
-     (syntax-error 'bad-form line
-                   "a group needs a label and its parts, then any options: (group \"LABEL\" PART ... (subtitle \"TEXT\"))"))))
+                   "a part needs an instrument and its music: (part INSTRUMENT :name NAME TOKEN ...)"))))
 
 ;;; ------------------------------------------------------------------
 ;;; Item 7: duplicate definitions.  Scales and stroke sets share one set
 ;;; of names, since an instrument refers to either; instruments and parts
-;;; each have their own.  Groups are not named, so they have none.
+;;; each have their own.  A part's name is its :name, else its
+;;; instrument's name.
 
 (define (namespace head)
   (match head
     ((or 'scale 'strokes) 'scale)
     (other other)))
 
+(define (definition-name form)
+  (match form
+    ((('part . _) . _) (part-form-name form))
+    (((_ name . _) . _) name)))
+
+(define (same-instrument-unnamed? a b)
+  "Are the `part' forms A and B on one instrument, one of them without
+:name?  Item 13 reports that as `parts-need-names' (ADR 0027)."
+  (and (eq? (car (split-part a)) (car (split-part b)))
+       (not (and (named-part-form? a) (named-part-form? b)))))
+
 (define (check-duplicates definitions)
+  "Raise on the second definition of a name in DEFINITIONS, in file
+order.  Two parts on one instrument, one without :name, are left to
+item 13."
   (fold (lambda (form seen)
-          (match form
-            ((('group . _) . _) seen)
-            (((head name . _) . line)
-             (let ((key (cons (namespace head) name)))
-               (when (member key seen)
-                 (syntax-error 'duplicate-definition line
-                               "`~a' is already defined in this file" name))
-               (cons key seen)))))
+          (let* ((head (form-head form))
+                 (key (cons (namespace head) (definition-name form))))
+            (match (assoc key seen)
+              (#f #t)
+              ((_ . earlier)
+               (unless (and (eq? head 'part)
+                            (same-instrument-unnamed? earlier form))
+                 (syntax-error 'duplicate-definition (cdr form)
+                               "`~a' is already defined in this file"
+                               (definition-name form)))))
+            (acons key form seen)))
         '()
         definitions))
+
+(define (check-part-names form earlier)
+  "Item 13: the `part' FORM against EARLIER, the part forms before it."
+  (when (any (lambda (other) (same-instrument-unnamed? other form)) earlier)
+    (syntax-error 'parts-need-names (cdr form)
+                  "instrument `~a' has two parts; give them names with :name"
+                  (car (split-part form)))))
 
 ;;; ------------------------------------------------------------------
 ;;; Item 5 (step 3): templates.  A definition is (FILE . FORM): the file
 ;;; it came from (#f for a string or port) and its (DATUM . LINE).
 
-(define template-heads '(scale strokes instrument use))
+(define template-heads '(scale strokes instrument colotomy pattern use))
 (define merged-heads '(scale strokes instrument))
 
 (define (definition-key form)
@@ -336,7 +443,7 @@ not a bad option."
          ('use
           (when after-other?
             (syntax-error 'use-not-first (cdr form)
-                          "a use must come before the definitions, parts and groups"))
+                          "a use must come before the definitions, parts and scores"))
           (loop rest after-other?))
          (_ (loop rest #t))))))
   (for-each use-target (forms-with-heads forms '(use))))
@@ -394,8 +501,9 @@ canonical path of each template already loaded to its definitions."
         (#f #t)
         ((datum . line)
          (syntax-error 'not-in-template line
-                       "a template holds only scale, strokes, instrument and use forms, not `~a'"
+                       "a template holds only scale, strokes, instrument, colotomy, pattern and use forms, not `~a'"
                        (car datum))))
+      (check-not-implemented forms)
       (file-definitions forms (dirname path) chain table))))
 
 (define (own-keys forms)
@@ -460,39 +568,52 @@ from it, as definitions in merged order."
     (and (not (string-null? s))
          (ascii-digit? (string-ref s (1- (string-length s)))))))
 
-(define (parse-degree-option option seen bad)
-  "Check one degree OPTION and return SEEN, an alist of options so far,
-with it added.  BAD raises a `bad-degree' error."
-  (match option
-    (((and key (or 'alias 'display)) . _)
-     (when (assq key seen)
-       (bad "option `~a' given twice" key))
-     (match option
-       (('alias (? symbol? names) ..1) (acons 'alias names seen))
-       (('display (? string? text)) (acons 'display text seen))
-       (('alias . _) (bad "(alias NAME ...) needs one or more names"))
-       (('display . _) (bad "(display \"TEXT\") needs exactly one string"))))
-    (_ (bad "unknown option ~s; a degree takes (alias NAME ...) and (display \"TEXT\")"
-            option))))
+(define (alias-list? v)
+  (or (note-name? v)
+      (and (pair? v) (list? v) (every note-name? v))))
+
+;;; A degree's options.  A wrong value is a `bad-degree', not a
+;;; `bad-option' (03, "Definitions").
+(define degree-options
+  `((alias ,alias-list? . "a name or a list of names")
+    (display ,string? . "a string")
+    (damped ,string? . "a string")))
+
+(define reserved-names '(rep @))
 
 (define (parse-degree datum set-line)
-  "Build a degree record from DATUM: a name, or (NAME OPTION ...).  A
+  "Build a degree record from DATUM: a name, or (NAME :key value ...).  A
 bare name has no position, so it takes SET-LINE, its scale's line."
   (let ((line (list-line datum set-line)))
     (define (bad fmt . args)
       (apply syntax-error 'bad-degree line fmt args))
     (match datum
-      ((? symbol? name)
-       (make-degree name '() (symbol->string name) (location line)))
-      (((? symbol? name) . (? list? options))
-       (let ((opts (fold (lambda (option seen)
-                           (parse-degree-option option seen bad))
-                         '() options)))
-         (make-degree name
-                      (or (assq-ref opts 'alias) '())
-                      (or (assq-ref opts 'display) (symbol->string name))
-                      (location line))))
-      (_ (bad "a degree must be a name or (NAME OPTION ...), not ~s" datum)))))
+      ((? note-name? name)
+       (make-degree name '() (symbol->string name) #f (location line)))
+      (((? note-name? name) . items)
+       (match (split-options items line)
+         ((options . ())
+          (for-each (match-lambda
+                      ((key . value)
+                       (match (assq (key-name key) degree-options)
+                         ((_ valid? . what)
+                          (unless (valid? value)
+                            (bad "`~a' must be ~a, not ~s" key what value)))
+                         (#f #t))))
+                    options)
+          (let ((opts (check-options options degree-options "a degree" line)))
+            (make-degree name
+                         (match (assq-ref opts 'alias)
+                           (#f '())
+                           ((? symbol? a) (list a))
+                           (names names))
+                         (or (assq-ref opts 'display) (symbol->string name))
+                         (assq-ref opts 'damped)
+                         (location line))))
+         ((_ . (item . _))
+          (bad "a degree is NAME or (NAME :alias A :display \"TEXT\" :damped \"TEXT\"), not ~s"
+               datum))))
+      (_ (bad "a degree must be a name or (NAME :key value ...), not ~s" datum)))))
 
 (define (degree-names degree)
   (cons (degree-name degree) (degree-aliases degree)))
@@ -509,6 +630,13 @@ bare name has no position, so it takes SET-LINE, its scale's line."
            ((datum . rest)
             (let* ((degree (parse-degree datum set-line))
                    (line (source-location-line (degree-location degree))))
+              (for-each
+               (lambda (n)
+                 (when (memq n reserved-names)
+                   (syntax-error 'reserved-name line
+                                 "`~a' can't name a degree or stroke: it is reserved"
+                                 n)))
+               (degree-names degree))
               (when pitched?
                 (for-each
                  (lambda (n)
@@ -601,12 +729,8 @@ with 0)."
   "Build an instrument record from FORM.  SCALES is an alist from name to
 scale record."
   (match form
-    ((('instrument name scale-name . body) . line)
-     (let* ((names+options (split-names body))
-            (note-names (car names+options))
-            (options (parse-options (cdr names+options)
-                                    instrument-options "instrument" line))
-            (scale (or (assq-ref scales scale-name)
+    ((('instrument name scale-name . note-names) . line)
+     (let* ((scale (or (assq-ref scales scale-name)
                        (syntax-error 'undefined-scale line
                                      "instrument `~a': no scale or stroke set called `~a'"
                                      name scale-name)))
@@ -620,7 +744,6 @@ scale record."
                          '()
                          note-names)))
        (make-instrument name scale (list->vector (reverse notes))
-                        (eq? (assq-ref options 'show-names) 'yes)
                         (location line))))))
 
 ;;; ------------------------------------------------------------------
@@ -644,11 +767,11 @@ octave (ding2, i2); for a stroke, each name and alias."
      (iota (vector-length (instrument-notes instrument))))))
 
 (define (rest-token? token)
-  (memq token '(- ·)))
+  (eq? token '-))
 
 (define (structural-token? token)
   "A token that marks time or layout rather than naming a note."
-  (memq token '(_ - · /)))
+  (memq token '(_ - /)))
 
 (define (resolve-token-note token instrument table fail)
   "The 0-based index of the note TOKEN (a number or name) on INSTRUMENT.
@@ -725,22 +848,28 @@ FAIL is called with a kind and a message format and arguments."
            ((or (? pair?) ())               ; a chord, perhaps an empty one
             (strike (resolve-chord token instrument table fail)))
            (_ (fail 'unknown-token
-                    "~s is not a note, a chord, `_', `-', `·' or `/'"
+                    "~s is not a note, a chord, `_', `-' or `/'"
                     token))))))))
 
 (define (reverse-map f lst)
   (fold (lambda (x acc) (cons (f x) acc)) '() lst))
 
-(define (build-part form instruments)
+(define (build-part form instruments check-name)
   "Build a part record from FORM.  INSTRUMENTS is an alist from name to
-instrument record.  Return (PART . STEPS), STEPS being its written
-length."
+instrument record; CHECK-NAME checks the part's name against the parts
+before it, after its instrument and before its tokens.  Return
+(PART . STEPS), STEPS being its written length."
   (match form
-    ((('part name instrument-name . tokens) . line)
-     (let ((instrument
+    ((('part . _) . line)
+     (let* ((split (split-part form))
+            (instrument-name (car split))
+            (name (or (assq-ref (cadr split) 'name) instrument-name))
+            (tokens (cddr split))
+            (instrument
             (or (assq-ref instruments instrument-name)
                 (part-error 'undefined-instrument line name #f
                             "no instrument called `~a'" instrument-name))))
+       (check-name)
        (match (read-tokens tokens instrument name line)
          ((events . steps)
           (cons (make-part name instrument events (location line))
@@ -768,81 +897,13 @@ piece length: the common step count, or 0 with no parts."
      length)))
 
 ;;; ------------------------------------------------------------------
-;;; Item 12: groups
+;;; Groups.  Until scores (iteration 2, milestone 2) every part is drawn
+;;; in its own default group.
 
-(define (check-one-pitched-instrument parts line)
-  "Raise `mixed-pitched-group' if PARTS play more than one pitched
-instrument (ADR 0011)."
-  (match (filter (lambda (part)
-                   (scale-pitched? (instrument-scale (part-instrument part))))
-                 parts)
-    (() #t)
-    ((first . others)
-     (let ((instrument (part-instrument first)))
-       (match (find (lambda (part)
-                      (not (eq? (part-instrument part) instrument)))
-                    others)
-         (#f #t)
-         (part
-          (part-error 'mixed-pitched-group line (part-name part) #f
-                      "a group can hold one pitched instrument, but this one has `~a' and `~a'; put them in separate groups"
-                      (instrument-name instrument)
-                      (instrument-name (part-instrument part)))))))))
-
-(define (build-group form parts used)
-  "Build a group record from FORM.  PARTS is an alist from name to part;
-USED lists the names of parts already in a group.  Return (GROUP . USED)
-with this group's parts added to USED."
-  (match form
-    ((('group label . body) . line)
-     (match (split-names body)
-       ((names . options)
-        (let* ((opts (parse-options options group-options "group" line))
-               (used+parts
-                (fold (lambda (name acc)
-                        (match acc
-                          ((used . members)
-                           (let ((part (or (assq-ref parts name)
-                                           (part-error 'undefined-part line name #f
-                                                       "no part with this name"))))
-                             (when (memq name used)
-                               (part-error 'part-in-two-groups line name #f
-                                           "is already in a group; a part can be in only one"))
-                             (cons (cons name used) (cons part members))))))
-                      (cons used '())
-                      names))
-               (members (reverse (cdr used+parts))))
-          (check-one-pitched-instrument members line)
-          (cons (make-group label (assq-ref opts 'subtitle) members
-                            (location line))
-                (car used+parts))))))))
-
-(define (build-groups forms parts)
-  "The written groups in FORMS and a default group for every other part
-of PARTS (a list in file order), ordered by each group's first part in
-the file."
-  (let* ((by-name (map (lambda (part) (cons (part-name part) part)) parts))
-         (written+used
-          (fold (lambda (form acc)
-                  (match acc
-                    ((groups . used)
-                     (match (build-group form by-name used)
-                       ((group . used) (cons (cons group groups) used))))))
-                (cons '() '())
-                forms))
-         (used (cdr written+used))
-         (defaults (filter-map
-                    (lambda (part)
-                      (and (not (memq (part-name part) used))
-                           (make-group (symbol->string (part-name part))
-                                       #f (list part) #f)))
-                    parts))
-         (index (map cons (map part-name parts) (iota (length parts)))))
-    (define (first-index group)
-      (apply min (map (lambda (part) (assq-ref index (part-name part)))
-                      (group-parts group))))
-    (sort (append (reverse (car written+used)) defaults)
-          (lambda (a b) (< (first-index a) (first-index b))))))
+(define (default-groups parts)
+  (map (lambda (part)
+         (make-group (symbol->string (part-name part)) #f (list part) #f))
+       parts))
 
 ;;; ------------------------------------------------------------------
 ;;; Entry points
@@ -867,6 +928,7 @@ so a file with several problems always reports the same one."
             definitions))
   (for-each check-form forms)
   (let* ((piece (parse-piece-form (find-piece-form forms)))
+         (_ (check-not-implemented forms))
          (definitions (file-definitions forms dir chain (make-hash-table))))
     (let* ((scales (build-each build-scale
                                (with-heads '(scale strokes) definitions)))
@@ -874,14 +936,19 @@ so a file with several problems always reports the same one."
                          (lambda (form)
                            (build-instrument form (named scales scale-name)))
                          (with-heads '(instrument) definitions)))
-           (parts+steps (map (lambda (form)
-                               (build-part form (named instruments
-                                                       instrument-name)))
-                             (forms-with-heads forms '(part))))
+           (part-forms (forms-with-heads forms '(part)))
+           (parts+steps
+            (let loop ((todo part-forms) (done '()) (built '()))
+              (match todo
+                (() (reverse built))
+                ((form . rest)
+                 (let ((part+steps
+                        (build-part form (named instruments instrument-name)
+                                    (lambda () (check-part-names form done)))))
+                   (loop rest (cons form done) (cons part+steps built)))))))
            (length (check-equal-lengths parts+steps))
            (parts (map car parts+steps))
-           (groups (build-groups (forms-with-heads forms '(group)) parts)))
-      (check-not-implemented forms '(text))   ; v2
+           (groups (default-groups parts)))
       (make-piece (piece-title piece)
                   (piece-steps-per-pulse piece)
                   (piece-steps-per-system piece)
