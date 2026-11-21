@@ -1,6 +1,6 @@
 # 0002 Time is a grid of equal steps
 
-Status: accepted (2026-11-19)
+Status: superseded by 0025
 
 Context: Balinese gamelan parts, especially interlocking kotekan, are naturally written on a fixed pulse. Variable note durations would complicate the reader, layout and analysis.
 
