@@ -1,14 +1,14 @@
-(piece "Pokok" (steps-per-pulse 1))
+(piece "Pokok" :steps-per-pulse 1)
 
 (scale selisir
-  (ding (alias i))
-  (dong (alias o))
-  (deng (alias e))
-  (dung (alias u))
-  (dang (alias a)))
+  (ding :alias i)
+  (dong :alias o)
+  (deng :alias e)
+  (dung :alias u)
+  (dang :alias a))
 (instrument ugal  selisir  o1 e1 u1 a1 i2 o2 e2 u2 a2 i3)
 
 ;; The same melody twice: by note name, and by key number
 ;; (1 is the ugal's lowest key, o1).
-(part by-name    ugal  a1 o2 i2 e2 / o2 a1 o2 i2)
-(part by-number  ugal  4  6  5  7  / 6  4  6  5)
+(part ugal :name by-name  a1 o2 i2 e2 / o2 a1 o2 i2)
+(part ugal :name by-number  4  6  5  7  / 6  4  6  5)

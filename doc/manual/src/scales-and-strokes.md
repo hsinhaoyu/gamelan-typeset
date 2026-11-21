@@ -15,11 +15,13 @@ A scale names its degrees, lowest first, within one octave:
 - `selisir` is the scale's name. Instruments refer to it by that name.
 - `ding`, `dong`, `deng`, `dung` and `dang` are the degrees, lowest
   first.
-- `(alias i)` gives a degree a second name. You can then write `i2`
+- `:alias i` gives a degree a second name. You can then write `i2`
   instead of `ding2`, and notasi treats them as the same note.
 
 A degree can be just its name (`ding`), or its name in round brackets
-followed by settings: `(ding (alias i))`.
+followed by settings, each a name starting with `:` and its value:
+`(ding :alias i)`. A degree can have several aliases:
+`(ding :alias (i nding))`.
 
 ## Stroke sets
 
@@ -30,8 +32,8 @@ no octave and no order:
 {{#include examples/stroke-sets.nts}}
 ```
 
-`(display "D")` sets how a stroke or degree will be shown in the score.
-Without it, notasi shows the name itself.
+`:display "D"` sets how a stroke or degree is shown in the score's row
+labels. Without it, notasi shows the name itself.
 
 ## The rules
 

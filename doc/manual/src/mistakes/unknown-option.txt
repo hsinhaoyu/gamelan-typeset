@@ -1,1 +1,1 @@
-unknown-option.nts:1: unknown piece option `beats'
+unknown-option.nts:1: a piece has no option `:beats'

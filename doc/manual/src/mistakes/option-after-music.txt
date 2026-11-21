@@ -1,0 +1,1 @@
+option-after-music.nts:4: option `:name' comes after the music; options go first

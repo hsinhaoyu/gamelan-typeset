@@ -1,1 +1,0 @@
-part-in-two-groups.nts:7: part `polos': is already in a group; a part can be in only one

@@ -1,2 +1,2 @@
 (piece "Gilak")
-(text "Play the second half twice.")
+(score full (group "Ugal" ugal))
