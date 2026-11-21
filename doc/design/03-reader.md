@@ -221,7 +221,9 @@ jaya.nts:72: part `polos`, cycle 1, pulse 3 1/2, in pattern `polos-1`
      option kinds).
   7. Duplicate definitions, in file order (`duplicate-definition`).
      Scales and stroke sets share one set of names; instruments,
-     colotomies, patterns, parts and scores each have their own.
+     colotomies, patterns, parts and scores each have their own. Two
+     parts on one instrument where either has no `:name` are not a
+     duplicate here: check 13 reports them as `parts-need-names`.
   8. Each scale and stroke set, and each degree or stroke in order
      (`bad-degree`, `degree-ends-in-digit`, `duplicate-degree`,
      `reserved-name`).
@@ -277,8 +279,9 @@ degrees), **[durations]**, **[rep]**, **[colotomy]**, **[patterns]** and
 ### Options
 
 - [syntax] A key with no value (at the end, or followed by another key),
-  or a value of the wrong kind (`:pickup 1.5`, `:name "polos"`,
-  `:alias 3`): `bad-option`.
+  or a value of the wrong kind (`:pickup 1.5`, `:name "polos"`):
+  `bad-option`. A wrong value for a degree's `:alias`, `:display` or
+  `:damped` is `bad-degree` (see "Definitions").
 - [syntax] A key the form doesn't take: `unknown-option`; a key given
   twice: `duplicate-option`.
 - [syntax] A key after the body has started (e.g. after a part's first
@@ -448,7 +451,18 @@ error cases tagged with its feature, and the steps above that they need.
    `(part INSTRUMENT :name NAME ...)`; degrees and strokes with
    `:alias`, `:display` and `:damped`; instruments without options;
    `·` and the top-level `group` gone. Until milestone 2, every part is
-   drawn in its own group, and no note shows its name.
+   drawn in its own group, and no note shows its name. Decided for this
+   slice:
+   - Time stays in integer steps until slice 2, so `piece` takes two
+     transitional options, `:steps-per-pulse N` (default 4) and
+     `:steps-per-system N` (default: one system), exact positive
+     integers (`bad-option` otherwise). Slice 2 removes them.
+   - `colotomy`, `pattern` and `score` forms are known heads that raise
+     `not-implemented` at the form's line, in a piece or a template,
+     until their slices build them.
+   - Tests written in the v1 syntax are translated to the new syntax,
+     keeping what they check; tests of what this slice removes are
+     deleted or turned into the new errors.
 2. `feat/music-durations` **[durations]**: `(notasi expand)` (ADR 0035)
    and step 9 for tokens: times as exact rationals in pulses (02),
    duration suffixes and the current duration, `_` and `-`, `|` checks,

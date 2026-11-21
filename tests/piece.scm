@@ -15,7 +15,7 @@
 
 (define (deg name alias display)
   "A degree with at most one alias."
-  (make-degree name (if alias (list alias) '()) display loc))
+  (make-degree name (if alias (list alias) '()) display #f loc))
 
 ;; selisir: ding dong deng dung dang, aliases i o e u a.
 (define selisir
@@ -74,24 +74,24 @@
     (map (match-lambda ((name octave) (pitched-note selisir name octave)))
          '((deng 1) (dung 1) (dang 1)
            (ding 2) (dong 2) (deng 2) (dung 2) (dang 2))))
-   #f loc))
+   loc))
 
 (define plain-instrument
   (make-instrument 'plain plain-scale
                    (vector (pitched-note plain-scale 'ding 1)
                            (pitched-note plain-scale 'dung 1))
-                   #f loc))
+                   loc))
 
 (define gong
   (make-instrument 'gong gong-strokes
                    (vector (stroke-note gong-strokes 'G)
                            (stroke-note gong-strokes 'P))
-                   #f loc))
+                   loc))
 
 (define kempli
   (make-instrument 'kempli kempli-strokes
                    (vector (stroke-note kempli-strokes 'K))
-                   #f loc))
+                   loc))
 
 ;; kendang lists dag dug du.
 (define kendang
@@ -99,7 +99,7 @@
                    (vector (stroke-note kendang-strokes 'dag)
                            (stroke-note kendang-strokes 'dug)
                            (stroke-note kendang-strokes 'du))
-                   #f loc))
+                   loc))
 
 (define (inst-note instrument index)
   (vector-ref (instrument-notes instrument) index))
@@ -133,14 +133,17 @@
     (test-equal "file #f: line" 3 (source-location-line l))))
 
 (test-group "degree record"
-  (let ((d (make-degree 'ding '(i) "i" loc)))
+  (let ((d (make-degree 'dang '(a nang) "nang" "na'" loc)))
     (test-assert "predicate" (degree? d))
-    (test-eq "name" 'ding (degree-name d))
-    (test-equal "aliases" '(i) (degree-aliases d))
-    (test-equal "display" "i" (degree-display d))
+    (test-eq "name" 'dang (degree-name d))
+    (test-equal "aliases" '(a nang) (degree-aliases d))
+    (test-equal "display" "nang" (degree-display d))
+    (test-equal "damped" "na'" (degree-damped d))
     (test-eq "location" loc (degree-location d)))
   (test-equal "aliases may be empty" '()
-    (degree-aliases (make-degree 'du '() "du" loc))))
+    (degree-aliases (make-degree 'du '() "du" #f loc)))
+  (test-eq "damped may be #f" #f
+    (degree-damped (make-degree 'du '() "du" #f loc))))
 
 (test-group "scale record"
   (test-assert "predicate" (scale? selisir))
