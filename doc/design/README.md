@@ -24,7 +24,7 @@ book.typ + book.notasi.json ──typst compile──▶ PDF
 |---|---|---|
 | Notation language | — | [01-notation.md](01-notation.md) |
 | Piece (internal data) | `(notasi piece)` | [02-piece.md](02-piece.md) |
-| Reader + validation | `(notasi reader)` | [03-reader.md](03-reader.md) |
+| Reader + validation | `(notasi reader)`, `(notasi expand)` (planned) | [03-reader.md](03-reader.md) |
 | Layout, note style | `(notasi layout)`, `(notasi style)` | [04-layout.md](04-layout.md) |
 | Typst backend | `(notasi typst)`, `typst/notasi.typ` | [05-typst-backend.md](05-typst-backend.md) |
 | Scores in Typst documents | `scripts/notasi`, `typst/` package | [06-documents.md](06-documents.md) |
@@ -86,6 +86,7 @@ Each decision's context and consequences are in its record in
 21. Printing belongs to scores: [0031](../decisions/0031-printing-belongs-to-scores.md) (planned)
 22. The palette is chosen in the score: [0032](../decisions/0032-the-palette-is-chosen-in-the-score.md) (planned)
 23. Pitched and stroke instruments are grouped apart: [0034](../decisions/0034-pitched-and-stroke-instruments-are-grouped-apart.md) (planned)
+24. Expansion is its own module: [0035](../decisions/0035-expansion-is-its-own-module.md) (planned)
 
 Proposed, not yet agreed:
 
