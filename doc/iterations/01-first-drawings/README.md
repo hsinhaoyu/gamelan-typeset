@@ -11,7 +11,7 @@ Released as v0.1.x: v0.1.0 is the first end-to-end pipeline (notation
 to PDF), v0.1.1 renames notation files to `.nts` (ADR 0022).
 
 This iteration came before iterations were defined (ADR 0023), so it has
-no notes: the design went straight into `doc/design/`.
+no design ideas: the design went straight into `doc/design/`.
 
 ## Milestones
 

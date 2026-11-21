@@ -100,9 +100,10 @@ Proposed, not yet agreed:
   examples; documents can point to them instead of repeating them.
 - Run `/doc-audit` in Claude Code at each milestone to find drift
   between these documents and the code.
-- These documents change only by promoting an iteration's notes
-  (`/promote-design`) or by building a milestone. Notes under
-  `../iterations/` are never the design.
+- These documents change only by promoting an iteration's design
+  ideas
+  (`/promote-design`) or by building a milestone. Design ideas
+  under `../iterations/` are never the design.
 
 ## Glossary
 

@@ -52,7 +52,8 @@ Every feature below is marked:
 | Gongs never damped (`:damped no`) | later (matters for playback, not drawing) |
 | Departing from the colotomy, changing colotomies, sections | later |
 | Longgor forms, other meters from figure 5.11 | later |
-| Patterns: `pattern`, `@NAME`, `(@ NAME ...)` with `:step` and names at the use | iteration 2 |
+| Patterns: `pattern` with `:instrument`, `@NAME`, `(@ NAME ...)` with `:step` and names at the use | iteration 2 |
+| Patterns written for a scale (`:scale`), shared between instruments | later |
 | Pattern operators `:octave`, `:drop-first`, `:drop-last` | later |
 | Scores: `score` with groups and printing options (`2026-11-21-score.md`) | iteration 2 |
 | `:damped` forms of degrees and strokes; the score options for Tenzer's layout | iteration 2 |
@@ -87,7 +88,7 @@ elsewhere (display is a separate design issue).
 | cycle | One repetition of the colotomy. Cycle 1 is the first complete one. |
 | position | A place in time: cycle and pulse ("cycle 2, pulse 4"), or a pulse number without a colotomy. |
 | pickup | Pulses before the first complete cycle, when a piece opens on the gong. |
-| pattern | A named list of tokens that parts can play, join, repeat and transform. |
+| pattern | A named list of tokens, written for one instrument, that its parts can play, join, repeat and transform. |
 | score | How the music is printed: which parts, in which groups, with which options. A file may have several. |
 
 ## Files
@@ -305,7 +306,7 @@ Rejected alternatives:
 | `(rep N TOKEN ...)` | Repeat the tokens N times. Every repetition is identical: the body is read once, with the duration in force before the `rep`. After it, the duration is the body's last. |
 | `\|` | Pulse check: must fall on a pulse boundary. Takes no time. |
 | `\|\|` | Cycle check: must fall on a cycle boundary. Takes no time. |
-| `@NAME` | Play the pattern NAME (see "Patterns"). |
+| `@NAME` | Play the pattern NAME, which must be written for this part's instrument (see "Patterns"). |
 | `(@ NAME :key value ...)` | Play the pattern NAME, changed by operators (see "Patterns"). |
 | `(* M TOKEN ...)` **[later]** | Multiply the durations inside by M (like a tuplet). Gives a chord a duration: `(* 2 (2 5))`. |
 | `(relative START TOKEN ...)` **[later]** | Bare degree names go to the octave nearest the previous note. |
@@ -353,21 +354,35 @@ fastest notes are quarter pulses, so the step is 1/4 pulse.
 ## Patterns
 
 Gamelan melodies are often built from repeated figures. A pattern is a
-named list of tokens that parts can play, join and repeat.
+named list of tokens, written for one instrument, that parts on that
+instrument can play, join and repeat.
 
 ### Defining a pattern
 
 ```scheme
-(pattern NAME :short STRING :long STRING  TOKEN ...)
+(pattern NAME :instrument INSTRUMENT :short STRING :long STRING  TOKEN ...)
 ```
 
 ```scheme
-(pattern polos-1 :short "1" :long "Norot polos on pokok 1"
+(pattern polos-1 :instrument pemade :short "1" :long "Norot polos on pokok 1"
   o3:1/4 i3 i3 - | i3 - i3 -)
 ```
 
 - NAME is the symbol that refers to the pattern. It must not start with
   `:` or `@`.
+- `:instrument` says which instrument the pattern is written for. It is
+  required. The pattern's notes, key numbers and strokes are checked
+  against that instrument's keys where the pattern is defined, and the
+  pattern can only be used on that instrument: in its parts, or inside
+  other patterns for it.
+- `:scale NAME` **[later]**, instead of `:instrument`: a pattern
+  written for any instrument with that scale, for figures shared
+  between instruments (the pemade and kantilan play the same kotekan an
+  octave apart). It may hold note names only, not key numbers, which
+  would mean different keys on different instruments; its notes are
+  checked against the scale's degrees where it is defined, and against
+  the instrument's range where it is used. Used with `:octave` to move
+  the figure to another register.
 - `:short` and `:long` are descriptive names. They are stored in the
   piece so that a score can print them; whether and how they are
   printed is a display decision. Defaults: `:short` is NAME, `:long` is
@@ -426,13 +441,15 @@ its figure on 1 moved two degrees up. Each moved figure is named after
 its pokok tone:
 
 ```scheme
-(pattern polos   @polos-1
-                 (@ polos-1 :step -1 :short "6")  @polos-3
-                 (@ polos-1 :step 1  :short "2"))
-(pattern sangsih @sangsih-1
-                 (@ sangsih-1 :step -1 :short "6")
-                 (@ sangsih-1 :step 2  :short "3")
-                 (@ sangsih-1 :step 1  :short "2"))
+(pattern polos :instrument pemade
+  @polos-1
+  (@ polos-1 :step -1 :short "6")  @polos-3
+  (@ polos-1 :step 1  :short "2"))
+(pattern sangsih :instrument pemade
+  @sangsih-1
+  (@ sangsih-1 :step -1 :short "6")
+  (@ sangsih-1 :step 2  :short "3")
+  (@ sangsih-1 :step 1  :short "2"))
 ```
 
 The whole example is built from patterns: see
@@ -440,13 +457,20 @@ The whole example is built from patterns: see
 
 ### Rules
 
+- **A pattern belongs to its instrument.** Key numbers and stroke names
+  mean different things on different instruments (key 3 is `a1` on the
+  reyong but `u1` on the ugal; two drums may both have a `dag`), so a
+  pattern that is not tied to an instrument could play the wrong music
+  without an error. With `:instrument`, every pattern is checked where
+  it is defined, including patterns that are never used, and a mistake
+  is reported at the line where it is.
 - **A pattern means the same everywhere.** Its durations start at 1
   pulse unless its first token sets one, and after the pattern the
   part's duration is what it was before.
-- **Notes are resolved where the pattern is used**, against that
-  part's instrument. A pattern of key numbers can be shared between
-  instruments; a pattern of note names works on instruments that have
-  those keys.
+- **A pattern is used on its own instrument**: in a part on that
+  instrument, or inside another pattern for the same instrument. A
+  moved figure (`:step`) is checked again where it is used, since the
+  move may take it out of the instrument's range.
 - **`_` may start a pattern.** It holds the note before the pattern
   where it is used (Gold's pokok starts with a dot).
 - **Patterns may contain patterns**, but not themselves, directly or
@@ -459,9 +483,15 @@ The whole example is built from patterns: see
   the names in force at that use, so that a score can mark the span
   with its short or long name.
 
+Errors, reported where the pattern is defined:
+- no `:instrument`, or an unknown one
+- a note, key number or stroke that the instrument does not have
+- a pattern for another instrument used inside it
+
 Errors, reported where the pattern is used:
 - an unknown pattern; a pattern that contains itself
-- a transposed note outside the instrument's range
+- a pattern used in a part on another instrument
+- a moved note outside the instrument's range
 - dropping more notes than the pattern has
 
 ## Scores
@@ -507,8 +537,9 @@ durations carry over; `_` holds and `-` damps; `·` is dropped; every
 repetition of a `rep` is identical; gong strokes are `G GL P T` on one
 instrument; the timekeeper is the part `kempli`; `rep` and `@` are
 reserved; a piece is a pickup (at most one cycle, in whole pulses) plus
-whole cycles; positions read `cycle C, pulse P`; a pattern's use may
-carry its own names.
+whole cycles; positions read `cycle C, pulse P`; every pattern names
+its instrument and is used only on it; a pattern's use may carry its
+own names.
 
 ### Later
 
@@ -528,3 +559,5 @@ carry its own names.
   tones): left out; it would make patterns into functions.
 - Patterns written in degrees only and placed in an octave where they
   are used, like `relative`.
+- Patterns written for a scale (`:scale`) and shared between
+  instruments, with `:octave` to change register.

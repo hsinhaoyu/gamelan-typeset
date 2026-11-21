@@ -2,8 +2,8 @@
 ;; "Notation of reyong and kendang parts, with gong, kempur, kempli and
 ;; calung (core melody)", and the sung lines below it.
 ;;
-;; Written in the proposed notation of ../notes/2026-11-21-notation-language.md
-;; and ../notes/2026-11-21-score.md. The current reader cannot read it.
+;; Written in the proposed notation of ../design_ideas/2026-11-21-notation-language.md
+;; and ../design_ideas/2026-11-21-score.md. The current reader cannot read it.
 ;;
 ;; Numbering: Tenzer numbers the beats 1-8 with the gong on 1. We number
 ;; pulses 1-8 with the gong on 8 (Gold), so his beat 1 is our pickup
@@ -20,7 +20,7 @@
 ;; ---------------------------------------------------------------
 ;; Definitions for this piece (they replace the template's). The
 ;; template's reyong is corrected to Gold's range, e2 to u4, in this
-;; iteration (see ../notes/2026-11-21-iteration-2.md).
+;; iteration (see ../design_ideas/2026-11-21-iteration-2.md).
 
 ;; Tenzer writes the degrees as syllables: the open form when the note
 ;; rings, the damped form (with ') when it is cut short.
@@ -52,8 +52,10 @@
 ;; Patterns: three quarter-beats against the four of the pulse. From
 ;; Tenzer's beat 5 the reyong repeats them across the pulse boundaries.
 
-(pattern nang-ni  :short "3" :long "nang - ni'"  a2:1/4 _ i3)
-(pattern ne-nong  :short "3" :long "ne' nong -"  e3:1/4 o3 _)
+(pattern nang-ni :instrument reyong :short "3" :long "nang - ni'"
+  a2:1/4 _ i3)
+(pattern ne-nong :instrument reyong :short "3" :long "ne' nong -"
+  e3:1/4 o3 _)
 
 ;; ---------------------------------------------------------------
 ;; The music. Each part: the pickup (Tenzer's beat 1), ||, pulses 1-3

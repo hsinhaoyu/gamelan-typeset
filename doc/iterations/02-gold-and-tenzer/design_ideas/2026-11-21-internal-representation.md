@@ -113,9 +113,11 @@ item
 - **Tokens to a fragment**: one pass over the tokens, keeping the
   current duration and time. `_` extends the last event, or becomes a
   `lead-hold` if there is none yet; `-` advances time.
-- **Patterns**: a pattern's body is expanded into a fragment where it
-  is used, starting at 1 pulse. Note names and key numbers are resolved
-  against the instrument of the part that uses it.
+- **Patterns**: a pattern's notes are resolved against its own
+  instrument where it is defined, so every pattern is checked even if
+  it is never used. Its body is expanded into a fragment where it is
+  used, starting at 1 pulse; a use in a part on another instrument is
+  an error.
 - **`:step N`** moves each event's notes N degrees (or N keys).
   LilyPond's `\transpose`, acting on pitches.
 - **`:drop-first N`** removes the first N events, then everything
@@ -240,6 +242,7 @@ degree
 
 pattern
   name, short, long, location        the body is used up by expansion
+  instrument : instrument            the instrument it is written for
 
 pattern-span
   pattern, short, long, start, end, depth
