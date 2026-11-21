@@ -26,19 +26,19 @@ Both files read without errors, every score in them is drawn by
 sources show (checked by eye against the books, and by golden tests
 from then on).
 
-## Notes
+## Design ideas
 
-The notes in [`notes/`](notes/) are thinking, not the design. Start with
-[`notes/2026-11-21-iteration-2.md`](notes/2026-11-21-iteration-2.md): it
-sets the scope, settles the questions the other notes leave open, and
+The design ideas in [`design_ideas/`](design_ideas/) are thinking, not the design. Start with
+[`design_ideas/2026-11-21-iteration-2.md`](design_ideas/2026-11-21-iteration-2.md): it
+sets the scope, settles the questions the others leave open, and
 wins where they disagree. The reference material is in
 [Gold 2005](../../references/2026-11-21-reference-gold-2005.md).
 Anything neither target needs is in the [backlog](../backlog.md).
 
 ## Promotion
 
-The notes become the design one design doc at a time, one PR each, in
-this order (ADR 0023):
+The design ideas become the design one design doc at a time, one PR each, in
+this order (ADRs 0023, 0024):
 
 1. `01-notation.md`
 2. `02-piece.md` and `03-reader.md`

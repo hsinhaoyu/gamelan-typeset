@@ -41,14 +41,15 @@ doc/prototypes/     hand-made mockup of the target output (score.typ, piece.json
 doc/manual/         user manual for musicians (mdBook; style in STYLE.md)
 doc/design/         design documents (the current design)
 doc/iterations/     one folder per iteration: README (goal, acceptance test,
-                    status, milestones), notes/ (thinking), targets/; backlog.md
+                    status, milestones), design_ideas/ (thinking), targets/;
+                    backlog.md
 doc/references/     reference material useful beyond one iteration
 doc/decisions/      decision log (ADRs)
 ```
 
 ## Design documents
 
-`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module. Notes under `doc/iterations/*/notes/` are thinking, never the design: never treat them as a spec or build from them. The one exception is the promotion step (`/promote-design`), which reads them when the user asks for it.
+`doc/design/` describes the current design; `doc/decisions/` holds numbered decision records (ADRs) explaining why. Read the relevant design doc before working on a module. Design ideas under `doc/iterations/*/design_ideas/` are thinking, never the design: never treat them as a spec or build from them. The one exception is the promotion step (`/promote-design`), which reads them when the user asks for it.
 
 - Any change to behaviour, notation, the piece records or the JSON contract updates `doc/design/` in the same PR. Keep each doc's `Status:` line and its Implemented / Planned / Open questions labels accurate.
 - Reversing or narrowing a documented decision requires a new ADR in `doc/decisions/` (format and rules in its README), and the old ADR's status becomes `superseded by NNNN`. `tests/decisions.scm` checks the format.
@@ -57,15 +58,15 @@ doc/decisions/      decision log (ADRs)
 
 ## Iterations
 
-Work is organised in iterations (ADR 0023). An iteration is a goal plus an acceptance test, in `doc/iterations/NN-name/README.md`, worked through in five phases:
+Work is organised in iterations (ADRs 0023, 0024). An iteration is a goal plus an acceptance test, in `doc/iterations/NN-name/README.md`, worked through in five phases:
 
-1. **Explore**: discussion, written as dated notes in the iteration's `notes/`.
-2. **Decide**: the notes are promoted into `doc/design/` and ADRs with `/promote-design`, one PR per design doc, in dependency order (01; 02 and 03; 04 and 05; 06 and the build order). Each ADR lands with the first design doc it changes.
+1. **Explore**: discussion, written as dated design ideas in the iteration's `design_ideas/`.
+2. **Decide**: the design ideas are promoted into `doc/design/` and ADRs with `/promote-design`, one PR per design doc, in dependency order (01; 02 and 03; 04 and 05; 06 and the build order). Each ADR lands with the first design doc it changes.
 3. **Build**: milestones and slices, with `/start-milestone`.
 4. **Verify**: the acceptance test, and `/doc-audit`.
 5. **Close**: `/release`, and a version tag.
 
-An iteration's `Status:` is `deciding` (phases 1–2), `building` (3–4) or `done` (released). `tests/iterations.scm` checks it. While it is `deciding`, no milestone starts: promotion must be complete first, so no one builds from a half-updated design. Promotion is the only step that reads notes. `/promote-design` has `disable-model-invocation`, so the user runs it.
+An iteration's `Status:` is `deciding` (phases 1–2), `building` (3–4) or `done` (released). `tests/iterations.scm` checks it. While it is `deciding`, no milestone starts: promotion must be complete first, so no one builds from a half-updated design. Promotion is the only step that reads design ideas. `/promote-design` has `disable-model-invocation`, so the user runs it.
 
 Versions: one minor version per iteration (iteration N is v0.N.0), with v0.N.x for fixes. Iteration 1 was released as v0.1.x.
 

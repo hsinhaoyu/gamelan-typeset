@@ -1,7 +1,7 @@
 ;; "Jaya Semara" (I Wayan Beratha, 1964): one gong cycle of the pangecet.
 ;;
 ;; Written in the proposed notation described in
-;; ../notes/2026-11-21-notation-language.md and ../notes/2026-11-21-score.md. The current
+;; ../design_ideas/2026-11-21-notation-language.md and ../design_ideas/2026-11-21-score.md. The current
 ;; reader cannot read it.
 ;;
 ;; Transcribed from Lisa Gold, Music in Bali (2005):
@@ -50,33 +50,35 @@
   (gong gong  -:3 P:1 -:3 T:1 -:3 P:1 -:3 G:1))
 
 ;; ---------------------------------------------------------------
-;; Patterns. Each part below is built from these.
+;; Patterns. Each part below is built from these. Each pattern says
+;; which instrument it is written for, and is checked against its keys.
 
 ;; The pokok, 8 pulses, as Gold writes it for the jublag: . 1 . 6 . 3 . 2
 ;; It starts with a hold: the note before it keeps sounding.
-(pattern pokok :short "pokok" :long "Pokok: 1 6 3 2"
+(pattern pokok :instrument jublag :short "pokok" :long "Pokok: 1 6 3 2"
   _ i2 _ a2 _ e2 _ o2)
 
 ;; The ugal's pokok, with the 6 (a) displaced an octave down.
-(pattern pokok-ugal :short "pokok" :long "Pokok: 1 6 3 2, low 6"
+(pattern pokok-ugal :instrument ugal :short "pokok" :long "Pokok: 1 6 3 2, low 6"
   _ i2 _ a1 _ e2 _ o2)
 
 ;; The panyacah fills in the pokok: 6 1 5 6 2 3 1 2
-(pattern panyacah-fill :short "fill" :long "Panyacah: 6 1 5 6 2 3 1 2"
+(pattern panyacah-fill :instrument panyacah :short "fill"
+    :long "Panyacah: 6 1 5 6 2 3 1 2"
   a3 i3 u3 a3 o3 e3 i3 o3)
 
 ;; The jegogan plays every other pokok tone: . . . 6 . . . 2
-(pattern jegogan-pokok :short "jegogan" :long "Jegogan: 6 2"
+(pattern jegogan-pokok :instrument jegogan :short "jegogan" :long "Jegogan: 6 2"
   _ _ _ a1 _ _ _ o1)
 
 ;; Norot kotekan: a 2-pulse figure for each pokok tone, four notes per
 ;; pulse. In the first pulse both parts anticipate the tone; in the
 ;; second the polos stays on it and the sangsih plays the key above.
-(pattern polos-1 :short "1" :long "Norot polos on 1"
+(pattern polos-1 :instrument pemade :short "1" :long "Norot polos on 1"
   o3:1/4 i3 i3 - | i3 - i3 -)
-(pattern polos-3 :short "3" :long "Norot polos on 3"
+(pattern polos-3 :instrument pemade :short "3" :long "Norot polos on 3"
   a2:1/4 e3 e3 - | e3 - e3 -)
-(pattern sangsih-1 :short "1" :long "Norot sangsih on 1"
+(pattern sangsih-1 :instrument pemade :short "1" :long "Norot sangsih on 1"
   -:1/4 i3 i3 o3 | - o3 - o3)
 
 ;; One pass of the melody, 8 pulses. The figures on 6 and 2 are the
@@ -84,12 +86,12 @@
 ;; figure on 1 moved two degrees up. A moved figure is given the name of
 ;; the pokok tone it serves, so that polos and sangsih carry the same
 ;; names: "1", "6", "3", "2".
-(pattern polos :short "norot" :long "Norot kotekan, polos"
+(pattern polos :instrument pemade :short "norot" :long "Norot kotekan, polos"
   @polos-1
   (@ polos-1 :step -1 :short "6" :long "Norot polos on 6")
   @polos-3
   (@ polos-1 :step 1  :short "2" :long "Norot polos on 2"))
-(pattern sangsih :short "norot" :long "Norot kotekan, sangsih"
+(pattern sangsih :instrument pemade :short "norot" :long "Norot kotekan, sangsih"
   @sangsih-1
   (@ sangsih-1 :step -1 :short "6" :long "Norot sangsih on 6")
   (@ sangsih-1 :step 2  :short "3" :long "Norot sangsih on 3")
@@ -111,7 +113,7 @@
 (part jegogan               o1             || (rep 2 @jegogan-pokok) ||)
 
 ;; ---------------------------------------------------------------
-;; Scores: how the music is printed (../notes/2026-11-21-score.md).
+;; Scores: how the music is printed (../design_ideas/2026-11-21-score.md).
 
 ;; The full score. The gong and kempli parts are generated from the
 ;; colotomy; they are printed by naming them like any other part.
